@@ -1,5 +1,5 @@
-#ifndef _RI_2015_1_UTIL_DOCUMENT_H_
-#define _RI_2015_1_UTIL_DOCUMENT_H_
+#ifndef _RI_2015_1_BASE_QUERY_H_
+#define _RI_2015_1_BASE_QUERY_H_
 
 #include <cstdlib>
 #include <iostream>
@@ -13,6 +13,14 @@ class Query {
   Query(unsigned id, unsigned dimension_size);
 
   void AddDocument(const std::string& vector);
+
+  unsigned dimension_count() const {
+    return dimension_count_;
+  }
+
+  unsigned& mutable_dimension_count() {
+    return dimension_count_;
+  }
 
   unsigned id() const {
     return id_;

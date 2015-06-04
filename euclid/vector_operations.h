@@ -1,7 +1,7 @@
 #ifndef _RI_2015_1_EUCLID_VECTOR_OPERATIONS_H_
 #define _RI_2015_1_EUCLID_VECTOR_OPERATIONS_H_
 
-#include "../document/document.h"
+#include "../base/document.h"
 
 namespace euclid {
 
