@@ -10,7 +10,7 @@ namespace base {
 
 class Dataset {
  public:
-  Dataset() {};
+  Dataset(){};
 
   const std::vector<::base::Query>& queries() {
     return queries_;
@@ -18,6 +18,14 @@ class Dataset {
 
   // Parses the file pointed to |file_path| and stores the results in |queries_|
   void Parse(const std::string& file_path);
+
+  std::vector<::base::Query>::iterator begin() {
+    return queries_.begin();
+  }
+
+  std::vector<::base::Query>::iterator end() {
+    return queries_.end();
+  }
 
  private:
   std::vector<::base::Query> queries_;

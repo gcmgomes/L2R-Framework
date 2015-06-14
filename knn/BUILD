@@ -25,6 +25,7 @@ cc_binary(
   name = "knn_test",
   srcs = ["test.cc"],
   deps = [":knn",
+          ":smote",
           "//base:dataset",
           "//base:document",
           "//base:query",

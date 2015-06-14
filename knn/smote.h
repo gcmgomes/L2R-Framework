@@ -16,6 +16,14 @@ class Smote {
   // degree of relevance we will oversample.
   Smote(const ::base::Query& sample_query, unsigned relevance_level, unsigned k);
 
+  const ::base::Query& real_relevants() const {
+    return real_relevants_;
+  };
+
+  const ::base::Query& synthetic_relevants() const {
+    return synthetic_relevants_;
+  };
+
   // Initializes |real_relevants| based on |relevance_level_|. Returns true if 2
   // or more documents with |relevance_level_| exist within |query|.
   bool Initialize(const ::base::Query& query);

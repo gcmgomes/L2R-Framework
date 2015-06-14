@@ -34,6 +34,7 @@ void KNearestNeighbours::UpdateNeighbours(const ::base::Query& query,
 
 NeighbourhoodEntry KNearestNeighbours::GetNthNeighbour(unsigned id, unsigned n) {
   unsigned i = 0;
+  n %= neighbourhoods_.at(id).size();
   std::vector<NeighbourhoodEntry> entries;
   while (i < n) {
     entries.push_back(neighbourhoods_.at(id).top());

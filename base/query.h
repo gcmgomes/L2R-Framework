@@ -37,6 +37,14 @@ class Query {
   std::vector<Document>& mutable_documents() {
     return documents_;
   }
+  
+  std::vector<Document>::iterator begin() {
+    return documents_.begin();
+  }
+  
+  std::vector<Document>::iterator end() {
+    return documents_.end();
+  }
 
  private:
   unsigned id_;

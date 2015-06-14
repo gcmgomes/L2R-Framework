@@ -77,6 +77,14 @@ class Document {
 
   std::string ToString() const;
 
+  std::unordered_map<unsigned, double>::iterator begin() {
+    return vector_.begin();
+  }
+
+  std::unordered_map<unsigned, double>::iterator end() {
+    return vector_.end();
+  }
+
  private:
   unsigned id_;
 

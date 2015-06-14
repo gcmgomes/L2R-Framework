@@ -40,19 +40,16 @@ bool Smote::Initialize(const ::base::Query& query) {
 
 void Smote::Populate(unsigned extra_count) {
   srand(time(NULL));
-  unsigned i = 0;
-  while (i < extra_count) {
-    auto doc = real_relevants_.documents().begin();
-    while (doc != real_relevants_.documents().end() && i < extra_count) {
-      unsigned generate = rand() % 2;
-      if (generate) {
-        unsigned nth_nn = rand() % knn_.neighbourhoods().at(doc->id()).size();
-        unsigned nn_id = knn_.GetNthNeighbour(doc->id(), nth_nn).doc_id;
-        GenerateSyntheticSample(*doc, real_relevants_.documents()[nn_id]);
-        i++;
-      }
-      ++doc;
+  auto doc = real_relevants_.documents().begin();
+  while (doc != real_relevants_.documents().end()) {
+    unsigned i = 0;
+    while (i < extra_count) {
+      unsigned nth_nn = rand() % knn_.neighbourhoods().at(doc->id()).size();
+      unsigned nn_id = knn_.GetNthNeighbour(doc->id(), nth_nn).doc_id;
+      GenerateSyntheticSample(*doc, real_relevants_.documents()[nn_id]);
+      ++i;
     }
+    ++doc;
   }
 }
 
@@ -74,6 +71,17 @@ void Smote::GenerateSyntheticSample(const ::base::Document& d1,
         base + divergence * difference;
     ++i;
   }
+
+  synthetic_relevants_.mutable_documents().back().mutable_query_id() =
+      d1.query_id();
+  synthetic_relevants_.mutable_documents().back().mutable_relevance_label() =
+      relevance_level_;
+
+  std::cout << std::endl
+            << d1.ToString() << std::endl
+            << "--- " << synthetic_relevants_.documents().back().ToString()
+            << std::endl
+            << d2.ToString() << std::endl;
 }
 
 }  // namespce knn

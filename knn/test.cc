@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "k_nearest_neighbours.h"
+#include "smote.h"
 #include "../base/dataset.h"
 
 using namespace std;
@@ -10,13 +11,12 @@ int main(int argc, char** argv) {
     cerr << argv[0] << " [dataset]" << endl;
     return 0;
   }
-  knn::KNearestNeighbours knn(3);
   base::Dataset d;
 
   d.Parse(argv[1]);
 
   const base::Query& q = d.queries().at(0);
-  auto i = q.documents().begin();
+/*  auto i = q.documents().begin();
   while (i != q.documents().end()) {
     knn.UpdateNeighbours(q, *i);
     ++i;
@@ -26,5 +26,9 @@ int main(int argc, char** argv) {
     auto e = knn.GetNthNeighbour(q.documents()[0].id(), j);
     cout << q.documents()[0].id() << ' ' << q.documents()[e.doc_id].ToString() << ' ' << e.distance << endl;
     ++j;
-  }
+  }*/
+
+  ::knn::Smote smote(q, 1, 5);
+
+  smote.Populate(10);
 }

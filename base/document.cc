@@ -106,7 +106,7 @@ unsigned Document::GetQueryId(const std::string& vector) {
 std::string Document::ToString() const {
   std::string str;
   char i[128];
-  sprintf(i, "%u qid:%u", id_, query_id_);
+  sprintf(i, "%u qid:%u", relevance_label_, query_id_);
   str += i;
   std::map<unsigned, double> sorted_vector;
   auto k = vector_.begin();
