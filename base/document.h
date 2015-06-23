@@ -35,6 +35,14 @@ class Document {
     return vector_;
   }
 
+  const std::string& meta_information() const {
+    return meta_information_;
+  }
+
+  std::string& mutable_meta_information() {
+    return meta_information_;
+  }
+
   const unsigned& id() const {
     return id_;
   }
@@ -73,7 +81,7 @@ class Document {
   void InsertDimension(unsigned dimesion, double value);
 
   // Returns the id of the query to which |vector| belongs.
-  static unsigned GetQueryId(const std::string& vector);
+  static std::string GetQueryId(const std::string& vector);
 
   std::string ToString() const;
 
@@ -84,7 +92,6 @@ class Document {
   std::unordered_map<unsigned, double>::iterator end() {
     return vector_.end();
   }
-
  private:
   unsigned id_;
 

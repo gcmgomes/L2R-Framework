@@ -16,8 +16,15 @@ class Dataset {
     return queries_;
   }
 
+  std::vector<::base::Query>& mutable_queries() {
+    return queries_;
+  }
+
   // Parses the file pointed to |file_path| and stores the results in |queries_|
   void Parse(const std::string& file_path);
+
+  // Writes the contents of this dataset to |file_path|.
+  void Write(const std::string& file_path);
 
   std::vector<::base::Query>::iterator begin() {
     return queries_.begin();

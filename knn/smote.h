@@ -14,7 +14,8 @@ class Smote {
  public:
   //|k| is the amount of kept neighbours by |knn|. |relevance_level| is the
   // degree of relevance we will oversample.
-  Smote(const ::base::Query& sample_query, unsigned relevance_level, unsigned k);
+  Smote(const ::base::Query& sample_query, unsigned relevance_level,
+        unsigned k);
 
   const ::base::Query& real_relevants() const {
     return real_relevants_;
@@ -28,13 +29,23 @@ class Smote {
   // or more documents with |relevance_level_| exist within |query|.
   bool Initialize(const ::base::Query& query);
 
-  // Populates |synthetic_relevants_| with |extra_count| more documents.
-  void Populate(unsigned extra_count);
+  // Populates |synthetic_relevants_| with |extra_count| more documents. If
+  // |with_feedback| is set, the synthetic samples are also taken into account.
+  void Populate(double extra_percentage, bool with_feedback);
+
+  // Adds the documents in |synthetic_relevants_| to |query|.
+  void AugmentQuery(::base::Query& query);
 
  private:
-  // Generates a sample between |d1| and |d2| and stores it in |synthetic_relevants_|.
+  // Generates a sample between |d1| and |d2| and stores it in
+  // |synthetic_relevants_|.
   void GenerateSyntheticSample(const ::base::Document& d1,
                                const ::base::Document& d2);
+
+  // Updates the neighbourhood relations to every one of the |real_size| first
+  // relevants, excepting those in |exceptions|.
+  void UpdateNeighbourhoods(unsigned real_size,
+                            std::pair<unsigned, unsigned> exceptions);
 
   // The relevant documents extracted from a given query.
   ::base::Query real_relevants_;

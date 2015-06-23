@@ -95,12 +95,10 @@ void Document::InsertDimension(unsigned dimension, double value) {
   }
 }
 
-unsigned Document::GetQueryId(const std::string& vector) {
-  unsigned id = 0;
+std::string Document::GetQueryId(const std::string& vector) {
   std::vector<std::string> tokens;
   TokenizeVector(vector, tokens);
-  sscanf(tokens[2].c_str(), "%u", &id);
-  return id;
+  return tokens[2];
 }
 
 std::string Document::ToString() const {

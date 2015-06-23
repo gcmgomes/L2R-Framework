@@ -5,19 +5,22 @@
 namespace base {
 
 // Returns the initial query_id and hash size needed for this dataset.
-static std::pair<unsigned, unsigned> GetStartingData(
+static std::pair<std::string, unsigned> GetStartingData(
     const std::string& file_path) {
   std::string vector;
   std::ifstream input_file(file_path.c_str());
   std::getline(input_file, vector);
   Document d(0, vector);
-  return std::make_pair(d.query_id(), d.vector().size());
+  std::string qid = Document::GetQueryId(vector);
+  return std::make_pair(qid, d.vector().size());
 }
 
 void Dataset::Parse(const std::string& file_path) {
+  std::unordered_map<std::string, unsigned> query_mapping;
   unsigned query_id = 0, dimension_count = 0;
-  std::pair<unsigned, unsigned> data = GetStartingData(file_path);
-  query_id = data.first;
+  std::pair<std::string, unsigned> data = GetStartingData(file_path);
+  query_mapping[data.first] = query_mapping.size()+1;
+  query_id = query_mapping[data.first];
   dimension_count = data.second;
   std::ifstream input_file;
   input_file.open(file_path.c_str(), std::ifstream::in);
@@ -34,12 +37,30 @@ void Dataset::Parse(const std::string& file_path) {
       getline(input_file, current_vector);
     }
     queries_.back().AddDocument(current_vector);
-    if (queries_.back().documents().back().query_id() != query_id) {
-      query_id = queries_.back().documents().back().query_id();
+    std::string temp_qid = Document::GetQueryId(current_vector);
+    if (!query_mapping.count(temp_qid)) {
+      query_id = query_mapping.size()+1;
+      query_mapping[temp_qid] = query_id;
       temporary_vector = current_vector;
       queries_.back().mutable_documents().pop_back();
       queries_.emplace_back(Query(query_id, dimension_count));
     }
+    else {
+      queries_.back().mutable_documents().back().mutable_query_id() = query_id;
+    }
+  }
+}
+
+void Dataset::Write(const std::string& file_path) {
+  std::ofstream file(file_path.c_str());
+  auto query = queries_.begin();
+  while(query != queries_.end()) {
+    auto doc = query->begin();
+    while(doc != query->end()) {
+      file << doc->ToString() << std::endl;
+      ++doc;
+    }
+    ++query;
   }
 }
 

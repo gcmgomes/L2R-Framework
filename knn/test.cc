@@ -7,15 +7,15 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-  if (argc < 2) {
-    cerr << argv[0] << " [dataset]" << endl;
+  if (argc < 3) {
+    cerr << argv[0] << " [input dataset] [output dataset]" << endl;
     return 0;
   }
   base::Dataset d;
 
   d.Parse(argv[1]);
 
-  const base::Query& q = d.queries().at(0);
+  base::Query& q = d.mutable_queries().at(0);
 /*  auto i = q.documents().begin();
   while (i != q.documents().end()) {
     knn.UpdateNeighbours(q, *i);
@@ -30,5 +30,9 @@ int main(int argc, char** argv) {
 
   ::knn::Smote smote(q, 1, 5);
 
-  smote.Populate(10);
+  smote.Populate(2, true);
+
+  smote.AugmentQuery(q);
+
+  d.Write(argv[2]);
 }
