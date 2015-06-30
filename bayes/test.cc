@@ -17,14 +17,15 @@ int main(int argc, char** argv) {
 
   d->Parse(argv[1]);
 
-  ::bayes::K2 k2(d, 5);
+  ::bayes::K2 k2(d, 2, true);
   k2.Init(100000);
   unsigned i = 0;
   std::vector<unsigned> v;
-  while(i < f_count) {
-    v.push_back(i+1);
+  while (i < f_count) {
+    v.push_back(i + 1);
     i++;
   }
   k2.BuildNetwork(parent_count, v);
+  k2.BuildCpts();
   k2.PrintNetwork();
 }

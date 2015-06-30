@@ -3,8 +3,8 @@
 
 namespace bayes {
 
-K2::K2(::base::Dataset* dataset, unsigned bin_count)
-    : dataset_(dataset), bin_count_(bin_count){};
+K2::K2(::base::Dataset* dataset, unsigned bin_count, bool use_label)
+    : dataset_(dataset), bin_count_(bin_count), use_label_(use_label){};
 
 // Determines to which bin |val| belongs.
 static unsigned Bin(double val, unsigned bin_count) {
@@ -28,9 +28,14 @@ void K2::Init(unsigned max_log) {
     auto doc = query->begin();
     while (doc != query->end()) {
       auto feature = doc->begin();
+      unsigned d_count = 0;
       while (feature != doc->end()) {
         feature->second = Bin(feature->second, bin_count_);
+        d_count++;
         ++feature;
+      }
+      if (use_label_) {
+        doc->InsertDimension(d_count+1, (double)doc->relevance_label());
       }
       ++doc;
     }
@@ -146,6 +151,9 @@ std::pair<unsigned, double> K2::MaxAddition(
 
 void K2::BuildNetwork(unsigned max_parents,
                       std::vector<unsigned> feature_order) {
+  if (use_label_) {
+    feature_order.push_back(feature_order.size()+1);
+  }
   auto feature = feature_order.begin();
   graph_[*feature] = std::set<unsigned>();
   feature++;
@@ -176,19 +184,58 @@ void K2::BuildNetwork(unsigned max_parents,
   }
 }
 
+void K2::BuildCpts() {
+  auto feature = graph_.begin();
+  while (feature != graph_.end()) {
+    unsigned r_i = Get_r_i(feature->first, dataset_);
+    std::unordered_map<
+        std::string,
+        std::pair<unsigned, std::unordered_map<unsigned, unsigned>>> N_ijk;
+    GetN_ijk(feature->first, N_ijk);
+    auto w_ij = N_ijk.begin();
+    while (w_ij != N_ijk.end()) {
+      unsigned N_ij = w_ij->second.first;
+      auto v_ik = w_ij->second.second.begin();
+      while (v_ik != w_ij->second.second.end()) {
+        double value = v_ik->second + 1;
+        value /= (double)N_ij + r_i;
+        if (!graph_distribution_[feature->first].count(v_ik->first)) {
+          graph_distribution_[feature->first].insert(
+              std::make_pair(v_ik->first, DistributionMap(v_ik->first)));
+        }
+        graph_distribution_[feature->first][v_ik->first].entries().insert(
+            DistributionEntry(w_ij->first, value));
+        v_ik++;
+      }
+      ++w_ij;
+    }
+    ++feature;
+  }
+}
+
 void K2::PrintNetwork() {
   auto feature = graph_.begin();
-  while(feature != graph_.end()) {
+  while (feature != graph_.end()) {
     auto parent = feature->second.begin();
     std::cout << "Feature: " << feature->first << " Parents:";
-    while(parent != feature->second.end()) {
-      if(parent != feature->second.begin()) {
+    while (parent != feature->second.end()) {
+      if (parent != feature->second.begin()) {
         std::cout << ',';
       }
       std::cout << ' ' << *parent;
       ++parent;
     }
     std::cout << std::endl;
+    auto mapping = graph_distribution_[feature->first].begin();
+    while(mapping != graph_distribution_[feature->first].end()) {
+      unsigned v_ik = mapping->first;
+      auto entry = mapping->second.entries().begin();
+      while(entry != mapping->second.entries().end()) {
+        std::cout << v_ik << ' ' << entry->index() << entry->prob() << std::endl;
+        ++entry;
+      }
+      ++mapping;
+    }
     ++feature;
   }
 }
