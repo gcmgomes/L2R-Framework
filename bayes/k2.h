@@ -81,7 +81,7 @@ class K2 {
 
   // Initializes the needed structures. |max_log| controls the maximum log
   // factorial computed.
-  void Init(unsigned max_log);
+  void Init(unsigned max_log, unsigned label_position);
 
   // Builds the network.
   void BuildNetwork(unsigned max_parents, std::vector<unsigned> feature_order);
@@ -137,6 +137,9 @@ class K2 {
 
   // Structure storing the result of log_fact_[i] = log(i!).
   std::unordered_map<unsigned, double> log_fact_;
+
+  // Keep the count of different values each variable has.
+  std::unordered_map<unsigned, unsigned> r_is;
 };
 
 }  // namespace bayes

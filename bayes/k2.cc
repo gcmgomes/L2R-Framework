@@ -8,7 +8,7 @@ K2::K2(::base::Dataset* dataset, unsigned bin_count, bool use_label)
 
 // Determines to which bin |val| belongs.
 static unsigned Bin(double val, unsigned bin_count) {
-  return floor(val * (double)bin_count);
+  return floor(val * (double)bin_count-1);
 }
 
 static void FillLogFact(unsigned max_log,
@@ -21,7 +21,7 @@ static void FillLogFact(unsigned max_log,
   }
 }
 
-void K2::Init(unsigned max_log) {
+void K2::Init(unsigned max_log, unsigned label_position) {
   FillLogFact(max_log, log_fact_);
   auto query = dataset_->begin();
   while (query != dataset_->end()) {
@@ -35,7 +35,7 @@ void K2::Init(unsigned max_log) {
         ++feature;
       }
       if (use_label_) {
-        doc->InsertDimension(d_count+1, (double)doc->relevance_label());
+        doc->InsertDimension(label_position, (double)doc->relevance_label());
       }
       ++doc;
     }
@@ -57,7 +57,11 @@ void K2::MakeParentStr(unsigned feature, const ::base::Document& d,
 }
 
 static unsigned Get_r_i(unsigned feature,
+                        std::unordered_map<unsigned, unsigned> r_is,
                         const std::unique_ptr<::base::Dataset>& dataset) {
+  if (r_is.count(feature)) {
+    return r_is[feature];
+  }
   std::unordered_set<unsigned> size;
   auto query = dataset->begin();
   while (query != dataset->end()) {
@@ -69,6 +73,7 @@ static unsigned Get_r_i(unsigned feature,
     }
     ++query;
   }
+  r_is[feature] = size.size();
   return size.size();
 }
 
@@ -118,7 +123,7 @@ void K2::GetN_ijk(
 }
 
 double K2::Initial_g(unsigned feature) {
-  unsigned r_i = Get_r_i(feature, dataset_);
+  unsigned r_i = Get_r_i(feature, r_is, dataset_);
   std::unordered_map<
       std::string, std::pair<unsigned, std::unordered_map<unsigned, unsigned>>>
       N_ijk;
@@ -129,7 +134,7 @@ double K2::Initial_g(unsigned feature) {
 
 std::pair<unsigned, double> K2::MaxAddition(
     unsigned feature, std::unordered_set<unsigned> candidates) {
-  unsigned r_i = Get_r_i(feature, dataset_);
+  unsigned r_i = Get_r_i(feature, r_is, dataset_);
   auto node = candidates.begin();
   std::pair<unsigned, double> ret_val = std::make_pair(0, -1000000.0);
   while (node != candidates.end()) {
@@ -152,10 +157,11 @@ std::pair<unsigned, double> K2::MaxAddition(
 void K2::BuildNetwork(unsigned max_parents,
                       std::vector<unsigned> feature_order) {
   if (use_label_) {
-    feature_order.push_back(feature_order.size()+1);
+    feature_order.push_back(feature_order.size() + 1);
   }
   auto feature = feature_order.begin();
   graph_[*feature] = std::set<unsigned>();
+  std::unordered_map<unsigned, unsigned> r_is;
   feature++;
   while (feature != feature_order.end()) {
     graph_[*feature] = std::set<unsigned>();  // pi = empty.
@@ -168,16 +174,21 @@ void K2::BuildNetwork(unsigned max_parents,
     while (ok_to_proceed && parent_count < max_parents && !candidates.empty()) {
       std::pair<unsigned, double> max_addition =
           MaxAddition(*feature, candidates);
-      std::cout << "feature = " << *feature << " z = " << max_addition.first
+      std::cerr << "feature = " << *feature << " z = " << max_addition.first
                 << " P_new = " << max_addition.second << " P_old = " << p_old
                 << std::endl;
-      if (max_addition.second > p_old) {
-        p_old = max_addition.second;                  // p_old = p_new.
-        graph_[*feature].insert(max_addition.first);  // pi = pi U z
-        candidates.erase(max_addition.first);
-        parent_count++;
+      if (Get_r_i(max_addition.first, r_is, dataset_) > 1) {
+        if (max_addition.second > p_old) {
+          p_old = max_addition.second;                  // p_old = p_new.
+          graph_[*feature].insert(max_addition.first);  // pi = pi U z
+          candidates.erase(max_addition.first);
+          parent_count++;
+        } else {
+          ok_to_proceed = false;
+        }
       } else {
-        ok_to_proceed = false;
+        std::cerr << "Ignoring " << max_addition.first << std::endl;
+        candidates.erase(max_addition.first);
       }
     }
     ++feature;
@@ -187,7 +198,7 @@ void K2::BuildNetwork(unsigned max_parents,
 void K2::BuildCpts() {
   auto feature = graph_.begin();
   while (feature != graph_.end()) {
-    unsigned r_i = Get_r_i(feature->first, dataset_);
+    unsigned r_i = Get_r_i(feature->first, r_is, dataset_);
     std::unordered_map<
         std::string,
         std::pair<unsigned, std::unordered_map<unsigned, unsigned>>> N_ijk;
@@ -216,6 +227,9 @@ void K2::BuildCpts() {
 void K2::PrintNetwork() {
   auto feature = graph_.begin();
   while (feature != graph_.end()) {
+    while (Get_r_i(feature->first, r_is, dataset_) == 1) {
+      ++feature;
+    }
     auto parent = feature->second.begin();
     std::cout << "Feature: " << feature->first << " Parents:";
     while (parent != feature->second.end()) {
@@ -227,11 +241,12 @@ void K2::PrintNetwork() {
     }
     std::cout << std::endl;
     auto mapping = graph_distribution_[feature->first].begin();
-    while(mapping != graph_distribution_[feature->first].end()) {
+    while (mapping != graph_distribution_[feature->first].end()) {
       unsigned v_ik = mapping->first;
       auto entry = mapping->second.entries().begin();
-      while(entry != mapping->second.entries().end()) {
-        std::cout << v_ik << ' ' << entry->index() << entry->prob() << std::endl;
+      while (entry != mapping->second.entries().end()) {
+        std::cout << v_ik << ' ' << entry->index() << log(entry->prob())
+                  << std::endl;
         ++entry;
       }
       ++mapping;
