@@ -37,11 +37,19 @@ class Query {
   std::vector<Document>& mutable_documents() {
     return documents_;
   }
-  
+
+  std::vector<Document>::const_iterator cbegin() const {
+    return documents_.cbegin();
+  }
+
+  std::vector<Document>::const_iterator cend() const {
+    return documents_.cend();
+  }
+
   std::vector<Document>::iterator begin() {
     return documents_.begin();
   }
-  
+
   std::vector<Document>::iterator end() {
     return documents_.end();
   }
