@@ -8,7 +8,7 @@
 using namespace std;
 
 unsigned Bin(double val, unsigned bin_count) {
-  return floor(val * (double)bin_count);
+  return floor(val * ((double)bin_count-1));
 }
 
 bool bla(unsigned f) {

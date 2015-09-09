@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include "statistics.h"
 #include "../base/query.h"
 
 namespace util {
@@ -26,6 +27,6 @@ class Normalizer {
   void NormalizeFeatureScaling(::base::Query& query);
 };
 
-}  // namespace base
+}  // namespace util
 
 #endif

@@ -52,6 +52,15 @@ static void TokenizeVector(const std::string& vector,
   }
 }
 
+void print(std::vector<std::string>& tokens) {
+  int i = 0;
+  while(i < tokens.size()) {
+    std::cout << tokens[i] << std::endl;
+    ++i;
+  }
+  std::cin >> i;
+}
+
 void Document::Parse(const std::string& vector) {
   std::vector<std::string> tokens;
   TokenizeVector(vector, tokens);

@@ -13,61 +13,22 @@ void Normalizer::Normalize(const Normalizer::Mode mode, ::base::Query& query) {
   }
 }
 
-static void MeanFeatureValues(const ::base::Query& query,
-                              std::unordered_map<unsigned, double>& means) {
-  auto document = query.cbegin();
-  std::unordered_map<unsigned, double> sizes;
-  while (document != query.cend()) {
-    auto feature = document->cbegin();
-    while (feature != document->cend()) {
-      means[feature->first] += feature->second;
-      sizes[feature->first] += 1.0;
-      ++feature;
-    }
-    ++document;
-  }
-  auto i = means.begin();
-  while (i != means.end()) {
-    i->second /= sizes[i->first];
-    ++i;
-  }
-}
-
-static void StdDevFeatureValues(
-    const ::base::Query& query,
-    const std::unordered_map<unsigned, double>& means,
-    std::unordered_map<unsigned, double>& std_devs) {
-  auto document = query.cbegin();
-  std::unordered_map<unsigned, double> sizes;
-  while (document != query.cend()) {
-    auto feature = document->cbegin();
-    while (feature != document->cend()) {
-      double val = means.at(feature->first) - feature->second;
-      std_devs[feature->first] += val * val;
-      sizes[feature->first] += 1.0;
-      ++feature;
-    }
-    ++document;
-  }
-  auto i = std_devs.begin();
-  while (i != std_devs.end()) {
-    i->second /= sizes[i->first] - 1.0;
-    i->second = sqrt(i->second);
-    ++i;
-  }
-}
-
 void Normalizer::NormalizeStandardScore(::base::Query& query) {
-  std::unordered_map<unsigned, double> means, std_devs;
-  MeanFeatureValues(query, means);
-  StdDevFeatureValues(query, means, std_devs);
+  Statistics stats(query);
+  const std::unordered_map<unsigned, double> &means = stats.means(),
+                                             std_devs =
+                                                 stats.standard_deviations();
   auto document = query.begin();
   while (document != query.end()) {
     auto feature = document->begin();
     while (feature != document->end()) {
       unsigned id = feature->first;
       double& val = feature->second;
-      val = (val - means[id]) / std_devs[id];
+      if (std_devs.count(id) && std_devs.at(id) > 0.0) {
+        val = (val - means.at(id)) / std_devs.at(id);
+      } else {
+        val = means.at(id);
+      }
       ++feature;
     }
     ++document;
@@ -103,7 +64,11 @@ void Normalizer::NormalizeFeatureScaling(::base::Query& query) {
     while (feature != document->end()) {
       unsigned id = feature->first;
       double& val = feature->second;
-      val = (val - mins[id]) / (maxes[id] - mins[id]);
+      if (maxes[id] != mins[id]) {
+        val = (val - mins[id]) / (maxes[id] - mins[id]);
+      } else {
+        val = mins[id];
+      }
       ++feature;
     }
     ++document;
