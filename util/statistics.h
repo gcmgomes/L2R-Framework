@@ -32,6 +32,10 @@ class Statistics {
   double KendallTau(const ::base::Query& query, unsigned feature_1,
                     unsigned feature_2);
 
+  // Same as KendallTau, but takes O(n log n).
+  double FastKendallTau(const ::base::Query& query, unsigned feature_1,
+                        unsigned feature_2);
+
  private:
   void init(const ::base::Query& query);
 

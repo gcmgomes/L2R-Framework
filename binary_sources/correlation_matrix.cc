@@ -51,12 +51,13 @@ int main(int argc, char** argv) {
     bool extra_space = false;
     ++f2;
     while (f2 != features.end()) {
+      cerr << "Computing for (" << *f1 << ", " << *f2 << ")" << endl;
       if (extra_space) {
         cout << " ";
       }
       extra_space = true;
       if (coefficient) {
-        cout << statistics.KendallTau(collapsed, *f1, *f2);
+        cout << statistics.FastKendallTau(collapsed, *f1, *f2);
       } else {
         cout << statistics.PearsonRho(collapsed, *f1, *f2);
       }
