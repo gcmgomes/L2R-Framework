@@ -9,6 +9,8 @@ namespace base {
 
 Document::Document(unsigned id, const std::string& vector, unsigned hash_size) {
   id_ = id;
+  query_id_ = -1;  // Serves to indicate that we don't have an associated query.
+                   // Easier to debug.
   this->vector_.reserve(hash_size);
   relevance_label_ = 0;
   if (!vector.empty()) {
@@ -54,7 +56,7 @@ static void TokenizeVector(const std::string& vector,
 
 void print(std::vector<std::string>& tokens) {
   int i = 0;
-  while(i < tokens.size()) {
+  while (i < tokens.size()) {
     std::cout << tokens[i] << std::endl;
     ++i;
   }
@@ -90,7 +92,6 @@ void Document::Parse(const std::string& vector) {
   } else {
     meta_information_.clear();
   }
-
 }
 
 // Change this to use StatusOr as soon as I know how to use templates.
@@ -110,6 +111,15 @@ std::string Document::GetQueryId(const std::string& vector) {
   return tokens[2];
 }
 
+void Document::GetKnownFeatures(
+    std::unordered_set<unsigned>& feature_ids) const {
+  auto id = this->cbegin();
+  while (id != this->cend()) {
+    feature_ids.insert(id->first);
+    ++id;
+  }
+}
+
 std::string Document::ToString() const {
   std::string str;
   char i[128];
@@ -117,18 +127,18 @@ std::string Document::ToString() const {
   str += i;
   std::map<unsigned, double> sorted_vector;
   auto k = vector_.begin();
-  while(k != vector_.end()) {
+  while (k != vector_.end()) {
     sorted_vector[k->first] = k->second;
     ++k;
   }
   auto j = sorted_vector.begin();
-  while(j != sorted_vector.end()) {
+  while (j != sorted_vector.end()) {
     sprintf(i, " %u:%lf", j->first, j->second);
     str += i;
     ++j;
   }
 
-  if(!meta_information_.empty()) {
+  if (!meta_information_.empty()) {
     str += ' ';
     str += meta_information_;
   }

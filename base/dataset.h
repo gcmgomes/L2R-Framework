@@ -1,3 +1,9 @@
+// base::Dataset is the last fundamental class of our library. It encapsulates
+// the logic involved in the parsing and write processes, as well as keep a
+// collection of Query objects in a more orderly manner. To use it, the most
+// common case would be to construct the object and call the Parse method on a
+// file storing the dataset you want to process.
+
 #ifndef _RI_2015_1_BASE_DATASET_H_
 #define _RI_2015_1_BASE_DATASET_H_
 
@@ -20,7 +26,8 @@ class Dataset {
     return queries_;
   }
 
-  // Parses the file pointed to |file_path| and stores the results in |queries_|
+  // Parses the file pointed to |file_path| and stores the results in
+  // |queries_|.
   void Parse(const std::string& file_path);
 
   // Writes the contents of this dataset to |file_path|.

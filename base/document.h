@@ -1,9 +1,25 @@
+// base::Document is one of the most fundamental structures of this library. It
+// handles the representation of the smallest build block of a standard Learning
+// to Rank environment, the high dimensional feature vectors. This class is
+// essentially a wrapper over C++11's hash tables (std::unordered_map), with
+// some
+// additional functionalities and helpers, such as the Parse and ToString
+// methods, respectively. We use hash tables instead of simpler vectors due to
+// the possibility of having to work with sparse data. Despite the apparent
+// overhead associated with hashes, their theoretical behaviour is nice enough
+// to use them. In the future, we might consider using serialization libraries
+// such as Google's Protocol Buffer to allow some portability across languages.
+// Another possible optimization (in terms of space), would be to keep pointers
+// to the locations of the vector in the dataset files. If we reach the point of
+// worrying about memory, this feature will be implemented.
+
 #ifndef _RI_2015_1_BASE_DOCUMENT_H_
 #define _RI_2015_1_BASE_DOCUMENT_H_
 
 #include <cstdlib>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace base {
 
@@ -82,6 +98,9 @@ class Document {
 
   // Returns the id of the query to which |vector| belongs.
   static std::string GetQueryId(const std::string& vector);
+
+  // Adds the known feature of |this| to |feature_ids|.
+  void GetKnownFeatures(std::unordered_set<unsigned>& feature_ids) const;
 
   std::string ToString() const;
 

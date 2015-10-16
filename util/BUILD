@@ -23,3 +23,16 @@ cc_binary(
   deps = ["//base:dataset",
           ":normalizer"],
 )
+
+cc_library(
+  name = "discretizer",
+  srcs = ["discretizer.cc"],
+  hdrs = ["discretizer.h"],
+  deps = [],
+)
+
+cc_binary(
+  name = "discretizer_test",
+  srcs = ["discretizer_test.cc"],
+  deps = [":discretizer"],
+)

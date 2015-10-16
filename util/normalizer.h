@@ -18,7 +18,7 @@ class Normalizer {
 
   Normalizer(){};
 
-  // Normalizes |query| according to |normalization_mode|
+  // Normalizes |query| according to |mode|
   void Normalize(const Mode mode, ::base::Query& query);
 
  private:
