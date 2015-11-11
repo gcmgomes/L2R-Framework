@@ -30,6 +30,44 @@ cc_library(
   hdrs = ["discretizer.h"],
   deps = [],
 )
+cc_library(
+  name = "tube_input",
+  srcs = ["tube_input.cc"],
+  hdrs = ["tube_input.h"],
+  deps = [],
+)
+
+cc_binary(
+  name = "tube_input_test",
+  srcs = ["tube_input_test.cc"],
+  deps = [":tube_input"],
+)
+
+cc_library(
+  name = "tube_node",
+  srcs = ["tube_node.cc"],
+  hdrs = ["tube_node.h"],
+  deps = [":tube_input"],
+)
+
+cc_binary(
+  name = "tube_node_test",
+  srcs = ["tube_node_test.cc"],
+  deps = [":tube_node"],
+)
+
+cc_library(
+  name = "tube_tree",
+  srcs = ["tube_tree.cc"],
+  hdrs = ["tube_tree.h"],
+  deps = [":tube_node"],
+)
+
+cc_binary(
+  name = "tube_tree_test",
+  srcs = ["tube_tree_test.cc"],
+  deps = [":tube_tree"],
+)
 
 cc_binary(
   name = "discretizer_test",
