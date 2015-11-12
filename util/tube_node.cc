@@ -8,6 +8,9 @@ namespace util {
 
 static double Likelihood(unsigned total, unsigned count, double width,
                          double total_width) {
+  if (width <= 0.0) {
+    return 0;
+  }
   double n = total, n_range = count,
          val = n_range *
                log((n_range + (width / total_width)) / (width * (n + 1)));
@@ -199,18 +202,30 @@ std::string TubeNode::ToString() const {
                  values.cbegin();
   unsigned sum_end = sum_prefix.at(end - 1), sum_begin = sum_prefix.at(begin);
   unsigned n = sum_end - sum_begin;
-  double w_percentage = w / W;
+  double w_percentage = (W <= 0.0) ? 100 : 100 * w / W;
   n += counts.at(begin);
   double n_percentage = (double)100 * n / N,
-         density = (n + (w / W)) / (w * (N + 1)), probability = (double)n / N;
+         density = (W <= 0.0) ? 0.0 : (n + (w / W)) / (w * (N + 1)),
+         probability = (double)n / N;
   double likelihood = n * log(density);
+  if(density > 0.0) {
   sprintf(num,
-          "#%u: #| [%lf, %lf) |  %lf\% || \t %u \t |  %.5lf\% \t | %u.0 \t |D "
+          "#%u: #| [%.5lf, %.5lf) |  %.5lf\% || \t %u \t |  %.5lf\% \t | %u.0 \t |D "
           "%.5lf |P "
           "%.5lf |L "
           "%.5lf",
           discretized_value_, lower_, std::min(upper_, values.back()),
           w_percentage, n, n_percentage, n, density, probability, likelihood);
+  }
+  else {
+  sprintf(num,
+          "#%u: #| [%.5lf, %.5lf) |  %.5lf\% || \t %u \t |  %.5lf\% \t | %u.0 \t |D "
+          "INF \t|P "
+          "%.5lf    |L "
+          "INF",
+          discretized_value_, lower_, std::min(upper_, values.back()),
+          w_percentage, n, n_percentage, n, probability);
+  }
   return string(num);
 }
 

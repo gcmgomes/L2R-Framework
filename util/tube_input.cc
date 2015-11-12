@@ -14,7 +14,6 @@ unsigned TubeInput::CountPoints(double lower, double upper) const {
     return 0;
   }
   end--;
-  std::cerr << "Looked up the indices of " << lower << " = " << begin << " and " << upper << " = " << end << std::endl;
   return CountPoints(begin, end);
 }
 
