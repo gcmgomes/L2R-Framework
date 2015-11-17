@@ -39,6 +39,11 @@ std::pair<double, double> TubeNode::DividedLikelihood(unsigned begin,
          total_width = values.back() - values.front();
   double ret_val = -100000, split_point = ret_val;
 
+  if (verbose()) {
+    cerr << "we have that n = " << n << ", min_total_left = " << min_total_left
+         << " and max_total_right " << max_total_left << endl;
+  }
+
   double left_log_likelihood =
       Likelihood(n, max_total_left, std::min(width_left + EPS, total_width),
                  total_width) +
@@ -208,23 +213,24 @@ std::string TubeNode::ToString() const {
          density = (W <= 0.0) ? 0.0 : (n + (w / W)) / (w * (N + 1)),
          probability = (double)n / N;
   double likelihood = n * log(density);
-  if(density > 0.0) {
-  sprintf(num,
-          "#%u: #| [%.5lf, %.5lf) |  %.5lf\% || \t %u \t |  %.5lf\% \t | %u.0 \t |D "
-          "%.5lf |P "
-          "%.5lf |L "
-          "%.5lf",
-          discretized_value_, lower_, std::min(upper_, values.back()),
-          w_percentage, n, n_percentage, n, density, probability, likelihood);
-  }
-  else {
-  sprintf(num,
-          "#%u: #| [%.5lf, %.5lf) |  %.5lf\% || \t %u \t |  %.5lf\% \t | %u.0 \t |D "
-          "INF \t|P "
-          "%.5lf    |L "
-          "INF",
-          discretized_value_, lower_, std::min(upper_, values.back()),
-          w_percentage, n, n_percentage, n, probability);
+  if (density > 0.0) {
+    sprintf(num,
+            "#%u: #| [%.8lf, %.8lf) |  %.8lf\% || \t %u \t |  %.8lf\% \t | "
+            "%u.0 \t |D "
+            "%.8lf |P "
+            "%.8lf |L "
+            "%.8lf",
+            discretized_value_, lower_, std::min(upper_, values.back()),
+            w_percentage, n, n_percentage, n, density, probability, likelihood);
+  } else {
+    sprintf(num,
+            "#%u: #| [%.8lf, %.8lf) |  %.8lf\% || \t %u \t |  %.8lf\% \t | "
+            "%u.0 \t |D "
+            "INF \t|P "
+            "%.8lf    |L "
+            "INF",
+            discretized_value_, lower_, std::min(upper_, values.back()),
+            w_percentage, n, n_percentage, n, probability);
   }
   return string(num);
 }

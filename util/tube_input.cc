@@ -42,5 +42,17 @@ void TubeInput::Initialize(const std::vector<double>& vals) {
     sum_prefix_[i] = sum_prefix_[i - 1] + counts_[i];
     i++;
   }
+  
+  i = 1;
+  minimum_gap_ = (unsigned) -1;
+  while(i < values_.size()) {
+    minimum_gap_ = std::min(minimum_gap_, values_[i] - values_[i-1]);
+    i++;
+  }
+  double minimum = 1.0;
+  while(minimum >= minimum_gap_) {
+    minimum /= 10;
+  }
+  minimum_gap_ = minimum;
 }
 }  // namespace util

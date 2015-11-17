@@ -24,6 +24,9 @@ class TubeTree {
   // Returns the discretized version of |feature_value|.
   unsigned Discretize(double feature_value) const;
 
+  // Stores the right limits of the leaf nodes in |upper_split_points|.
+  void ListUpperIntervalLimits(std::vector<double>& upper_split_points);
+
   // Properly destroys the owned TUBE nodes.
   void Clear();
 

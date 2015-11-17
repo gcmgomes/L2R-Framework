@@ -100,7 +100,7 @@ class Document {
   static std::string GetQueryId(const std::string& vector);
 
   // Adds the known feature of |this| to |feature_ids|.
-  void GetKnownFeatures(std::unordered_set<unsigned>& feature_ids) const;
+  void GetKnownFeatures(std::unordered_set<unsigned>& feature_set) const;
 
   std::string ToString() const;
 

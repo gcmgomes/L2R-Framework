@@ -43,6 +43,14 @@ class Query {
     return id_;
   }
 
+  const std::unordered_set<unsigned>& feature_set() const {
+    return feature_set_;
+  }
+
+  std::unordered_set<unsigned>& mutable_feature_set() {
+    return feature_set_;
+  }
+
   const std::vector<Document>& documents() const {
     return documents_;
   }
@@ -67,6 +75,10 @@ class Query {
     return documents_.end();
   }
 
+  size_t size() const {
+    return documents_.size();
+  }
+
  private:
   unsigned id_;
 
@@ -74,6 +86,9 @@ class Query {
 
   // Set of documents present in query.
   std::vector<Document> documents_;
+
+  // The known features of the query.
+  std::unordered_set<unsigned> feature_set_;
 };
 
 }  // namespace base

@@ -28,7 +28,9 @@ cc_library(
   name = "discretizer",
   srcs = ["discretizer.cc"],
   hdrs = ["discretizer.h"],
-  deps = [],
+  deps = ["//base:document",
+          "//base:query",
+          ":tube_tree"],
 )
 cc_library(
   name = "tube_input",
@@ -70,7 +72,8 @@ cc_binary(
 )
 
 cc_binary(
-  name = "discretizer_test",
-  srcs = ["discretizer_test.cc"],
-  deps = [":discretizer"],
+  name = "discretizer_query_test",
+  srcs = ["discretizer_query_test.cc"],
+  deps = ["//base:dataset",
+          ":discretizer"],
 )

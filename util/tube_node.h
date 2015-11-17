@@ -1,9 +1,7 @@
 // The inner nodes that compose a TUBE tree. They have information pertaining to
 // the limits of the range each of them represents, including the best
-// log-likelihood score obtained. There is no real reason to use this class
-// outside of TubeTree, therefore we made TubeTree its friend and skipped all
-// accessor methods. After construction, call FindSplitPoint with the SORTED
-// vector of feature values to discover the log-likelihood and splitting point
+// log-likelihood gain obtained. There is no real reason to use this class
+// outside of TubeTree.
 #ifndef _RI_2015_1_UTIL_TUBE_NODE_H_
 #define _RI_2015_1_UTIL_TUBE_NODE_H_
 
@@ -20,8 +18,8 @@ class TubeNode {
   TubeNode(const TubeInput* tube_input, double lower, double upper)
       : discretized_value_(0), lower_(lower), mid_(lower - 1000.0),
         upper_(upper), log_likelihood_(-1000000.0) {
-    EPS = 0.00001;
     tube_input_ = tube_input;
+    EPS = tube_input_->minimum_gap();
     MIN_RANGE_SUPPORT =
         EPS * (tube_input_->values().back() - tube_input_->values().front());
   };
@@ -34,15 +32,27 @@ class TubeNode {
     return discretized_value_;
   }
 
-  double lower() {
+  double lower() const {
     return lower_;
   }
 
-  double mid() {
+  double& mutable_lower() {
+    return lower_;
+  }
+
+  double mid() const {
     return mid_;
   }
 
-  double upper() {
+  double& mutable_mid() {
+    return mid_;
+  }
+
+  double upper() const {
+    return upper_;
+  }
+
+  double& mutable_upper() {
     return upper_;
   }
 

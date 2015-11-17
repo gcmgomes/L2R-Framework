@@ -25,6 +25,10 @@ class TubeInput {
     return sum_prefix_;
   }
 
+  double minimum_gap() const {
+    return minimum_gap_;
+  }
+
   // Returns the amount of points in the range [lower, upper).
   unsigned CountPoints(double lower, double upper) const;
 
@@ -39,6 +43,8 @@ class TubeInput {
   std::vector<double> counts_;
 
   std::vector<double> sum_prefix_;
+
+  double minimum_gap_;
 };
 
 }  // namespace util

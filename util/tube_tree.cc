@@ -17,7 +17,8 @@ struct Comparer {
 void TubeTree::Build(std::vector<double> values) {
   std::sort(values.begin(), values.end());
   tube_input_.reset(new TubeInput(values));
-  double lower = values[0], upper = values.back() + 0.0001;
+  double lower = values.front(),
+         upper = values.back() + tube_input_->minimum_gap();
   int bins = 1;
 
   root_.reset(new TubeNode(tube_input_.get(), lower, upper));
@@ -86,6 +87,22 @@ unsigned TubeTree::Discretize(double feature_value) const {
   return ret_val;
 }
 
+void TubeTree::ListUpperIntervalLimits(
+    std::vector<double>& upper_split_points) {
+  stack<TubeNode*> node_stack;
+  node_stack.push(root_.get());
+  while (!node_stack.empty()) {
+    TubeNode* node = node_stack.top();
+    node_stack.pop();
+    if (node->left() == NULL) {
+      upper_split_points.push_back(node->upper());
+    } else {
+      node_stack.push(node->right());
+      node_stack.push(node->left());
+    }
+  }
+}
+
 void TubeTree::SetupDiscretization() {
   if (TubeNode::verbose()) {
     std::cout << TubeNode::StringHeader() << endl;
@@ -103,6 +120,7 @@ void TubeTree::SetupDiscretization() {
       calls.push(node->left());
     } else {
       node->mutable_discretized_value() = discretized_value++;
+      node->mutable_upper() = std::min(node->upper(), tube_input_->values().back());
       if (TubeNode::verbose()) {
         cout << node->ToString() << endl;
       }

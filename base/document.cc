@@ -112,10 +112,10 @@ std::string Document::GetQueryId(const std::string& vector) {
 }
 
 void Document::GetKnownFeatures(
-    std::unordered_set<unsigned>& feature_ids) const {
+    std::unordered_set<unsigned>& feature_set) const {
   auto id = this->cbegin();
   while (id != this->cend()) {
-    feature_ids.insert(id->first);
+    feature_set.insert(id->first);
     ++id;
   }
 }
