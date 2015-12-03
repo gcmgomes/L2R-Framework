@@ -47,7 +47,7 @@ class SmoteSegmenter {
   // Stores the sorted parameter separators of the segment we are fragmenting.
   void SeparatingParameters(std::vector<double>& parameters);
 
-  // The mapping containing the interval edge values of the given line segment.
+  // The mapping |feature_id| -> |interval limits| of the wanted line segment.
   std::unordered_map<unsigned, std::pair<double, double>> segment_edges_;
 
   // Object responsible for performing discretization operations.

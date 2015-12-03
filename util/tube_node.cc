@@ -2,8 +2,6 @@
 #include <cmath>
 #include "tube_node.h"
 
-using namespace std;
-
 namespace util {
 
 static double Likelihood(unsigned total, unsigned count, double width,
@@ -15,8 +13,9 @@ static double Likelihood(unsigned total, unsigned count, double width,
          val = n_range *
                log((n_range + (width / total_width)) / (width * (n + 1)));
   if (TubeNode::verbose()) {
-    cerr << "Likelihood(N = " << total << ", n = " << count << ", w = " << width
-         << ", W = " << total_width << ") = " << val << endl;
+    std::cerr << "Likelihood(N = " << total << ", n = " << count
+              << ", w = " << width << ", W = " << total_width << ") = " << val
+              << std::endl;
   }
   return val;
 }
@@ -40,8 +39,9 @@ std::pair<double, double> TubeNode::DividedLikelihood(unsigned begin,
   double ret_val = -100000, split_point = ret_val;
 
   if (verbose()) {
-    cerr << "we have that n = " << n << ", min_total_left = " << min_total_left
-         << " and max_total_right " << max_total_left << endl;
+    std::cerr << "we have that n = " << n
+              << ", min_total_left = " << min_total_left
+              << " and max_total_right " << max_total_left << std::endl;
   }
 
   double left_log_likelihood =
@@ -50,7 +50,7 @@ std::pair<double, double> TubeNode::DividedLikelihood(unsigned begin,
       Likelihood(n, total - max_total_left, std::max(width_right - EPS, EPS),
                  total_width);
   if (verbose()) {
-    cerr << "Left L = " << left_log_likelihood << endl;
+    std::cerr << "Left L = " << left_log_likelihood << std::endl;
   }
   double right_log_likelihood =
       Likelihood(n, min_total_left, std::max(width_left - EPS, EPS),
@@ -58,17 +58,18 @@ std::pair<double, double> TubeNode::DividedLikelihood(unsigned begin,
       Likelihood(n, total - min_total_left,
                  std::min(width_right + EPS, total_width), total_width);
   if (verbose()) {
-    cerr << "Right L = " << right_log_likelihood << endl;
+    std::cerr << "Right L = " << right_log_likelihood << std::endl;
   }
 
   double left_min = std::min(width_left + EPS, width_right - EPS);
   if (left_min < MIN_RANGE_SUPPORT) {
     if (verbose()) {
-      cerr << "Ignoring left because left_min = " << left_min
-           << " || n_left = " << max_total_left
-           << " || n_right = " << total - max_total_left
-           << " our minimum_support = " << minimum_support
-           << " and our MIN_RANGE_SUPPORT = " << MIN_RANGE_SUPPORT << endl;
+      std::cerr << "Ignoring left because left_min = " << left_min
+                << " || n_left = " << max_total_left
+                << " || n_right = " << total - max_total_left
+                << " our minimum_support = " << minimum_support
+                << " and our MIN_RANGE_SUPPORT = " << MIN_RANGE_SUPPORT
+                << std::endl;
     }
     left_log_likelihood = ret_val;
   }
@@ -76,30 +77,31 @@ std::pair<double, double> TubeNode::DividedLikelihood(unsigned begin,
   double right_min = std::min(width_left - EPS, width_right + EPS);
   if (right_min < MIN_RANGE_SUPPORT) {
     if (verbose()) {
-      cerr << "Ignoring right because right_min = " << right_min
-           << " || n_left = " << max_total_left
-           << " || n_right = " << total - max_total_left
-           << " our minimum_support = " << minimum_support
-           << " and our MIN_RANGE_SUPPORT = " << MIN_RANGE_SUPPORT << endl;
+      std::cerr << "Ignoring right because right_min = " << right_min
+                << " || n_left = " << max_total_left
+                << " || n_right = " << total - max_total_left
+                << " our minimum_support = " << minimum_support
+                << " and our MIN_RANGE_SUPPORT = " << MIN_RANGE_SUPPORT
+                << std::endl;
     }
     right_log_likelihood = ret_val;
   }
 
   if (left_log_likelihood >= right_log_likelihood) {
     if (verbose()) {
-      cerr << "Case 1 split" << endl;
+      std::cerr << "Case 1 split" << std::endl;
     }
     split_point = values.at(split) + EPS;
   } else if (left_log_likelihood < right_log_likelihood) {
     if (verbose()) {
-      cerr << "Case 2 split" << endl;
+      std::cerr << "Case 2 split" << std::endl;
     }
     split_point = values.at(split) - EPS;
   }
   if (left_log_likelihood == ret_val && right_log_likelihood == ret_val) {
     if (verbose()) {
-      cerr << "Case 3 split with left = " << left_log_likelihood
-           << " and right = " << right_log_likelihood << endl;
+      std::cerr << "Case 3 split with left = " << left_log_likelihood
+                << " and right = " << right_log_likelihood << std::endl;
     }
     split_point = -1;
   }
@@ -122,10 +124,11 @@ std::pair<double, double> TubeNode::FindSplitPoint() {
   unsigned n = tube_input_->CountPoints(begin, end - 1);
   unsigned i = begin;
   if (verbose()) {
-    cerr << "Going to search from " << lower_ << " located at " << begin
-         << " until " << upper_ << " located at " << end << " with a total of "
-         << n << " points among them" << endl;
-    cerr << "\tOur minimum length support is " << MIN_RANGE_SUPPORT << endl;
+    std::cerr << "Going to search from " << lower_ << " located at " << begin
+              << " until " << upper_ << " located at " << end
+              << " with a total of " << n << " points among them" << std::endl;
+    std::cerr << "\tOur minimum length support is " << MIN_RANGE_SUPPORT
+              << std::endl;
   }
   while (i < end + (values.back() == upper_)) {
     double n_left = tube_input_->CountPoints(begin, i),
@@ -133,17 +136,17 @@ std::pair<double, double> TubeNode::FindSplitPoint() {
     if (n_left >= 1 || n_right >= 1) {  // Gotta make sure we have the minimum
                                         // support on each divison.
       if (verbose()) {
-        cerr << endl
-             << "Splitting around " << i << " = " << values[i]
-             << " with n_left = " << n_left << " and n_right = " << n_right
-             << endl;
+        std::cerr << std::endl
+                  << "Splitting around " << i << " = " << values[i]
+                  << " with n_left = " << n_left << " and n_right = " << n_right
+                  << std::endl;
       }
       std::pair<double, double> current = DividedLikelihood(begin, i, end);
       double split = current.first, log_likelihood = current.second;
       if (verbose()) {
-        cerr << "Checking if split at " << split
-             << " and L = " << log_likelihood << " is better then the current"
-             << endl;
+        std::cerr << "Checking if split at " << split
+                  << " and L = " << log_likelihood
+                  << " is better then the current" << std::endl;
       }
       if (split > lower_) {  // Gotta make sure we have a valid split.
         if (log_likelihood_ < log_likelihood) {
@@ -153,27 +156,28 @@ std::pair<double, double> TubeNode::FindSplitPoint() {
       }
     } else {
       if (verbose()) {
-        cerr << "Didn't check anything because n_left = " << n_left
-             << " and n_right = " << n_right << endl;
+        std::cerr << "Didn't check anything because n_left = " << n_left
+                  << " and n_right = " << n_right << std::endl;
       }
     }
     i++;
   }
   double width = std::min(upper_, values.back()) - lower_;
   if (verbose()) {
-    cerr << "discout = ";
+    std::cerr << "discout = ";
   }
   double discount =
       Likelihood(sum_prefix.back(), n, width, values.back() - values.front());
   if (verbose()) {
-    cerr << "Splitting is defined by mid_ = " << mid_
-         << " and L = " << log_likelihood_ << " and discount = " << discount
-         << " and gain = " << log_likelihood_ - discount << endl;
+    std::cerr << "Splitting is defined by mid_ = " << mid_
+              << " and L = " << log_likelihood_
+              << " and discount = " << discount
+              << " and gain = " << log_likelihood_ - discount << std::endl;
   }
   this->log_likelihood_ -= discount;
   if (verbose()) {
     std::cerr << "Returning (" << mid_ << ", " << log_likelihood_ << ") "
-              << endl;
+              << std::endl;
   }
   return std::make_pair(mid_, log_likelihood_);
 }

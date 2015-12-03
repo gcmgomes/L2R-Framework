@@ -8,8 +8,7 @@ int main() {
   int n = 0, bin_count = 0;
   cin >> n >> bin_count;
   vector<double> values(n);
-  util::Discretizer discretizer(
-      bin_count, util::Discretizer::Mode::TREE_BASED_UNSUPERVISED);
+  util::Discretizer discretizer(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, bin_count);
   while (n) {
     double value = 0;
     cin >> values[n - 1];

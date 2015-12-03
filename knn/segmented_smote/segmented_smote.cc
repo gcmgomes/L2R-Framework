@@ -6,18 +6,20 @@
 namespace knn {
 
 namespace segmented_smote {
-SegmentedSmote::SegmentedSmote(const ::base::Query& sample_query,
+SegmentedSmote::SegmentedSmote(const ::base::Query& query,
                                unsigned relevance_level, unsigned k,
+                               ::util::Discretizer::Mode mode,
                                unsigned bin_count)
-    : real_relevants_(sample_query.id(), sample_query.dimension_count()),
-      synthetic_relevants_(sample_query.id(), sample_query.dimension_count()),
-      relevance_level_(relevance_level), knn_(k), discretizer_(bin_count) {
-  segmentation_metadata_ = SegmentationMetadata(&discretizer_, sample_query);
-  Initialize(sample_query, bin_count);
+    : real_relevants_(query.id(), query.dimension_count()),
+      synthetic_relevants_(query.id(), query.dimension_count()),
+      relevance_level_(relevance_level), knn_(k),
+      discretizer_(mode, bin_count) {
+  discretizer_.Initialize(query);
+  segmentation_metadata_ = SegmentationMetadata(&discretizer_, query);
+  Initialize(query);
 };
 
-bool SegmentedSmote::Initialize(const ::base::Query& query,
-                                unsigned bin_count) {
+bool SegmentedSmote::Initialize(const ::base::Query& query) {
   real_relevants_.mutable_documents().clear();
   synthetic_relevants_.mutable_documents().clear();
 
@@ -56,7 +58,6 @@ void SegmentedSmote::Populate(double extra_percentage, bool use_feedback) {
     unsigned nth_nn = rand() % knn_.neighbourhoods().at(doc.id()).size();
     unsigned nn_id = knn_.GetNthNeighbour(doc.id(), nth_nn).doc_id;
     GenerateSyntheticSample(doc, real_relevants_.documents()[nn_id]);
-    std::cout << "\rQuery id: " << doc.query_id() << " Extras: " << i + 1;
     fflush(stdout);
     if (use_feedback) {
       real_relevants_.AddDocument(
@@ -65,7 +66,6 @@ void SegmentedSmote::Populate(double extra_percentage, bool use_feedback) {
     }
     ++i;
   }
-  std::cout << std::endl;
 }
 
 void SegmentedSmote::AugmentQuery(::base::Query& query) {
@@ -97,8 +97,9 @@ void SegmentedSmote::GenerateSyntheticSample(const ::base::Document& d1,
 
   synthetic_relevants_.mutable_documents().back().mutable_relevance_label() =
       relevance_level_;
-  
-  this->segmentation_metadata_.Increment(synthetic_relevants_.documents().back());
+
+  this->segmentation_metadata_.Increment(
+      synthetic_relevants_.documents().back());
 }
 
 void SegmentedSmote::UpdateNeighbourhoods(

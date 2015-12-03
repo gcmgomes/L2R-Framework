@@ -105,7 +105,7 @@ void TubeTree::ListUpperIntervalLimits(
 
 void TubeTree::SetupDiscretization() {
   if (TubeNode::verbose()) {
-    std::cout << TubeNode::StringHeader() << endl;
+    std::cerr << TubeNode::StringHeader() << endl;
   }
   unsigned discretized_value = 0;
   std::stack<TubeNode*> calls;
@@ -122,7 +122,7 @@ void TubeTree::SetupDiscretization() {
       node->mutable_discretized_value() = discretized_value++;
       node->mutable_upper() = std::min(node->upper(), tube_input_->values().back());
       if (TubeNode::verbose()) {
-        cout << node->ToString() << endl;
+        cerr << node->ToString() << endl;
       }
     }
   }

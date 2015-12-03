@@ -6,14 +6,14 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-  if(argc < 3) {
+  if (argc < 3) {
     cerr << argv[0] << " [input dataset] [bin count]" << endl;
     return 0;
   }
   unsigned bin_count = 0;
   sscanf(argv[2], "%u", &bin_count);
   util::Discretizer discretizer(
-      bin_count, util::Discretizer::Mode::TREE_BASED_UNSUPERVISED);
+      util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, bin_count);
   base::Dataset dataset;
   dataset.Parse(argv[1]);
 
@@ -32,4 +32,3 @@ int main(int argc, char** argv) {
     ++i;
   }
 }
-

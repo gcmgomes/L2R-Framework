@@ -32,8 +32,8 @@ class SegmentedSmote {
   //|k| is the amount of kept neighbours by |knn|. |relevance_level| is the
   // degree of relevance we will oversample. |bin_count| is the discretization
   // level.
-  SegmentedSmote(const ::base::Query& sample_query, unsigned relevance_level,
-                 unsigned k, unsigned bin_count);
+  SegmentedSmote(const ::base::Query& query, unsigned relevance_level,
+                 unsigned k, ::util::Discretizer::Mode mode, unsigned bin_count);
 
   const ::base::Query& real_relevants() const {
     return real_relevants_;
@@ -54,9 +54,8 @@ class SegmentedSmote {
 
  private:
   // Initializes |real_relevants| based on |relevance_level_|. Returns true if 2
-  // or more documents with |relevance_level_| exist within |query|. |bin_count|
-  // settles the amount of discretization levels to be used.
-  bool Initialize(const ::base::Query& query, unsigned bin_count);
+  // or more documents with |relevance_level_| exist within |query|.
+  bool Initialize(const ::base::Query& query);
 
   // Generates a sample between |d1| and |d2| and stores it in
   // |synthetic_relevants_|.

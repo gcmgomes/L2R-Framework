@@ -17,7 +17,7 @@ SmoteSegmenter::SmoteSegmenter(
 
 unsigned SmoteSegmenter::Segment(::base::Document& document) {
   std::vector<double> parameters;
-  SeparatingParameters(parameters);
+  this->SeparatingParameters(parameters);
   unsigned i = 0, best_modal_score = 2147483647, best_position = -1;
   while (i < parameters.size() - 1) {
     ::base::Document d(i);
@@ -49,7 +49,6 @@ void SmoteSegmenter::GenerateSyntheticSample(double lower, double upper,
 
 void SmoteSegmenter::Initialize(const ::base::Document& a,
                                 const ::base::Document& b) {
-  srand(time(NULL));
   std::unordered_set<unsigned> feature_ids;
   a.GetKnownFeatures(feature_ids);
   b.GetKnownFeatures(feature_ids);
@@ -71,7 +70,7 @@ void SmoteSegmenter::Initialize(const ::base::Document& a,
 static double ParameterValue(double intercept,
                              std::pair<double, double>& limits) {
   if (limits.first == limits.second) {
-    return -1;
+    return 0;
   }
   return (intercept - limits.first) / (limits.second - limits.first);
 }
@@ -86,19 +85,28 @@ bool SmoteSegmenter::ValidateParameter(double parameter) {
 // Parameter is the |t| value of the parametric vector equation describing a
 // line: (1-t) * A + t * B
 void SmoteSegmenter::SeparatingParameters(std::vector<double>& parameters) {
-  ::util::Discretizer::Mode mode =
-      ::util::Discretizer::Mode::UNIFORM_BIN_LENGTH;
   std::unordered_set<std::string> parameter_set;
   auto feature = segment_edges_.begin();
   while (feature != segment_edges_.end()) {
-    unsigned a = discretizer_->Discretize(mode, feature->second.first);
-    unsigned b = discretizer_->Discretize(mode, feature->second.second);
-    double limits = 1.0 / (double)discretizer_->bin_count();
-    int i = a + 1;
-    while (i <= b) {
+    unsigned lower =
+        discretizer_->Discretize(feature->first, feature->second.first);
+    unsigned upper =
+        discretizer_->Discretize(feature->first, feature->second.second);
+    double l = feature->second.first;
+    double u = feature->second.second;
+    unsigned i = std::min(lower, upper);
+    upper = std::max(lower, upper);
+    lower = i;
+    i++;
+    /*std::cerr << "Feature " << feature->first << " ranging from " << lower
+              << "(" << l << ") "
+              << " to " << upper << "(" << u << ")" << std::endl;*/
+    while (i < upper) {
       char num[128];
-      double parameter = ParameterValue(limits * i, feature->second);
-      sprintf(num, "%lf", parameter);
+      double limit = discretizer_->UpperBinLimit(feature->first, i);
+      double parameter = ParameterValue(limit, feature->second);
+      /*std::cerr << "Intercept = " << limit << " and parameter t = " << parameter << std::endl;*/
+      sprintf(num, "%.8lf", parameter);
       parameter_set.insert(std::string(num));
       i++;
     }
@@ -106,8 +114,8 @@ void SmoteSegmenter::SeparatingParameters(std::vector<double>& parameters) {
   }
 
   parameters.clear();
-  parameter_set.insert("0");
-  parameter_set.insert("1");
+  parameter_set.insert("0.00000000");
+  parameter_set.insert("1.00000000");
   auto it = parameter_set.begin();
   while (it != parameter_set.end()) {
     double parameter = 0;
@@ -127,6 +135,7 @@ void SmoteSegmenter::Rebuild(double parameter, ::base::Document& document) {
     document.InsertDimension(feature->first, value);
     ++feature;
   }
+  document.mutable_query_id() = 0;
 }
 
 }  // namespace segmented_smote

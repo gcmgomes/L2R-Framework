@@ -1,12 +1,13 @@
+#include <algorithm>
 #include <cmath>
 #include "discretizer.h"
 #include "tube_tree.h"
 
 namespace util {
 
-double Discretizer::Discretize(unsigned feature_id,
+unsigned Discretizer::Discretize(unsigned feature_id,
                                double feature_value) const {
-  double value = -1;
+  unsigned value = (unsigned) -1;
   switch (mode_) {
     case Mode::UNIFORM_BIN_LENGTH:
       value = DiscretizeUniformBinLength(feature_value);
@@ -44,7 +45,9 @@ void Discretizer::Initialize(const ::base::Query& query) {
   } else if (mode_ == Mode::TREE_BASED_UNSUPERVISED) {
     auto feature_id = query.feature_set().cbegin();
     while (feature_id != query.feature_set().cend()) {
-      std::cerr << "Discretizing feature " << *feature_id << std::endl;
+      if(TubeNode::verbose()) {
+        std::cerr << "Discretizing feature " << *feature_id << std::endl;
+      }
       std::vector<double> feature_values;
       ExtractFeatureValues(query, *feature_id, feature_values);
       Initialize(*feature_id, feature_values);
@@ -69,12 +72,32 @@ void Discretizer::Initialize(unsigned feature_id,
   }
 }
 
-double Discretizer::DiscretizeUniformBinLength(double feature_value) const {
+double Discretizer::UpperBinLimit(unsigned feature_id, unsigned discretized_value) const {
+  double value = -1;
+  if(mode_ == Mode::UNIFORM_BIN_LENGTH) {
+    value = frontiers_.at(0).at(discretized_value);
+  }
+  else if (mode_ == Mode::TREE_BASED_UNSUPERVISED) {
+    value = frontiers_.at(feature_id).at(discretized_value);
+  }
+  return value;
+}
+
+unsigned Discretizer::DiscretizeUniformBinLength(double feature_value) const {
   double b = bin_count_;
   if (feature_value >= 1) {
     return b - 1;
   }
   return floor(feature_value * b);
+}
+
+unsigned Discretizer::DiscretizeTube(unsigned feature_id,
+                                     double feature_value) const {
+  const auto& frontiers = frontiers_.at(feature_id);
+  unsigned value =
+      std::lower_bound(frontiers.cbegin(), frontiers.cend(), feature_value) -
+      frontiers.cbegin();
+  return std::min(value, bin_count_ - 1);
 }
 
 }  // namespace util

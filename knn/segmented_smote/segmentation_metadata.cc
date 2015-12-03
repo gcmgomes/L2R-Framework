@@ -26,17 +26,13 @@ void SegmentationMetadata::Increment(const ::base::Document& document) {
 
 void SegmentationMetadata::Increment(unsigned feature_id,
                                      double feature_value) {
-  ::util::Discretizer::Mode mode =
-      ::util::Discretizer::Mode::UNIFORM_BIN_LENGTH;
-  unsigned discrete_value = discretizer_->Discretize(mode, feature_value);
+  unsigned discrete_value = discretizer_->Discretize(feature_id, feature_value);
   feature_value_map_[feature_id][discrete_value]++;
 }
 
 unsigned SegmentationMetadata::Access(unsigned feature_id,
                                       double feature_value) const {
-  ::util::Discretizer::Mode mode =
-      ::util::Discretizer::Mode::UNIFORM_BIN_LENGTH;
-  unsigned key = discretizer_->Discretize(mode, feature_value);
+  unsigned key = discretizer_->Discretize(feature_id, feature_value);
   if (feature_value_map().count(feature_id) &&
       feature_value_map().at(feature_id).count(key)) {
     return feature_value_map().at(feature_id).at(key);
@@ -47,11 +43,9 @@ unsigned SegmentationMetadata::Access(unsigned feature_id,
 unsigned SegmentationMetadata::Score(const ::base::Document& d) const {
   auto feature = d.cbegin();
   unsigned score = 0;
-  ::util::Discretizer::Mode mode =
-      ::util::Discretizer::Mode::UNIFORM_BIN_LENGTH;
   while (feature != d.cend()) {
     if (feature_value_map_.count(feature->first)) {
-      unsigned key = discretizer_->Discretize(mode, feature->second);
+      unsigned key = discretizer_->Discretize(feature->first, feature->second);
       const auto& value_map = feature_value_map_.at(feature->first);
       if (value_map.count(key)) {
         score += value_map.at(key);

@@ -17,12 +17,16 @@ int main(int argc, char** argv) {
   base::Dataset dataset;
   dataset.Parse(argv[1]);
   base::Query query = *(dataset.begin());
-  util::Discretizer disc(bin_count);
+  util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, bin_count);
+  disc.Initialize(query);
   knn::segmented_smote::SegmentationMetadata meta(&disc, query);
   auto i = query.cbegin(), j = i;
   j++;
   knn::segmented_smote::SmoteSegmenter segmenter(&disc, &meta, *i, *j);
   base::Document result(0);
+  cout << "Generating synthetic between" << endl;
+  cout << i->ToString() << endl << " and " << endl;
+  cout << j->ToString() << endl;
   unsigned score = segmenter.Segment(result);
   cout << result.ToString() << " | Scored = " << score << endl;
 }

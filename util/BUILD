@@ -72,6 +72,13 @@ cc_binary(
 )
 
 cc_binary(
+  name = "discretizer_test",
+  srcs = ["discretizer_test.cc"],
+  deps = ["//base:dataset",
+          ":discretizer"],
+)
+
+cc_binary(
   name = "discretizer_query_test",
   srcs = ["discretizer_query_test.cc"],
   deps = ["//base:dataset",

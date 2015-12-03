@@ -32,7 +32,7 @@ class Discretizer {
     return frontiers_;
   }
 
-  Discretizer(unsigned bin_count, Mode mode)
+  Discretizer(Mode mode, unsigned bin_count)
       : bin_count_(bin_count), mode_(mode){};
 
   // Initializes the |bins_| vector with the valid intervals. Depends directly
@@ -43,7 +43,10 @@ class Discretizer {
   void Initialize(unsigned feature_id, const std::vector<double>& values);
 
   // Discretizes |feature_value| according to |mode_| and |feature_id|.
-  double Discretize(unsigned feature_id, double feature_value) const;
+  unsigned Discretize(unsigned feature_id, double feature_value) const;
+
+  // Returns the upper limit of the bin represented by |discretized_value| for feature |feature_id|.
+  double UpperBinLimit(unsigned feature_id, unsigned discretized_value) const;
 
  private:
   // Constructs the tree for the given |values| vector and stores in the
@@ -51,11 +54,11 @@ class Discretizer {
   void InitializeTube(unsigned feature_id, std::vector<double> values);
 
   // Perform discretization of |feature_value| for uniform bin lengths.
-  double DiscretizeUniformBinLength(double feature_value) const;
+  unsigned DiscretizeUniformBinLength(double feature_value) const;
 
   // Perform discretization of |feature_value| from feature |feature_id| with
   // TUBE discretizers.
-  double DiscretizeTube(unsigned feature_id, double feature_value) const;
+  unsigned DiscretizeTube(unsigned feature_id, double feature_value) const;
 
   // The amount of bins we want to divide our range in.
   unsigned bin_count_;
