@@ -30,8 +30,10 @@ int main(int argc, char** argv) {
   if(!mode) {
     disc_mode = ::util::Discretizer::Mode::UNIFORM_BIN_LENGTH;
   }
+  int i = 0;
   while (query != dataset.end()) {
     knn::segmented_smote::SegmentedSmote smote(*query, relevance, k, disc_mode, bin_count);
+    std::cerr << "Running on query " << ++i << "/" << dataset.end() - dataset.begin() << endl;
     smote.Populate(extras, false);
     smote.AugmentQuery(*query);
     ++query;
