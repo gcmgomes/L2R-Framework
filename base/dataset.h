@@ -26,9 +26,17 @@ class Dataset {
     return queries_;
   }
 
-  // Parses the file pointed to |file_path| and stores the results in
-  // |queries_|.
-  void Parse(const std::string& file_path);
+  // Parses the file pointed by |file_path|. If |ordered_file|, assume the file
+  // already has it's queries ordered.
+  void Parse(const std::string& file_path, bool ordered_file = false);
+
+  // Parses the file pointed by |file_path| and stores the results in
+  // |queries_|. Assumes that queries are already ordered in the file.
+  void OrderedParse(const std::string& file_path);
+
+  // Reads the file pointed by |file_path| without assuming that queries are
+  // already ordered. Stores the read objects in |query_|.
+  void UnorderedParse(const std::string& file_path);
 
   // Writes the contents of this dataset to |file_path|.
   void Write(const std::string& file_path);

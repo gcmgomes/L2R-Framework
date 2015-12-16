@@ -15,7 +15,16 @@ static std::pair<std::string, unsigned> GetStartingData(
   return std::make_pair(qid, d.vector().size());
 }
 
-void Dataset::Parse(const std::string& file_path) {
+void Dataset::Parse(const std::string& file_path, bool ordered_file) {
+  if(ordered_file) {
+    this->OrderedParse(file_path);
+  }
+  else {
+    this->UnorderedParse(file_path);
+  }
+}
+
+void Dataset::OrderedParse(const std::string& file_path) {
   std::unordered_map<std::string, unsigned> query_mapping;
   unsigned query_id = 0, dimension_count = 0;
   std::pair<std::string, unsigned> data = GetStartingData(file_path);
@@ -50,6 +59,29 @@ void Dataset::Parse(const std::string& file_path) {
   }
 }
 
+void Dataset::UnorderedParse(const std::string& file_path) {
+  std::unordered_map<std::string, unsigned> query_mapping;
+  std::pair<std::string, unsigned> data = GetStartingData(file_path);
+  std::ifstream input_file;
+  input_file.open(file_path.c_str());
+  while(!input_file.eof()) {
+    std::string current_vector;
+    getline(input_file, current_vector);
+    if(current_vector.empty()) {
+      break;
+    }
+    std::string current_query = Document::GetQueryId(current_vector);
+    unsigned key = 0;
+    if(!query_mapping.count(current_query)) {
+      key = query_mapping.size();
+      query_mapping[current_query] = key;
+      queries_.push_back(Query(key, data.second));
+    }
+    key = query_mapping[current_query];
+    queries_[key].AddDocument(current_vector);
+  }
+}
+
 void Dataset::Write(const std::string& file_path) {
   std::ofstream file(file_path.c_str());
   auto query = queries_.begin();
@@ -68,7 +100,6 @@ void Dataset::Collapse(Query& query) const {
   while (query_it != queries_.cend()) {
     auto doc_it = query_it->cbegin();
     while (doc_it != query_it->cend()) {
-      unsigned query_id = doc_it->query_id();
       query.AddDocument(doc_it->ToString());
       query.mutable_documents().back().mutable_query_id() = 1;
       ++doc_it;
