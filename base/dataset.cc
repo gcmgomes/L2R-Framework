@@ -63,14 +63,14 @@ void Dataset::Write(const std::string& file_path) {
   }
 }
 
-void Dataset::Collapse(Query& query) const {
+void Dataset::Collapse(Query& query, bool modify_qid) const {
   auto query_it = queries_.cbegin();
   while (query_it != queries_.cend()) {
     auto doc_it = query_it->cbegin();
     while (doc_it != query_it->cend()) {
-      unsigned query_id = doc_it->query_id();
+      unsigned query_id = (modify_qid) ? 1 : doc_it->query_id();
       query.AddDocument(doc_it->ToString());
-      query.mutable_documents().back().mutable_query_id() = 1;
+      query.mutable_documents().back().mutable_query_id() = query_id;
       ++doc_it;
     }
     ++query_it;

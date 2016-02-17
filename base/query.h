@@ -79,6 +79,10 @@ class Query {
     return documents_.size();
   }
 
+  const Document& at(unsigned i) const {
+    return documents_.at(i);
+  }
+
  private:
   unsigned id_;
 

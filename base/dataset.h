@@ -50,8 +50,9 @@ class Dataset {
   }
   // Turns all queries into a single query, containing all documents in the
   // dataset. Only use this if you want to extract information pertaining to the
-  // entire dataset, otherwise keep the queries separated.
-  void Collapse(Query& query) const;
+  // entire dataset, otherwise keep the queries separated. If |modify_qid| is
+  // not set, the documents will keep their current query id.
+  void Collapse(Query& query, bool modify_qid = true) const;
 
  private:
   std::vector<::base::Query> queries_;
