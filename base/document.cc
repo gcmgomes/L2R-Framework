@@ -3,6 +3,8 @@
 #include <string>
 #include <cstdio>
 #include <cmath>
+#include <limits>
+#include <sstream>
 #include "document.h"
 
 namespace base {
@@ -23,74 +25,22 @@ Document::Document(unsigned id, const std::string& vector)
 
 Document::Document(unsigned id) : Document(id, ""){};
 
-static void TokenizeVector(const std::string& vector,
-                           std::vector<std::string>& tokens) {
-  std::string token;
-  tokens.clear();
-  unsigned i = 0;
-  while (i < vector.size()) {
-    // IF we find a '#' we can simply read till the end of the string. This is
-    // just meta information.
-    if (vector.at(i) == '#') {
-      while (i < vector.size()) {
-        token += vector.at(i);
-        i++;
-      }
-    }
-    // If we find a space or a :, we need to split it.
-    else if (vector.at(i) == ' ' || vector.at(i) == ':') {
-      if (!token.empty()) {
-        tokens.push_back(token);
-        token.clear();
-      }
-    } else {
-      token += vector.at(i);
-    }
-    i++;
-  }
-
-  if (!token.empty()) {
-    tokens.push_back(token);
-  }
-}
-
-void print(std::vector<std::string>& tokens) {
-  int i = 0;
-  while (i < tokens.size()) {
-    std::cout << tokens[i] << std::endl;
-    ++i;
-  }
-  std::cin >> i;
-}
-
 void Document::Parse(const std::string& vector) {
-  std::vector<std::string> tokens;
-  TokenizeVector(vector, tokens);
-  unsigned i = 3, reduction = 0;
-  sscanf(tokens[0].c_str(), "%u", &relevance_label_);
-  sscanf(tokens[2].c_str(), "%u", &query_id_);
-
-  if (tokens.back().find("#") != std::string::npos) {
-    reduction = 1;
+  size_t meta_begin = vector.rfind("#");
+  if (meta_begin != std::string::npos) {
+    this->meta_information_ = vector.substr(meta_begin);
   }
-
-  length_ = 0;
-  while (i < (tokens.size() - reduction)) {
-    unsigned dimension = 0;
-    double value = 0;
-    sscanf(tokens[i].c_str(), "%u", &dimension);
-    sscanf(tokens[++i].c_str(), "%lf", &value);
-    length_ += value * value;
-    InsertDimension(dimension, value);
-    i++;
-  }
-
-  length_ = sqrt(length_);
-
-  if (reduction > 0) {
-    meta_information_ = tokens.back();
-  } else {
-    meta_information_.clear();
+  std::stringstream vector_stream(vector.substr(0, meta_begin));
+  vector_stream >> this->relevance_label_;
+  vector_stream.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+  vector_stream.ignore(std::numeric_limits<std::streamsize>::max(), ' ');
+  while (!vector_stream.eof()) {
+    int feature_id = 0;
+    double feature_value = 0;
+    vector_stream >> feature_id;
+    vector_stream.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    vector_stream >> feature_value;
+    this->InsertDimension(feature_id, feature_value);
   }
 }
 
@@ -100,15 +50,13 @@ double& Document::operator[](unsigned dimension) {
 }
 
 void Document::InsertDimension(unsigned dimension, double value) {
-  if (!vector_.count(dimension)) {
-    vector_[dimension] = value;
-  }
+  vector_[dimension] = value;
 }
 
 std::string Document::GetQueryId(const std::string& vector) {
-  std::vector<std::string> tokens;
-  TokenizeVector(vector, tokens);
-  return tokens[2];
+  std::string query_id(128, 0);
+  sscanf(vector.c_str(), "%*d qid:%s", &query_id[0]);
+  return query_id;
 }
 
 void Document::GetKnownFeatures(
