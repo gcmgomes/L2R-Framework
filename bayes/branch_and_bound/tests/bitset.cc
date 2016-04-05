@@ -26,12 +26,13 @@ int main() {
     i += 2;
   }
   cout << bitset.ToString() << endl;
-  bitset.Set(size - 1, false);
+  bitset.Set(0, false);
   cout << bitset.ToString() << endl;
   cout << "Hashed bitsets:" << endl;
   auto b = bitsets.begin();
   while (b != bitsets.end()) {
-    cout << b->ToString() << endl;
+    cout << b->ToString();
+    cout << " hashed to " << b->Hash() << endl;
     ++b;
   }
   return 0;

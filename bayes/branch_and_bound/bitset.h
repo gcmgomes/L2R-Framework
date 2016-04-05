@@ -41,13 +41,13 @@ class Bitset {
     return high_bits_;
   }
 
-  const std::string bit_string() const {
-    return bit_string_;
-  }
+  const std::string bit_string() const;
 
   std::string ToString() const;
 
   static Bitset FromBitString(const std::string& bit_string);
+
+  size_t Hash() const;
 
   void clear();
 
@@ -57,7 +57,7 @@ class Bitset {
   // Container for tbe wanted bits.
   std::vector<unsigned long long> bits_;
   std::set<unsigned> high_bits_;
-  std::string bit_string_;
+  // std::string bit_string_;
 };
 
 }  // namespce branch_and_bound
@@ -67,7 +67,7 @@ namespace std {
 template <>
 struct hash<bayes::branch_and_bound::Bitset> {
   size_t operator()(const bayes::branch_and_bound::Bitset& bitset) const {
-    return std::hash<std::string>()(bitset.bit_string());
+    return bitset.Hash();
   }
 };
 }  // namespace std

@@ -19,7 +19,7 @@ using namespace std;
 
 int main() {
   string file_path =
-      "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/z.txt";
+      "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/y.txt";
   util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, 2);
   vector<bayes::branch_and_bound::Instance> instances;
   bayes::branch_and_bound::Instance::ParseDataset(file_path, disc, instances);

@@ -59,6 +59,7 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
     std::cerr << "\rQueue size: " << known_supersets.size()
               << " Evaluated: " << ++evaluated << " Discarded: " << discarded
               << " Cache size: " << cache_->cache().size()
+              << " Hash_size: " << best_subset_entries.size()
               << " Set_size: " << parent_set_.high_bits().size()
               << "                ";
     bool is_empty_set = parent_set_.high_bits().empty();
