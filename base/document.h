@@ -1,13 +1,11 @@
 // base::Document is one of the most fundamental structures of this library. It
-// handles the representation of the smallest build block of a standard Learning
-// to Rank environment, the high dimensional feature vectors. This class is
-// essentially a wrapper over C++11's hash tables (std::unordered_map), with
-// some
-// additional functionalities and helpers, such as the Parse and ToString
-// methods, respectively. We use hash tables instead of simpler vectors due to
-// the possibility of having to work with sparse data. Despite the apparent
-// overhead associated with hashes, their theoretical behaviour is nice enough
-// to use them. In the future, we might consider using serialization libraries
+// handles the representation of the smallest building block of a standard
+// Learning to Rank environment, the high dimensional feature vectors. This
+// class is essentially a wrapper over C++11's hash tables (std::unordered_map),
+// with some additional functionalities and helpers, such as the Parse and
+// ToString methods, respectively.
+// We use hash tables instead of simpler vectors because we might have to work
+// with sparse data. In the future, we might consider using serialization libraries
 // such as Google's Protocol Buffer to allow some portability across languages.
 // Another possible optimization (in terms of space), would be to keep pointers
 // to the locations of the vector in the dataset files. If we reach the point of

@@ -38,6 +38,9 @@ void Document::Parse(const std::string& vector) {
     int feature_id = 0;
     double feature_value = 0;
     vector_stream >> feature_id;
+    if(vector_stream.eof()) {
+      break;
+    }
     vector_stream.ignore(std::numeric_limits<std::streamsize>::max(), ':');
     vector_stream >> feature_value;
     this->InsertDimension(feature_id, feature_value);

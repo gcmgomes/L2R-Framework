@@ -24,7 +24,6 @@ std::pair<double, double> TubeNode::DividedLikelihood(unsigned begin,
                                                       unsigned split,
                                                       unsigned end) const {
   const auto& values = tube_input_->values();
-  const auto& counts = tube_input_->counts();
   const auto& sum_prefix = tube_input_->sum_prefix();
 
   double splitter = values.at(split), lower_split = splitter - EPS,
@@ -114,7 +113,6 @@ using namespace std;
 
 std::pair<double, double> TubeNode::FindSplitPoint() {
   const auto& values = tube_input_->values();
-  const auto& counts = tube_input_->counts();
   const auto& sum_prefix = tube_input_->sum_prefix();
 
   unsigned begin = std::lower_bound(values.cbegin(), values.cend(), lower_) -
@@ -219,7 +217,7 @@ std::string TubeNode::ToString() const {
   double likelihood = n * log(density);
   if (density > 0.0) {
     sprintf(num,
-            "#%u: #| [%.8lf, %.8lf) |  %.8lf\% || \t %u \t |  %.8lf\% \t | "
+            "#%u: #| [%.8lf, %.8lf) |  %.8lf || \t %u \t |  %.8lf \t | "
             "%u.0 \t |D "
             "%.8lf |P "
             "%.8lf |L "
@@ -228,7 +226,7 @@ std::string TubeNode::ToString() const {
             w_percentage, n, n_percentage, n, density, probability, likelihood);
   } else {
     sprintf(num,
-            "#%u: #| [%.8lf, %.8lf) |  %.8lf\% || \t %u \t |  %.8lf\% \t | "
+            "#%u: #| [%.8lf, %.8lf) |  %.8lf || \t %u \t |  %.8lf \t | "
             "%u.0 \t |D "
             "INF \t|P "
             "%.8lf    |L "

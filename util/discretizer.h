@@ -24,16 +24,20 @@ class Discretizer {
                               // [Schmidberger and Frank, PKDD 2005].
   };
 
-  unsigned bin_count() const {
-    return bin_count_;
-  }
-
-  const std::unordered_map<unsigned, std::vector<double> >& frontiers() const{
+  const std::unordered_map<unsigned, std::vector<double> >& frontiers() const {
     return frontiers_;
   }
 
   Discretizer(Mode mode, unsigned bin_count)
       : bin_count_(bin_count), mode_(mode){};
+
+  unsigned bin_count() const {
+    return bin_count_;
+  }
+
+  Mode mode() const {
+    return mode_;
+  }
 
   // Initializes the |bins_| vector with the valid intervals. Depends directly
   // on |mode_|.
@@ -45,7 +49,8 @@ class Discretizer {
   // Discretizes |feature_value| according to |mode_| and |feature_id|.
   unsigned Discretize(unsigned feature_id, double feature_value) const;
 
-  // Returns the upper limit of the bin represented by |discretized_value| for feature |feature_id|.
+  // Returns the upper limit of the bin represented by |discretized_value| for
+  // feature |feature_id|.
   double UpperBinLimit(unsigned feature_id, unsigned discretized_value) const;
 
  private:
