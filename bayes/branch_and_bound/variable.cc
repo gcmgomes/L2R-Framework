@@ -23,15 +23,15 @@ static void AugmentSupersets(
   auto variable = variables.cbegin();
   while (variable != variables.cend()) {
     unsigned id = variable->variable_id();
-    if (id != variable_id && !parent_set.at(id)) {
+    if (id != variable_id && !parent_set.at(id) &&
+        variable->categories().size() > 1) {
       parent_set.Set(id, true);
       auto& entry = best_subset_entries[parent_set];
       if (!entry.first) {
         external_queue_->push(parent_set);
         entry.first = parent_set.high_bits().size();
         entry.second = subset_entry;
-      } else if (entry.second.score(w) <
-                 subset_entry.score(w)) {
+      } else if (entry.second.score(w) < subset_entry.score(w)) {
         entry.second = subset_entry;
       }
       best_subset_entries[parent_set].first--;
@@ -47,6 +47,10 @@ long double Variable::score() const {
 
 void Variable::BuildCache(const std::vector<Instance>& instances,
                           const std::vector<Variable>& variables) {
+  if(categories_.size() < 2) {
+    return;
+  }
+  std::cout << "Variable: " << variable_id_ << std::endl;
   unsigned long long evaluated = 0, discarded = 0;
   assert(external_queue_ != NULL);
   assert(cache_ != NULL);
@@ -55,10 +59,11 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
   std::unordered_map<Bitset, std::pair<unsigned, CacheEntry> >
       best_subset_entries;
   external_queue_->push(parent_set_);
+  CacheEntry best_entry;
   while (!external_queue_->empty()) {
     parent_set_ = external_queue_->front();
     external_queue_->pop();
-    std::cerr << "\rQueue size: " << external_queue_->size()
+    std::cout << "\rQueue size: " << external_queue_->size()
               << " Evaluated: " << evaluated++ << " Discarded: " << discarded
               << " Cache size: " << cache_->cache().size()
               << " Hash_size: " << best_subset_entries.size()
@@ -80,6 +85,9 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
         cache_->Insert(parent_set_, entry);
         AugmentSupersets(variable_id_, w, variables, best_subset_entries,
                          parent_set_, external_queue_);
+        if (best_entry.score(w) < entry.score(w)) {
+          best_entry = entry;
+        }
       } else {
         discarded++;
       }
@@ -88,23 +96,14 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
     }
     best_subset_entries.erase(parent_set_);
   }
-  auto it = cache_->cache().cbegin();
-  CacheEntry best_entry = it->second;
-  while (it != cache_->cache().cend()) {
-    if (best_entry.score(cache_->w()) <= it->second.score(cache_->w())) {
-      best_entry = it->second;
-      parent_set_ = it->first;
-    }
-    ++it;
-  }
-  std::cerr << std::endl;
+  std::cout << std::endl;
 
   if (false) {
     std::cerr << std::endl
               << "##########################################" << std::endl;
     std::cerr << "Final cache for variable " << variable_id_ << "has "
               << cache_->cache().size() << " entries: " << std::endl;
-    it = cache_->cache().cbegin();
+    auto it = cache_->cache().cbegin();
     while (it != cache_->cache().cend()) {
       std::cerr << it->first.ToString() << ": " << it->second.ToString()
                 << " Score: " << it->second.score(w) << std::endl;

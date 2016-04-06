@@ -64,10 +64,27 @@ void ExternalQueue::InitializeExternalQueues(
   }
 }
 
+void ExternalQueue::ClearExternalQueues(const std::string& directory_root_path,
+                         std::vector<ExternalQueue>& external_queues) {
+  std::string path = directory_root_path;
+  if (path.back() != '/') {
+    path += '/';
+  }
+  unsigned variable_id = 0;
+  while (variable_id < external_queues.size()) {
+    std::stringstream str;
+    str << path;
+    str << "queue" << variable_id << ".txt";
+    remove(str.str().c_str());
+    variable_id++;
+  }
+}
+
 void ExternalQueue::OpenRepository(const std::string& file_path) {
   tellg_ = tellp_ = 0;
-  repository_.open(file_path, std::fstream::out | std::fstream::trunc);
-  repository_.close();
+  if (repository_.is_open()) {
+    repository_.close();
+  }
   repository_.open(file_path,
                    std::fstream::in | std::fstream::out | std::fstream::trunc);
 }

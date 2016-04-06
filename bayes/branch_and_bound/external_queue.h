@@ -35,6 +35,9 @@ class ExternalQueue {
       const std::vector<Instance>& instances, size_t queue_limit,
       std::vector<ExternalQueue>& external_queues);
 
+  static void ClearExternalQueues(const std::string& directory_root_path,
+                                  std::vector<ExternalQueue>& external_queues);
+
   void OpenRepository(const std::string& file_path);
 
  private:

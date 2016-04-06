@@ -55,9 +55,3 @@ cc_library(
   deps = [":graph"],
 )
 
-cc_library(
-  name = "inverted_index",
-  hdrs = ["inverted_index.h"],
-  srcs = ["inverted_index.cc"],
-  deps = [":instance"],
-)

@@ -19,19 +19,28 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-  string file_path = "/var/tmp/data.txt";
-  if (argc > 1) {
-    file_path = argv[1];
+  if (argc < 6) {
+    cerr << "[input file] [cache directory] [memory cache size] [temporary "
+            "queue directory] [memory queue size] [bin count]"
+         << endl;
+    return 0;
   }
-  util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, 2);
+  string input_file_path = argv[1], cache_directory = argv[2],
+         queue_directory = argv[4];
+  size_t cache_size = 0, queue_size = 0;
+  unsigned bin_count = 0;
+  sscanf(argv[3], "%zu", &cache_size);
+  sscanf(argv[5], "%zu", &queue_size);
+  sscanf(argv[6], "%u", &bin_count);
+  util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, bin_count);
   vector<bayes::branch_and_bound::Instance> instances;
-  bayes::branch_and_bound::Instance::ParseDataset(file_path, disc, instances);
+  bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc, instances);
   vector<bayes::branch_and_bound::Cache> caches;
-  bayes::branch_and_bound::Cache::InitializeCaches("/var/tmp/", instances,
-                                                   caches, 100000);
+  bayes::branch_and_bound::Cache::InitializeCaches(cache_directory, instances,
+                                                   caches, cache_size);
   vector<bayes::branch_and_bound::ExternalQueue> external_queues;
   bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
-      "/var/tmp/", instances, 1000000, external_queues);
+      queue_directory, instances, queue_size, external_queues);
   vector<bayes::branch_and_bound::Variable> variables;
   bayes::branch_and_bound::Variable::InitializeVariables(
       instances, variables, external_queues, caches);
@@ -41,7 +50,5 @@ int main(int argc, char** argv) {
     it->BuildCache(instances, variables);
     ++it;
   }
-  bayes::branch_and_bound::ExternalQueue::ClearExternalQueues(
-      "/var/tmp/", external_queues);
   return 0;
 }
