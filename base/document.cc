@@ -30,11 +30,11 @@ void Document::Parse(const std::string& vector) {
   if (meta_begin != std::string::npos) {
     this->meta_information_ = vector.substr(meta_begin);
   }
-  std::stringstream vector_stream(vector.substr(0, meta_begin));
+  std::stringstream vector_stream(vector.substr(0, meta_begin-2));
   vector_stream >> this->relevance_label_;
   vector_stream.ignore(std::numeric_limits<std::streamsize>::max(), ':');
   vector_stream.ignore(std::numeric_limits<std::streamsize>::max(), ' ');
-  while (!vector_stream.eof()) {
+  while (vector_stream.peek() != EOF) {
     int feature_id = 0;
     double feature_value = 0;
     vector_stream >> feature_id;

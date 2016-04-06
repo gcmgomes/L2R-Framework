@@ -1,34 +1,38 @@
+#include <cassert>
 #include <queue>
 #include <sstream>
 #include <unordered_map>
-#include "external_queue.h"
 #include "variable.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
-Variable::Variable(unsigned variable_id, Cache* cache)
-    : variable_id_(variable_id), cache_(cache) {
+Variable::Variable(unsigned variable_id, Cache* cache,
+                   ExternalQueue* external_queue) {
+  variable_id_ = variable_id;
+  cache_ = cache;
+  external_queue_ = external_queue;
 }
 
 static void AugmentSupersets(
     unsigned variable_id, long double w, const std::vector<Variable>& variables,
     std::unordered_map<Bitset, std::pair<unsigned, CacheEntry> >&
         best_subset_entries,
-    Bitset& parent_set, ExternalQueue& known_supersets) {
+    Bitset& parent_set, ExternalQueue* external_queue_) {
   auto& subset_entry = best_subset_entries[parent_set].second;
   auto variable = variables.cbegin();
   while (variable != variables.cend()) {
     unsigned id = variable->variable_id();
-    if (id != variable_id && !parent_set.high_bits().count(id)) {
+    if (id != variable_id && !parent_set.at(id)) {
       parent_set.Set(id, true);
-      if (!best_subset_entries.count(parent_set)) {
-        known_supersets.push(parent_set);
-        best_subset_entries[parent_set].first = parent_set.high_bits().size();
-        best_subset_entries[parent_set].second = subset_entry;
-      } else if (best_subset_entries[parent_set].second.score(w) <
+      auto& entry = best_subset_entries[parent_set];
+      if (!entry.first) {
+        external_queue_->push(parent_set);
+        entry.first = parent_set.high_bits().size();
+        entry.second = subset_entry;
+      } else if (entry.second.score(w) <
                  subset_entry.score(w)) {
-        best_subset_entries[parent_set].second = subset_entry;
+        entry.second = subset_entry;
       }
       best_subset_entries[parent_set].first--;
       parent_set.Set(id, false);
@@ -44,20 +48,18 @@ long double Variable::score() const {
 void Variable::BuildCache(const std::vector<Instance>& instances,
                           const std::vector<Variable>& variables) {
   unsigned long long evaluated = 0, discarded = 0;
+  assert(external_queue_ != NULL);
+  assert(cache_ != NULL);
   long double w = cache_->w();
   parent_set_ = Bitset(variables.size());
-  ExternalQueue known_supersets(
-      "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/"
-      "branch_and_bound/tmp/test_queue.txt",
-      100000);
   std::unordered_map<Bitset, std::pair<unsigned, CacheEntry> >
       best_subset_entries;
-  known_supersets.push(parent_set_);
-  while (!known_supersets.empty()) {
-    parent_set_ = known_supersets.front();
-    known_supersets.pop();
-    std::cerr << "\rQueue size: " << known_supersets.size()
-              << " Evaluated: " << ++evaluated << " Discarded: " << discarded
+  external_queue_->push(parent_set_);
+  while (!external_queue_->empty()) {
+    parent_set_ = external_queue_->front();
+    external_queue_->pop();
+    std::cerr << "\rQueue size: " << external_queue_->size()
+              << " Evaluated: " << evaluated++ << " Discarded: " << discarded
               << " Cache size: " << cache_->cache().size()
               << " Hash_size: " << best_subset_entries.size()
               << " Set_size: " << parent_set_.high_bits().size()
@@ -76,11 +78,8 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
       if (is_empty_set ||
           subset_entry.score(w) <= entry.score(w)) {  // Passed Lemma 1
         cache_->Insert(parent_set_, entry);
-        if (cache_->cache().size() >= 100000) {
-          cache_->WriteToRepository();
-        }
         AugmentSupersets(variable_id_, w, variables, best_subset_entries,
-                         parent_set_, known_supersets);
+                         parent_set_, external_queue_);
       } else {
         discarded++;
       }
@@ -98,6 +97,7 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
     }
     ++it;
   }
+  std::cerr << std::endl;
 
   if (false) {
     std::cerr << std::endl
@@ -117,7 +117,7 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
               << cache_->cache().size() << " entries: " << std::endl;
     std::cerr << "##########################################" << std::endl;
   }
-  cache_->WriteToRepository();
+  cache_->Flush();
 }
 
 long double Variable::LogLikelihood(
@@ -129,9 +129,10 @@ long double Variable::LogLikelihood(
 
 unsigned long long Variable::FreeParameters(
     const std::vector<Variable>& variables) const {
-  auto parent = parent_set_.high_bits().cbegin();
+  std::vector<unsigned> high_bits = parent_set_.high_bits();
+  auto parent = high_bits.cbegin();
   unsigned long long t = categories_.size() - 1;
-  while (parent != parent_set_.high_bits().cend()) {
+  while (parent != high_bits.cend()) {
     t *= variables[*parent].categories_.size();
     parent++;
   }
@@ -140,29 +141,25 @@ unsigned long long Variable::FreeParameters(
 
 void Variable::InitializeVariables(const std::vector<Instance>& instances,
                                    std::vector<Variable>& variables,
-                                   std::vector<Cache>& caches,
-                                   Criterion criterion) {
-  long double w = 1;
-  if (criterion == Criterion::MINIMUM_DESCRIPTION_LEGNTH) {
-    w = log2(instances.size()) / 2.0;
-  }
+                                   std::vector<ExternalQueue>& external_queues,
+                                   std::vector<Cache>& caches) {
   auto instance = instances.cbegin();
   std::vector<std::set<unsigned> > categories(instance->values().size());
   while (instance != instances.cend()) {
     unsigned variable = 0;
     while (variable < instance->values().size()) {
       categories[variable].insert(instance->values().at(variable));
-      caches.emplace_back(w);
       variable++;
     }
     ++instance;
   }
   unsigned variable_id = 0;
   while (variable_id < categories.size()) {
-    variables.emplace_back(variable_id, &caches[variable_id]);
+    variables.emplace_back(variable_id, &(caches[variable_id]),
+                           &(external_queues[variable_id]));
     auto category = categories[variable_id].cbegin();
     while (category != categories[variable_id].cend()) {
-      variables.back().mutable_categories().push_back(*category);
+      variables[variable_id].mutable_categories().push_back(*category);
       ++category;
     }
     variable_id++;
@@ -179,11 +176,12 @@ std::string Variable::ToString() const {
     ++category;
   }
   str << std::endl << "Parents:";
-  if (parent_set_.high_bits().empty()) {
+  std::vector<unsigned> high_bits = parent_set_.high_bits();
+  if (high_bits.empty()) {
     str << " Empty";
   }
-  auto parent = parent_set_.high_bits().cbegin();
-  while (parent != parent_set_.high_bits().cend()) {
+  auto parent = high_bits.cbegin();
+  while (parent != high_bits.cend()) {
     str << " " << *parent;
     ++parent;
   }
@@ -193,16 +191,12 @@ std::string Variable::ToString() const {
 long double Variable::LLOuterSum(const std::vector<Instance>& instances,
                                  const std::vector<Variable>& variables,
                                  std::vector<unsigned>& configuration) const {
-  if (configuration.size() == parent_set_.high_bits().size()) {
+  std::vector<unsigned> high_bits = parent_set_.high_bits();
+  if (configuration.size() == high_bits.size()) {
     return LLInnerSum(instances, configuration);
   }
-  unsigned parent_id = 0;
-  auto parent = parent_set_.high_bits().cbegin();
-  while (parent_id < configuration.size()) {
-    parent_id++;
-    ++parent;
-  }
-  const Variable& variable = variables[*parent];
+  unsigned parent_id = high_bits[configuration.size()];
+  const Variable& variable = variables[parent_id];
   auto category = variable.categories_.cbegin();
   long double summation = 0;
   while (category != variable.categories_.cend()) {
@@ -217,13 +211,14 @@ long double Variable::LLOuterSum(const std::vector<Instance>& instances,
 long double Variable::LLInnerSum(const std::vector<Instance>& instances,
                                  std::vector<unsigned>& configuration) const {
   auto instance = instances.cbegin();
+  std::vector<unsigned> high_bits = parent_set_.high_bits();
   std::unordered_map<unsigned, unsigned> n_ijks(categories_.size());
   unsigned n_ij = 0;
   while (instance != instances.cend()) {
     bool increment = true;
-    auto parent = parent_set_.high_bits().cbegin();
+    auto parent = high_bits.cbegin();
     unsigned p_i = 0;
-    while (parent != parent_set_.high_bits().cend()) {
+    while (parent != high_bits.cend()) {
       if (instance->values().at(*parent) != configuration[p_i]) {
         increment = false;
         break;

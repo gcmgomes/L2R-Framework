@@ -43,6 +43,7 @@ void Instance::ParseDataset(const std::string& file_path,
     instances.emplace_back(*document, disc);
     ++document;
   }
+  instances.shrink_to_fit();
 }
 
 std::string Instance::ToString() const {

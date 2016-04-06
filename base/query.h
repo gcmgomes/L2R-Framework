@@ -27,6 +27,8 @@ class Query {
   // document vector.
   void AddDocument(const std::string& vector);
 
+  void AddDocument(const Document& document);
+
   unsigned dimension_count() const {
     return dimension_count_;
   }

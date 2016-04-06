@@ -22,11 +22,9 @@ bool Bitset::Set(unsigned bit, bool setting) {
   mask <<= (bit % 64);
   if (setting) {
     bits_[ull_i] |= mask;
-    high_bits_.insert(bit);
   } else {
     mask = ~mask;
     bits_[ull_i] &= mask;
-    high_bits_.erase(bit);
   }
   return true;
 }
@@ -71,6 +69,25 @@ static std::string Stringfy(unsigned long long bits, size_t count) {
     i++;
   }
   return str;
+}
+
+const std::vector<unsigned> Bitset::high_bits() const {
+  unsigned bit = 0;
+  unsigned ull = 0;
+  std::vector<unsigned> high_bits;
+  while(ull < bits_.size() && bit < bit_count_) {
+    unsigned long long b = bits_.at(ull);
+    while(b) {
+      if(b & 1) {
+        high_bits.push_back(bit);
+      }
+      bit++;
+      b >>= 1;
+    }
+    ull++;
+    bit = ull * 64;
+  }
+  return high_bits;
 }
 
 const std::string Bitset::bit_string() const {
@@ -122,7 +139,6 @@ void Bitset::clear() {
     *it = 0;
     ++it;
   }
-  high_bits_.clear();
 }
 
 }  // namespace branch_and_bound

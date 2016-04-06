@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 #include "bitset.h"
+#include "instance.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -42,12 +43,17 @@ class CacheEntry {
   unsigned long long free_parameters_;
 };
 
+enum class Criterion {
+  MINIMUM_DESCRIPTION_LEGNTH,    // w = (log N) / 2
+  AKAIKE_INFORMATION_CRITERION,  // w = 1.
+};
+
 class Cache {
  public:
   // Defaults to AIC.
   Cache();
 
-  Cache(long double w);
+  Cache(long double w, size_t maximum_cache_size);
 
   void Insert(const Bitset& bitset, const CacheEntry& entry);
 
@@ -65,17 +71,28 @@ class Cache {
 
   bool IsConsistent() const;
 
-  // Opens the file pointed by |file_path| to serve as |repository_| for this cache.
+  // Opens the file pointed by |file_path| to serve as |repository_| for this
+  // cache.
   void OpenRepository(const std::string& file_path);
 
+  static void InitializeCaches(
+      const std::string& directory_root_path,
+      const std::vector<Instance>& instances, std::vector<Cache>& caches,
+      size_t maximum_cache_size,
+      Criterion criterion = Criterion::AKAIKE_INFORMATION_CRITERION);
+
+  void Flush();
+
+ private:
   // If |repository_| is open, dumps the contents of |cache_| to |repository_|,
   // otherwise does nothing.
   void WriteToRepository();
 
- private:
   // This constant indicates the type of criateria we are using. At first, it
   // should either be set to 1 (AIC) or (log N) / 2 (MDL, N = # of instances).
   long double w_;
+
+  size_t maximum_cache_size_;
 
   std::unordered_map<Bitset, CacheEntry> cache_;
 

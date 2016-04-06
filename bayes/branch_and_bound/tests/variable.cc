@@ -1,3 +1,4 @@
+#include <cassert>
 #include <algorithm>
 #include <cstdlib>
 #include <cstdio>
@@ -17,25 +18,27 @@
 
 using namespace std;
 
-int main() {
-  string file_path =
-      "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/y.txt";
+int main(int argc, char** argv) {
+  string file_path = "/var/tmp/data.txt";
+  if (argc > 1) {
+    file_path = argv[1];
+  }
   util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, 2);
   vector<bayes::branch_and_bound::Instance> instances;
   bayes::branch_and_bound::Instance::ParseDataset(file_path, disc, instances);
   vector<bayes::branch_and_bound::Cache> caches;
+  bayes::branch_and_bound::Cache::InitializeCaches("/var/tmp/", instances,
+                                                   caches, 100000);
+  vector<bayes::branch_and_bound::ExternalQueue> external_queues;
+  bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
+      "/var/tmp/", instances, 1000000, external_queues);
   vector<bayes::branch_and_bound::Variable> variables;
-  bayes::branch_and_bound::Variable::InitializeVariables(instances, variables,
-                                                         caches);
+  bayes::branch_and_bound::Variable::InitializeVariables(
+      instances, variables, external_queues, caches);
   auto it = variables.begin();
-  unsigned i = 1;
   ++it;
   while (it != variables.end()) {
-    caches[i].OpenRepository(
-        "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/"
-        "branch_and_bound/tmp/cache1.txt");
     it->BuildCache(instances, variables);
-    break;
     ++it;
   }
   return 0;

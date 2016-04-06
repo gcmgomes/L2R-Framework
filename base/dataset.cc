@@ -101,7 +101,7 @@ void Dataset::Collapse(Query& query, bool modify_qid) const {
     auto doc_it = query_it->cbegin();
     while (doc_it != query_it->cend()) {
       unsigned query_id = (modify_qid) ? 1 : doc_it->query_id();
-      query.AddDocument(doc_it->ToString());
+      query.AddDocument(*doc_it);
       query.mutable_documents().back().mutable_query_id() = query_id;
       ++doc_it;
     }

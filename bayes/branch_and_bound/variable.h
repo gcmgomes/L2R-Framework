@@ -13,19 +13,16 @@
 #include <vector>
 #include "bitset.h"
 #include "cache.h"
+#include "external_queue.h"
 #include "instance.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
-enum class Criterion {
-  MINIMUM_DESCRIPTION_LEGNTH,    // w = (log N) / 2
-  AKAIKE_INFORMATION_CRITERION,  // w = 1.
-};
 
 class Variable {
  public:
-  Variable(unsigned variable_id, Cache* cache);
+  Variable(unsigned variable_id, Cache* cache, ExternalQueue* external_queue);
 
   unsigned variable_id() const {
     return variable_id_;
@@ -48,7 +45,7 @@ class Variable {
   }
 
   const Cache* cache() const {
-    return cache_; 
+    return cache_;
   }
 
   long double score() const;
@@ -64,8 +61,7 @@ class Variable {
 
   static void InitializeVariables(
       const std::vector<Instance>& instances, std::vector<Variable>& variables,
-      std::vector<Cache>& caches,
-      Criterion criterion = Criterion::AKAIKE_INFORMATION_CRITERION);
+      std::vector<ExternalQueue>& external_queues, std::vector<Cache>& caches);
 
   std::string ToString() const;
 
@@ -83,6 +79,7 @@ class Variable {
   Bitset parent_set_;
   std::vector<unsigned> categories_;
   Cache* cache_;
+  ExternalQueue* external_queue_;
 };
 
 }  // namespce branch_and_bound

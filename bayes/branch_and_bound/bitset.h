@@ -37,9 +37,7 @@ class Bitset {
     return bits_;
   }
 
-  const std::set<unsigned>& high_bits() const {
-    return high_bits_;
-  }
+  const std::vector<unsigned> high_bits() const;
 
   const std::string bit_string() const;
 
@@ -56,7 +54,7 @@ class Bitset {
   size_t bit_count_;
   // Container for tbe wanted bits.
   std::vector<unsigned long long> bits_;
-  std::set<unsigned> high_bits_;
+  // std::set<unsigned> high_bits_;
   // std::string bit_string_;
 };
 

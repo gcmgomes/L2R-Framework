@@ -9,13 +9,14 @@
 #include <unordered_map>
 #include <queue>
 #include "bitset.h"
+#include "instance.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
 class ExternalQueue {
  public:
-  ExternalQueue(const std::string& file_path, size_t queue_limit);
+  ExternalQueue(size_t queue_limit);
 
   bool empty();
 
@@ -28,6 +29,13 @@ class ExternalQueue {
   size_t size() const {
     return size_;
   }
+
+  static void InitializeExternalQueues(
+      const std::string& directory_root_path,
+      const std::vector<Instance>& instances, size_t queue_limit,
+      std::vector<ExternalQueue>& external_queues);
+
+  void OpenRepository(const std::string& file_path);
 
  private:
   void FetchFromRepository();

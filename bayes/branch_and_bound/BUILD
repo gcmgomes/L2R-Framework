@@ -11,14 +11,16 @@ cc_library(
   name = "cache",
   hdrs = ["cache.h"],
   srcs = ["cache.cc"],
-  deps = [":bitset"],
+  deps = [":bitset",
+          ":instance"],
 )
 
 cc_library(
   name = "external_queue",
   hdrs = ["external_queue.h"],
   srcs = ["external_queue.cc"],
-  deps = [":bitset"],
+  deps = [":bitset",
+          ":instance"],
 )
 
 
@@ -35,8 +37,8 @@ cc_library(
   hdrs = ["variable.h"],
   srcs = ["variable.cc"],
   deps = [":cache",
-          ":instance",
-          ":external_queue"],
+          ":external_queue",
+          ":instance"],
 )
 
 cc_library(

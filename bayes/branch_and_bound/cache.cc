@@ -26,14 +26,18 @@ std::string CacheEntry::LogString() const {
   return str.str();
 }
 
-Cache::Cache() : Cache(1.0) {
+Cache::Cache() : Cache(1.0, 1000) {
 }
 
-Cache::Cache(long double w) : w_(w) {
+Cache::Cache(long double w, size_t maximum_cache_size)
+    : w_(w), maximum_cache_size_(maximum_cache_size) {
 }
 
 void Cache::Insert(const Bitset& bitset, const CacheEntry& entry) {
   cache_[bitset] = entry;
+  if (cache_.size() >= maximum_cache_size_) {
+    WriteToRepository();
+  }
 }
 
 static void Subset(Bitset seed, std::unordered_set<Bitset>& subsets) {
@@ -79,6 +83,33 @@ void Cache::OpenRepository(const std::string& file_path) {
   repository_.open(file_path, std::fstream::out);
 }
 
+void Cache::InitializeCaches(const std::string& directory_root_path,
+                             const std::vector<Instance>& instances,
+                             std::vector<Cache>& caches,
+                             size_t maximum_cache_size, Criterion criterion) {
+  std::string path = directory_root_path;
+  if (path.back() != '/') {
+    path += '/';
+  }
+  long double w = 1;
+  if (criterion == Criterion::MINIMUM_DESCRIPTION_LEGNTH) {
+    w = log2(instances.size()) / 2.0;
+  }
+  unsigned variable_id = 0;
+  while (variable_id < instances.at(0).values().size()) {
+    std::stringstream str;
+    str << path;
+    str << "cache" << variable_id << ".txt";
+    caches.emplace_back(w, maximum_cache_size);
+    caches[variable_id].OpenRepository(str.str());
+    ++variable_id;
+  }
+}
+
+void Cache::Flush() {
+  WriteToRepository();
+}
+
 void Cache::WriteToRepository() {
   if (!repository_.is_open()) {
     return;
@@ -86,7 +117,7 @@ void Cache::WriteToRepository() {
   auto it = cache_.cbegin();
   while (it != cache_.cend()) {
     repository_ << it->first.bit_string() << " " << it->second.LogString()
-               << std::endl;
+                << std::endl;
     ++it;
   }
   cache_.clear();

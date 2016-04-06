@@ -12,4 +12,11 @@ void Query::AddDocument(const std::string& vector) {
   documents_.back().GetKnownFeatures(feature_set_);
 }
 
+void Query::AddDocument(const Document& document) {
+  unsigned id = documents_.size();
+  documents_.push_back(document);
+  documents_.back().mutable_id() = id;
+  documents_.back().GetKnownFeatures(feature_set_);
+}
+
 }  // namespace base
