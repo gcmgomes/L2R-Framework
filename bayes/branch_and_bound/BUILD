@@ -16,6 +16,13 @@ cc_library(
 )
 
 cc_library(
+  name = "inverted_index",
+  hdrs = ["inverted_index.h"],
+  srcs = ["inverted_index.cc"],
+  deps = [":instance"],
+)
+
+cc_library(
   name = "external_queue",
   hdrs = ["external_queue.h"],
   srcs = ["external_queue.cc"],
@@ -39,6 +46,15 @@ cc_library(
   deps = [":cache",
           ":external_queue",
           ":instance"],
+)
+
+cc_library(
+  name = "indexed_variable",
+  hdrs = ["indexed_variable.h"],
+  srcs = ["indexed_variable.cc"],
+  deps = [":cache",
+          ":external_queue",
+          ":inverted_index"],
 )
 
 cc_library(

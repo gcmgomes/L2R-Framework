@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <sstream>
 #include "bitset.h"

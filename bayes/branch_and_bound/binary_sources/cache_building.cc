@@ -12,7 +12,7 @@
 #include <string>
 #include <cmath>
 #include <unordered_set>
-#include "../variable.h"
+#include "../index_variable.h"
 #include "../../../base/dataset.h"
 #include "../../../util/discretizer.h"
 
@@ -32,22 +32,25 @@ int main(int argc, char** argv) {
   sscanf(argv[3], "%zu", &cache_size);
   sscanf(argv[5], "%zu", &queue_size);
   sscanf(argv[6], "%u", &bin_count);
-  util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, bin_count);
+  util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED,
+                         bin_count);
   vector<bayes::branch_and_bound::Instance> instances;
-  bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc, instances);
+  bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc,
+                                                  instances);
   vector<bayes::branch_and_bound::Cache> caches;
   bayes::branch_and_bound::Cache::InitializeCaches(cache_directory, instances,
                                                    caches, cache_size);
   vector<bayes::branch_and_bound::ExternalQueue> external_queues;
   bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
       queue_directory, instances, queue_size, external_queues);
+  bayes::branch_and_bound::InvertedIndex index(instances);
+  instances.clear();
   vector<bayes::branch_and_bound::Variable> variables;
   bayes::branch_and_bound::Variable::InitializeVariables(
-      instances, variables, external_queues, caches);
+      index, variables, external_queues, caches);
   auto it = variables.begin();
-  ++it;
   while (it != variables.end()) {
-    it->BuildCache(instances, variables);
+    it->BuildCache(index, variables);
     ++it;
   }
   return 0;
