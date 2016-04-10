@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <queue>
 #include <sstream>
 #include <unordered_map>
@@ -82,15 +83,18 @@ void Variable::BuildCache(const InvertedIndex& index,
       }
       if (is_empty_set ||
           subset_entry.score(w) <= entry.score(w)) {  // Passed Lemma 1
+        subset_entry = entry;
         cache_->Insert(parent_set_, entry);
-        AugmentSupersets(variable_id_, w, variables, best_subset_entries,
-                         parent_set_, external_queue_);
         if (best_entry.score(w) < entry.score(w)) {
           best_entry = entry;
         }
       } else {
         discarded++;
       }
+      // Even if Lemma 1 doesn't pass, we need to check this set's
+      // supersets.
+      AugmentSupersets(variable_id_, w, variables, best_subset_entries,
+                       parent_set_, external_queue_);
     } else {
       discarded++;
     }

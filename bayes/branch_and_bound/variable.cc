@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <queue>
 #include <sstream>
 #include <unordered_map>
@@ -47,7 +48,7 @@ long double Variable::score() const {
 
 void Variable::BuildCache(const std::vector<Instance>& instances,
                           const std::vector<Variable>& variables) {
-  if(categories_.size() < 2) {
+  if (categories_.size() < 2) {
     return;
   }
   std::cout << "Variable: " << variable_id_ << std::endl;
@@ -82,15 +83,16 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
       }
       if (is_empty_set ||
           subset_entry.score(w) <= entry.score(w)) {  // Passed Lemma 1
+        subset_entry = entry;
         cache_->Insert(parent_set_, entry);
-        AugmentSupersets(variable_id_, w, variables, best_subset_entries,
-                         parent_set_, external_queue_);
         if (best_entry.score(w) < entry.score(w)) {
           best_entry = entry;
         }
       } else {
         discarded++;
       }
+      AugmentSupersets(variable_id_, w, variables, best_subset_entries,
+                       parent_set_, external_queue_);
     } else {
       discarded++;
     }
