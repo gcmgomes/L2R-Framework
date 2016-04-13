@@ -69,11 +69,16 @@ class Cache {
     return cache_.at(bitset);
   }
 
-  bool IsConsistent() const;
+  // Every bit set to 1 in |prohibited_bits| indicates that the given feature
+  // cannot exist in that parent set.
+  Bitset BestComplyingEntry(const Bitset& prohibited_bits) const;
 
   // Opens the file pointed by |file_path| to serve as |repository_| for this
-  // cache.
-  void OpenRepository(const std::string& file_path);
+  // cache. Set |open_mode| appropriately!
+  void OpenRepository(const std::string& file_path,
+                      std::ios_base::openmode open_mode);
+
+  void Flush();
 
   static void InitializeCaches(
       const std::string& directory_root_path,
@@ -81,12 +86,17 @@ class Cache {
       size_t maximum_cache_size,
       Criterion criterion = Criterion::AKAIKE_INFORMATION_CRITERION);
 
-  void Flush();
+  static void LoadCaches(const std::string& directory_root_path,
+                         unsigned variable_count, long double w,
+                         std::vector<Cache>& caches);
 
  private:
   // If |repository_| is open, dumps the contents of |cache_| to |repository_|,
   // otherwise does nothing.
   void WriteToRepository();
+
+  // Reads every entry from |repository_| and stores it in |cache_|.
+  void LoadFromRepository();
 
   // This constant indicates the type of criateria we are using. At first, it
   // should either be set to 1 (AIC) or (log N) / 2 (MDL, N = # of instances).

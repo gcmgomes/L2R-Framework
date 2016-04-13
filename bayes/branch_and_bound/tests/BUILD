@@ -5,6 +5,12 @@ cc_binary(
   srcs = ["bitset.cc"],
   deps = ["//bayes/branch_and_bound:bitset"],
 )
+
+cc_binary(
+  name = "cache",
+  srcs = ["cache.cc"],
+  deps = ["//bayes/branch_and_bound:cache"],
+)
  
 cc_binary(
   name = "external_queue",

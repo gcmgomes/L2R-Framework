@@ -17,7 +17,7 @@ namespace branch_and_bound {
 
 class BranchAndBound {
  public:
-  BranchAndBound(const std::vector<Instance>& instances, Criterion criterion);
+  BranchAndBound(const std::vector<Variable>& variables);
 
   // Executes the B&B algorithm. When the gap gets smaller than |target_gap|.
   // Returns the optimal structure found.
@@ -25,7 +25,7 @@ class BranchAndBound {
 
  private:
   // Makes everything ready to run the B&B algorithm.
-  void Initialize(const std::vector<Instance>& instances, Criterion criterion);
+  void Initialize(const std::vector<Variable>& variables);
 
   std::vector<Cache> caches_;
   std::priority_queue<Graph> graphs_;

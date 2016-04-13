@@ -9,10 +9,11 @@ namespace bayes {
 namespace branch_and_bound {
 
 Variable::Variable(unsigned variable_id, Cache* cache,
-                   ExternalQueue* external_queue) {
+                   ExternalQueue* external_queue, size_t variable_count) {
   variable_id_ = variable_id;
   cache_ = cache;
   external_queue_ = external_queue;
+  parent_set_ = Bitset(variable_count);
 }
 
 static void AugmentSupersets(
@@ -158,13 +159,16 @@ void Variable::InitializeVariables(const InvertedIndex& index,
   }
   unsigned variable_id = 0;
   while (variable_id < categories.size()) {
-    variables.emplace_back(variable_id, &(caches[variable_id]),
-                           &(external_queues[variable_id]));
+    ExternalQueue* external_queue =
+        (external_queues.empty()) ? NULL : &(external_queues[variable_id]);
+    variables.emplace_back(variable_id, &(caches[variable_id]), external_queue,
+                           index.index().size());
     auto category = categories[variable_id].cbegin();
     while (category != categories[variable_id].cend()) {
       variables[variable_id].mutable_categories().push_back(*category);
       ++category;
     }
+    variables[variable_id].FindBestEntry();
     variable_id++;
   }
 }
@@ -189,6 +193,13 @@ std::string Variable::ToString() const {
     ++parent;
   }
   return str.str();
+}
+
+void Variable::FindBestEntry() {
+  if (cache_ == NULL || cache_->cache().empty()) {
+    return;
+  }
+  parent_set_ = cache_->BestComplyingEntry(parent_set_);
 }
 
 long double Variable::LLOuterSum(

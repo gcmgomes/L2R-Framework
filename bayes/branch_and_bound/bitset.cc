@@ -76,10 +76,10 @@ const std::vector<unsigned> Bitset::high_bits() const {
   unsigned bit = 0;
   unsigned ull = 0;
   std::vector<unsigned> high_bits;
-  while(ull < bits_.size() && bit < bit_count_) {
+  while (ull < bits_.size() && bit < bit_count_) {
     unsigned long long b = bits_.at(ull);
-    while(b) {
-      if(b & 1) {
+    while (b) {
+      if (b & 1) {
         high_bits.push_back(bit);
       }
       bit++;
@@ -89,6 +89,18 @@ const std::vector<unsigned> Bitset::high_bits() const {
     bit = ull * 64;
   }
   return high_bits;
+}
+
+bool Bitset::BitwiseLogicalAnd(const Bitset& bitset) const {
+  unsigned ull = 0;
+  while (ull < bitset.bits().size() && ull < bits_.size()) {
+    unsigned long long t_ull = bits_.at(ull), o_ull = bitset.bits().at(ull);
+    if (t_ull & o_ull) {
+      return true;
+    }
+    ull++;
+  }
+  return false;
 }
 
 const std::string Bitset::bit_string() const {

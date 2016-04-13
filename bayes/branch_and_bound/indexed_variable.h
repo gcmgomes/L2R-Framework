@@ -21,7 +21,8 @@ namespace branch_and_bound {
 
 class Variable {
  public:
-  Variable(unsigned variable_id, Cache* cache, ExternalQueue* external_queue);
+  Variable(unsigned variable_id, Cache* cache, ExternalQueue* external_queue,
+           size_t variable_count);
 
   unsigned variable_id() const {
     return variable_id_;
@@ -64,6 +65,9 @@ class Variable {
                                   std::vector<Cache>& caches);
 
   std::string ToString() const;
+
+  // Sets |parent_set_| to the best entry found in |cache_|.
+  void FindBestEntry();
 
  private:
   // Recursively determines a configuration for the parents of the variable.

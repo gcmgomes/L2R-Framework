@@ -41,47 +41,31 @@ void Cache::Insert(const Bitset& bitset, const CacheEntry& entry) {
   }
 }
 
-static void Subset(Bitset seed, std::unordered_set<Bitset>& subsets) {
-  std::queue<Bitset> queue;
-  queue.push(seed);
-  while (!queue.empty()) {
-    Bitset t = queue.front();
-    queue.pop();
-    auto it = t.high_bits().cbegin();
-    while (it != t.high_bits().cend()) {
-      Bitset sub = t;
-      sub.Set(*it, false);
-      if (!subsets.count(sub)) {
-        subsets.insert(sub);
-        queue.push(sub);
-      }
-      ++it;
+Bitset Cache::BestComplyingEntry(const Bitset& prohibited_bits) const {
+  Bitset best_complying_entry(prohibited_bits.bit_count());
+  long double best_score = cache_.at(best_complying_entry).score(w_);
+  auto entry = cache_.cbegin();
+  while (entry != cache_.cend()) {
+    if (best_score < entry->second.score(w_) &&
+        !prohibited_bits.BitwiseLogicalAnd(entry->first)) {
+      best_score = entry->second.score(w_);
+      best_complying_entry = entry->first;
     }
+    ++entry;
   }
+  return best_complying_entry;
 }
 
-bool Cache::IsConsistent() const {
-  auto it = cache_.cbegin();
-  while (it != cache_.cend()) {
-    std::unordered_set<Bitset> subsets;
-    Subset(it->first, subsets);
-    auto jt = subsets.cbegin();
-    while (jt != subsets.cend()) {
-      if (!cache_.count(*jt)) {
-        std::cerr << "INCONSISTENCY!" << std::endl
-                  << "\tSubset: " << jt->ToString() << std::endl
-                  << "\t Superset: " << it->first.ToString() << std::endl;
-        return false;
-      }
-      ++jt;
-    }
-    ++it;
+void Cache::OpenRepository(const std::string& file_path,
+                           std::ios_base::openmode open_mode) {
+  if (repository_.is_open()) {
+    repository_.close();
   }
-  return true;
+  repository_.open(file_path, open_mode);
 }
 
-void Cache::OpenRepository(const std::string& file_path) {
-  repository_.open(file_path, std::fstream::out);
+void Cache::Flush() {
+  WriteToRepository();
 }
 
 void Cache::InitializeCaches(const std::string& directory_root_path,
@@ -102,13 +86,30 @@ void Cache::InitializeCaches(const std::string& directory_root_path,
     str << path;
     str << "cache" << variable_id << ".txt";
     caches.emplace_back(w, maximum_cache_size);
-    caches[variable_id].OpenRepository(str.str());
+    caches[variable_id].OpenRepository(str.str(), std::fstream::out);
     ++variable_id;
   }
 }
 
-void Cache::Flush() {
-  WriteToRepository();
+void Cache::LoadCaches(const std::string& directory_root_path,
+                       unsigned variable_count, long double w,
+                       std::vector<Cache>& caches) {
+  std::string path = directory_root_path;
+  if (path.back() != '/') {
+    path += '/';
+  }
+  unsigned variable_id = 0;
+  while (variable_id < variable_count) {
+    std::stringstream str;
+    str << path;
+    str << "cache" << variable_id << ".txt";
+    if (caches.size() <= variable_id) {
+      caches.emplace_back(w, -1);
+    }
+    caches[variable_id].OpenRepository(str.str(), std::fstream::in);
+    caches[variable_id].LoadFromRepository();
+    variable_id++;
+  }
 }
 
 void Cache::WriteToRepository() {
@@ -122,6 +123,22 @@ void Cache::WriteToRepository() {
     ++it;
   }
   cache_.clear();
+}
+
+void Cache::LoadFromRepository() {
+  while (!repository_.eof()) {
+    std::string bit_string;
+    long double log_likelihood = 0;
+    unsigned long long free_parameters = 0;
+    repository_ >> bit_string >> log_likelihood >> free_parameters;
+    if (repository_.eof()) {
+      break;
+    }
+    Bitset bitset = Bitset::FromBitString(bit_string);
+    CacheEntry entry(log_likelihood, free_parameters);
+    std::cout << bitset.bit_string() << " " << entry.LogString() << std::endl; 
+    Insert(bitset, entry);
+  }
 }
 
 }  // namespce branch_and_bound

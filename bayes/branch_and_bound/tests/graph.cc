@@ -15,21 +15,23 @@
 
 using namespace std;
 
-int main() {
-  string file_path =
-      "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/x.txt";
+int main(int argc, char** argv) {
+  string file_path = "/var/tmp/data.txt";
+  if (argc > 1) {
+    file_path = argv[1];
+  }
   util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, 2);
   vector<bayes::branch_and_bound::Instance> instances;
   bayes::branch_and_bound::Instance::ParseDataset(file_path, disc, instances);
+  bayes::branch_and_bound::InvertedIndex index(instances);
+  instances.clear();
   vector<bayes::branch_and_bound::Cache> caches;
+  bayes::branch_and_bound::Cache::LoadCaches("/var/tmp", index.index().size(),
+                                             1, caches);
+  vector<bayes::branch_and_bound::ExternalQueue> external_queues;
   vector<bayes::branch_and_bound::Variable> variables;
-  bayes::branch_and_bound::Variable::InitializeVariables(instances, variables,
-                                                         caches);
-  auto it = variables.begin();
-  while (it != variables.end()) {
-    it->BuildCache(instances, variables);
-    ++it;
-  }
+  bayes::branch_and_bound::Variable::InitializeVariables(
+      index, variables, external_queues, caches);
 
   {
     bayes::branch_and_bound::Graph g(variables);
@@ -42,13 +44,13 @@ int main() {
   edges.push_back(make_pair(1, 2));
   edges.push_back(make_pair(2, 3));
   edges.push_back(make_pair(3, 1));
-  it = variables.begin();
+  auto it = variables.begin();
   while (it != variables.end()) {
     it->mutable_parent_set().clear();
     ++it;
   }
   unsigned i = 0;
-  while(i < edges.size()) {
+  while (i < edges.size()) {
     variables[edges[i].second].mutable_parent_set().Set(edges[i].first, true);
     i++;
   }
@@ -57,8 +59,8 @@ int main() {
   vector<unsigned> cycle;
   g.FindCycle(cycle);
   i = 0;
-  while(i < cycle.size()) {
-    if(i) {
+  while (i < cycle.size()) {
+    if (i) {
       std::cerr << " -> ";
     }
     std::cerr << cycle[i];

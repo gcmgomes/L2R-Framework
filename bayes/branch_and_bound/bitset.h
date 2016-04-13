@@ -33,14 +33,26 @@ class Bitset {
 
   bool operator==(const Bitset& bitset) const;
 
+  size_t bit_count() const {
+    return bit_count_;
+  }
+
   const std::vector<unsigned long long>& bits() const {
     return bits_;
   }
 
   const std::vector<unsigned> high_bits() const;
 
+  // Both bitsets must have the same size for this operation to make sense!
+  // Returns true if there is at least one bit set on both sets, false
+  // otherwise.
+  bool BitwiseLogicalAnd(const Bitset& bitset) const;
+
+  // This is the raw bit string, the most significant bit has the highest
+  // position.
   const std::string bit_string() const;
 
+  // Reverse of bit_string.
   std::string ToString() const;
 
   static Bitset FromBitString(const std::string& bit_string);
@@ -52,6 +64,7 @@ class Bitset {
  private:
   // Number of bits in the bitset.
   size_t bit_count_;
+
   // Container for tbe wanted bits.
   std::vector<unsigned long long> bits_;
   // std::set<unsigned> high_bits_;

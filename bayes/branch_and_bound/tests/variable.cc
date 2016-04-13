@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
                                                    caches, 100000);
   vector<bayes::branch_and_bound::ExternalQueue> external_queues;
   bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
-      "/var/tmp/", instances, 1000000, external_queues);
+      "/var/tmp/", instances.front().values().size(), 1000000, external_queues);
   vector<bayes::branch_and_bound::Variable> variables;
   bayes::branch_and_bound::Variable::InitializeVariables(
       instances, variables, external_queues, caches);
@@ -39,9 +39,9 @@ int main(int argc, char** argv) {
   ++it;
   while (it != variables.end()) {
     it->BuildCache(instances, variables);
+    bayes::branch_and_bound::ExternalQueue::ClearExternalQueue(
+        "/var/tmp/", it->variable_id());
     ++it;
   }
-  bayes::branch_and_bound::ExternalQueue::ClearExternalQueues(
-      "/var/tmp/", external_queues);
   return 0;
 }

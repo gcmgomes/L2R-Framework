@@ -17,6 +17,11 @@ Graph::Graph(const Graph& other) {
 
 Graph::Graph(const std::vector<Variable>& variables) {
   variables_ = variables;
+  auto it = variables_.cbegin();
+  while(it != variables_.cend()) {
+    std::cout << it->parent_set().bit_string() << std::endl;
+    ++it;
+  }
   score_ = 0.0;
   Initialize();
 }
@@ -51,8 +56,9 @@ void Graph::FindCycle(std::vector<unsigned>& cycle) const {
   std::vector<std::vector<unsigned> > topology(variables_.size());
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
-    auto u = it->parent_set().high_bits().cbegin();
-    while (u != it->parent_set().high_bits().cend()) {
+    auto high_bits =it->parent_set().high_bits();
+    auto u = high_bits.cbegin();
+    while (u != high_bits.cend()) {
       topology[*u].push_back(it->variable_id());
       ++u;
     }
@@ -72,14 +78,16 @@ void Graph::FindCycle(std::vector<unsigned>& cycle) const {
   }
 }
 
-bool Graph::RemoveArc(unsigned parent_variable, unsigned child_variable) {
-  if (!variables_[child_variable].parent_set().at(parent_variable) ||
-      h_matrix_[parent_variable][child_variable] == ArcStatus::PRESENT) {
+bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
+  if (!variables_[child_variable_id].parent_set().at(parent_variable_id) ||
+      h_matrix_[parent_variable_id][child_variable_id] == ArcStatus::PRESENT) {
     return false;
   }
-  Variable& child_var = variables_[child_variable];
+  Variable& child_var = variables_[child_variable_id];
   long double old_score = score_ - child_var.score();
-  child_var.mutable_parent_set().Set(parent_variable, false);
+  child_var.mutable_parent_set().Set(parent_variable_id, false);
+  h_matrix_[parent_variable_id][child_variable_id] = ArcStatus::PROHIBITED;
+  MakeCompliant(child_variable_id);
   score_ = old_score + child_var.score();
   return true;
 }
@@ -96,11 +104,11 @@ std::string Graph::ToString(std::string left_padding) const {
   str << left_padding << "Graph score: " << score() << std::endl;
   str << left_padding << "H Matrix:" << std::endl;
   unsigned line = 0;
-  while(line < h_matrix_.size()) {
+  while (line < h_matrix_.size()) {
     unsigned column = 0;
     str << left_padding;
-    while(column < h_matrix_.at(line).size()) {
-      if(column) {
+    while (column < h_matrix_.at(line).size()) {
+      if (column) {
         str << " ";
       }
       unsigned x = static_cast<unsigned>(h_matrix_.at(line).at(column));
@@ -121,6 +129,21 @@ void Graph::Initialize() {
     score_ += it->score();
     ++it;
   }
+}
+
+void Graph::MakeCompliant(unsigned child_variable_id) {
+  Bitset prohibited_bits(variables_.size());
+  unsigned parent_variable_id = 0;
+  while (parent_variable_id < variables_.size()) {
+    if (parent_variable_id != child_variable_id &&
+        h_matrix_[parent_variable_id][child_variable_id] ==
+            ArcStatus::PROHIBITED) {
+      prohibited_bits.Set(parent_variable_id, true);
+    }
+    parent_variable_id++;
+  }
+  variables_[child_variable_id].mutable_parent_set() =
+      variables_[child_variable_id].cache()->BestComplyingEntry(prohibited_bits);
 }
 
 }  // namespce branch_and_bound

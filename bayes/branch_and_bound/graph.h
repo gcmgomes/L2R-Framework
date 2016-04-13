@@ -13,7 +13,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "variable.h"
+#include "indexed_variable.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -63,14 +63,18 @@ class Graph {
   // Removes the arc |parent_variable| -> |child_variable| and updates the score
   // to reflect the change. Returns true if the removal was successful, false
   // otherwise.
-  bool RemoveArc(unsigned parent_variable, unsigned child_variable);
+  bool RemoveArc(unsigned parent_variable_id, unsigned child_variable_id);
 
   std::string ToString(std::string left_padding = "") const;
 
  private:
-
   // Initializes the required structures and values.
   void Initialize();
+
+  // Changes the parent set of |child_variable_id| to comply with the
+  // restrictions imposed by |h_matrix|. In a worst case scenario, the variable
+  // will become orphan.
+  void MakeCompliant(unsigned child_variable_id);
 
   long double score_;
   std::vector<Variable> variables_;

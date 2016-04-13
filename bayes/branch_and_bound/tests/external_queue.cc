@@ -17,11 +17,10 @@ using namespace std;
 
 int main() {
   size_t size = 16;
-  bayes::branch_and_bound::ExternalQueue ext_queue(
-      "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/"
-      "branch_and_bound/tmp/test_queue.txt",
-      1);
-
+  vector<bayes::branch_and_bound::ExternalQueue> ext_queues;
+  bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
+      "/var/tmp", 1, 1, ext_queues);
+  auto& ext_queue = ext_queues.front();
   int i = 0;
   {
     bayes::branch_and_bound::Bitset bitset(size);

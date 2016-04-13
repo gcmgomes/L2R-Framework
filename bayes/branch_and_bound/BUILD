@@ -26,8 +26,7 @@ cc_library(
   name = "external_queue",
   hdrs = ["external_queue.h"],
   srcs = ["external_queue.cc"],
-  deps = [":bitset",
-          ":instance"],
+  deps = [":bitset"],
 )
 
 
@@ -61,7 +60,7 @@ cc_library(
   name = "graph",
   hdrs = ["graph.h"],
   srcs = ["graph.cc"],
-  deps = [":variable"],
+  deps = [":indexed_variable"],
 )
 
 cc_library(
