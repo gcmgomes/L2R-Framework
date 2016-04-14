@@ -6,3 +6,10 @@ cc_binary(
   deps = ["//bayes/branch_and_bound:indexed_variable"],
   linkopts = ["-lm"],
 )
+
+cc_binary(
+  name = "branch_and_bound",
+  srcs = ["branch_and_bound.cc"],
+  deps = ["//bayes/branch_and_bound:branch_and_bound"],
+  linkopts = ["-lm"],
+)
