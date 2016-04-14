@@ -4,4 +4,5 @@ cc_binary(
   name = "cache_building",
   srcs = ["cache_building.cc"],
   deps = ["//bayes/branch_and_bound:indexed_variable"],
+  linkopts = ["-lm"],
 )
