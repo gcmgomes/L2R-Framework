@@ -21,6 +21,7 @@ Graph BranchAndBound::Run(long double target_gap) {
   while (!graphs_.empty()) {
     Graph current_graph = graphs_.top();
     graphs_.pop();
+    std::cerr << "\rQueue size: " << graphs_.size();
     if (current_graph.score() > best_graph.score()) {
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);

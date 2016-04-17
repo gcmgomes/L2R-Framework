@@ -67,6 +67,14 @@ cc_library(
   name = "branch_and_bound",
   hdrs = ["branch_and_bound.h"],
   srcs = ["branch_and_bound.cc"],
+  deps = [":graph",
+          ":heap"],
+)
+
+cc_library(
+  name = "heap",
+  hdrs = ["heap.h"],
+  srcs = ["heap.cc"],
   deps = [":graph"],
 )
 

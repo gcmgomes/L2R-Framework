@@ -49,6 +49,13 @@ cc_binary(
 )
 
 cc_binary(
+  name = "heap",
+  srcs = ["heap.cc"],
+  deps = ["//bayes/branch_and_bound:heap"],
+)
+
+
+cc_binary(
   name = "branch_and_bound",
   srcs = ["branch_and_bound.cc"],
   deps = ["//bayes/branch_and_bound:branch_and_bound"],

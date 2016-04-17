@@ -28,6 +28,8 @@ class Graph {
  public:
   Graph();
 
+  Graph(long double score);
+
   Graph(const Graph& other);
 
   Graph(const std::vector<Variable>& variables);

@@ -9,6 +9,9 @@ namespace branch_and_bound {
 Graph::Graph() : score_(std::numeric_limits<int>::min()) {
 }
 
+Graph::Graph(long double score) : score_(score) {
+}
+
 Graph::Graph(const Graph& other) {
   score_ = other.score();
   variables_ = other.variables();
@@ -18,7 +21,7 @@ Graph::Graph(const Graph& other) {
 Graph::Graph(const std::vector<Variable>& variables) {
   variables_ = variables;
   auto it = variables_.cbegin();
-  while(it != variables_.cend()) {
+  while (it != variables_.cend()) {
     std::cout << it->parent_set().bit_string() << std::endl;
     ++it;
   }
@@ -56,7 +59,7 @@ void Graph::FindCycle(std::vector<unsigned>& cycle) const {
   std::vector<std::vector<unsigned> > topology(variables_.size());
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
-    auto high_bits =it->parent_set().high_bits();
+    auto high_bits = it->parent_set().high_bits();
     auto u = high_bits.cbegin();
     while (u != high_bits.cend()) {
       topology[*u].push_back(it->variable_id());
@@ -125,8 +128,12 @@ void Graph::Initialize() {
   auto it = variables_.cbegin();
   h_matrix_.resize(variables_.size(),
                    std::vector<ArcStatus>(variables_.size(), ArcStatus::FREE));
+  h_matrix_.shrink_to_fit();
   while (it != variables_.cend()) {
-    score_ += it->score();
+    if (it->categories().size() > 1) {
+      score_ += it->score();
+    }
+    h_matrix_[it->variable_id()].shrink_to_fit();
     ++it;
   }
 }
@@ -143,7 +150,8 @@ void Graph::MakeCompliant(unsigned child_variable_id) {
     parent_variable_id++;
   }
   variables_[child_variable_id].mutable_parent_set() =
-      variables_[child_variable_id].cache()->BestComplyingEntry(prohibited_bits);
+      variables_[child_variable_id].cache()->BestComplyingEntry(
+          prohibited_bits);
 }
 
 }  // namespce branch_and_bound

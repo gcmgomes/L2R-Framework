@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 #include "graph.h"
+#include "heap.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -28,7 +29,7 @@ class BranchAndBound {
   void Initialize(const std::vector<Variable>& variables);
 
   std::vector<Cache> caches_;
-  std::priority_queue<Graph> graphs_;
+  Heap graphs_;
 
   long double upper_bound_;
   long double lower_bound_;
