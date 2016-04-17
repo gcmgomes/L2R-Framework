@@ -20,11 +20,6 @@ Graph::Graph(const Graph& other) {
 
 Graph::Graph(const std::vector<Variable>& variables) {
   variables_ = variables;
-  auto it = variables_.cbegin();
-  while (it != variables_.cend()) {
-    std::cout << it->parent_set().bit_string() << std::endl;
-    ++it;
-  }
   score_ = 0.0;
   Initialize();
 }

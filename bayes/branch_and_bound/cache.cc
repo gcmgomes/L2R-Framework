@@ -136,7 +136,6 @@ void Cache::LoadFromRepository() {
     }
     Bitset bitset = Bitset::FromBitString(bit_string);
     CacheEntry entry(log_likelihood, free_parameters);
-    std::cout << bitset.bit_string() << " " << entry.LogString() << std::endl; 
     Insert(bitset, entry);
   }
 }
