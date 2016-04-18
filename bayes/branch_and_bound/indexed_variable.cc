@@ -199,9 +199,8 @@ void Variable::FindBestEntry() {
   if (cache_ == NULL || cache_->cache().empty()) {
     return;
   }
-  cache_->BestComplyingEntry(Bitset(parent_set_.bit_count()),
-                             Bitset(parent_set_.bit_count()),
-                             parent_set_);
+  cache_->BestCompliantEntry(Bitset(parent_set_.bit_count()),
+                             Bitset(parent_set_.bit_count()), parent_set_);
 }
 
 long double Variable::LLOuterSum(

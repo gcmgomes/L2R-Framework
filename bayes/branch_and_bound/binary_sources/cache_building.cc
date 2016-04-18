@@ -40,11 +40,11 @@ int main(int argc, char** argv) {
   vector<bayes::branch_and_bound::Cache> caches;
   bayes::branch_and_bound::Cache::InitializeCaches(cache_directory, instances,
                                                    caches, cache_size);
-  vector<bayes::branch_and_bound::ExternalQueue> external_queues;
-  bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
-      queue_directory, instances, queue_size, external_queues);
   bayes::branch_and_bound::InvertedIndex index(instances);
   instances.clear();
+  vector<bayes::branch_and_bound::ExternalQueue> external_queues;
+  bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
+      queue_directory, index.index().size(), queue_size, external_queues);
   vector<bayes::branch_and_bound::Variable> variables;
   bayes::branch_and_bound::Variable::InitializeVariables(
       index, variables, external_queues, caches);

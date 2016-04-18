@@ -20,15 +20,15 @@ class BranchAndBound {
  public:
   BranchAndBound(const std::vector<Variable>& variables);
 
-  // Executes the B&B algorithm. When the gap gets smaller than |target_gap|.
-  // Returns the optimal structure found.
+  // Executes the B&B algorithm. When the gap gets smaller than |target_gap|,
+  // returns the optimal structure found so far.
   Graph Run(long double target_gap);
 
  private:
   // Makes everything ready to run the B&B algorithm.
-  void Initialize(const std::vector<Variable>& variables);
+  void Initialize();
 
-  std::vector<Cache> caches_;
+  std::vector<Variable> variables_;
   Heap graphs_;
 
   long double upper_bound_;

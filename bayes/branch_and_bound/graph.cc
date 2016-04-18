@@ -19,9 +19,8 @@ Graph::Graph(const Graph& other) {
 }
 
 Graph::Graph(const std::vector<Variable>& variables) {
-  variables_ = variables;
   score_ = 0.0;
-  Initialize();
+  Initialize(variables);
 }
 
 static void CycleDFS(unsigned search_root,
@@ -86,8 +85,7 @@ static bool GoodToGo(
 }
 
 bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
-  if (!variables_[child_variable_id].parent_set().at(parent_variable_id) ||
-      GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
+  if (GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
                ArcStatus::PRESENT)) {
     return false;
   }
@@ -95,11 +93,11 @@ bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
   long double old_score = score_ - child_var.score();
   child_var.mutable_parent_set().Set(parent_variable_id, false);
   h_matrix_[parent_variable_id][child_variable_id] = ArcStatus::PROHIBITED;
-  if(MakeCompliant(child_variable_id)) {
+  if (BestCompliantEntry(child_variable_id)) {
     score_ = old_score + child_var.score();
     return true;
   }
-  return false;    
+  return false;
 }
 
 std::string Graph::ToString(std::string left_padding) const {
@@ -131,26 +129,22 @@ std::string Graph::ToString(std::string left_padding) const {
   return str.str();
 }
 
-Bitset Graph::Hashable() const {
-  Bitset bitset(variables_.size() * variables_.size());
-  auto variable = variables_.cbegin();
-  unsigned padding = 0;
-  while(variable != variables_.cend()) {
-    auto high_bits = variable->parent_set().high_bits();
-    auto bit = high_bits.begin();
-    while(bit != high_bits.end()) {
-      bitset.Set(*bit + padding, true);
-      ++bit;    
+bool Graph::ReadyForUse(const std::vector<Variable>& variables) {
+  variables_ = variables;
+  auto it = variables_.begin();
+  while (it != variables_.end()) {
+    if (!BestCompliantEntry(it->variable_id())) {
+      return false;
     }
-    padding += variables_.size();
-    ++variable;
+    ++it;
   }
-  return bitset;
+  Initialize(variables);
+  return true;
 }
 
-void Graph::Initialize() {
-  auto it = variables_.cbegin();
-  while (it != variables_.cend()) {
+void Graph::Initialize(const std::vector<Variable>& variables) {
+  auto it = variables.cbegin();
+  while (it != variables.cend()) {
     if (it->categories().size() > 1) {
       score_ += it->score();
     }
@@ -158,7 +152,7 @@ void Graph::Initialize() {
   }
 }
 
-bool Graph::MakeCompliant(unsigned child_variable_id) {
+bool Graph::BestCompliantEntry(unsigned child_variable_id) {
   Bitset prohibited_bits(variables_.size());
   Bitset mandatory_bits(variables_.size());
   unsigned parent_variable_id = 0;
@@ -167,17 +161,16 @@ bool Graph::MakeCompliant(unsigned child_variable_id) {
       if (GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
                    ArcStatus::PROHIBITED)) {
         prohibited_bits.Set(parent_variable_id, true);
-      }
-      else if(GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
-                   ArcStatus::PRESENT)) {
+      } else if (GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
+                          ArcStatus::PRESENT)) {
         mandatory_bits.Set(parent_variable_id, true);
       }
     }
     parent_variable_id++;
   }
   Bitset best_complying_entry;
-  if(variables_[child_variable_id].cache()->BestComplyingEntry(
-      prohibited_bits, mandatory_bits, best_complying_entry)) {
+  if (variables_[child_variable_id].cache()->BestCompliantEntry(
+          prohibited_bits, mandatory_bits, best_complying_entry)) {
     variables_[child_variable_id].mutable_parent_set() = best_complying_entry;
     return true;
   }

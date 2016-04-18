@@ -71,17 +71,20 @@ class Graph {
 
   std::string ToString(std::string left_padding = "") const;
 
-  Bitset Hashable() const;
+  // Memory optimization. Builds |variables_| based on |variables| and the
+  // constraints defined by |h_matrix_|. Returns true if the construction was
+  // successful, false otherwise.
+  bool ReadyForUse(const std::vector<Variable>& variables);
 
  private:
   // Initializes the required structures and values.
-  void Initialize();
+  void Initialize(const std::vector<Variable>& variables);
 
   // Changes the parent set of |child_variable_id| to comply with the
   // restrictions imposed by |h_matrix|. In a worst case scenario, the variable
   // will become orphan. Returns true if it is possible to create a compliant
   // graph, false otherwise.
-  bool MakeCompliant(unsigned child_variable_id);
+  bool BestCompliantEntry(unsigned child_variable_id);
 
   long double score_;
   std::vector<Variable> variables_;

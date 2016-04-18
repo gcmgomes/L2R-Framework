@@ -74,7 +74,7 @@ class Cache {
   // indicates that the given feature must exist in the set. Returns true if a
   // complying entry was found, false otherwise. Check the return value before
   // using the value stored in |resulting_bits|.
-  bool BestComplyingEntry(const Bitset& prohibited_bits,
+  bool BestCompliantEntry(const Bitset& prohibited_bits,
                           const Bitset& mandatory_bits,
                           Bitset& resulting_bits) const;
 

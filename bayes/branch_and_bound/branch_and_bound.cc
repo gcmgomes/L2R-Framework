@@ -6,11 +6,12 @@ namespace bayes {
 namespace branch_and_bound {
 
 BranchAndBound::BranchAndBound(const std::vector<Variable>& variables) {
-  Initialize(variables);
+  variables_ = variables;
+  Initialize();
 }
 
-void BranchAndBound::Initialize(const std::vector<Variable>& variables) {
-  Graph base(variables);
+void BranchAndBound::Initialize() {
+  Graph base(variables_);
   graphs_.push(base);
   upper_bound_ = base.score();
   lower_bound_ = std::numeric_limits<long double>::min();
@@ -25,6 +26,7 @@ Graph BranchAndBound::Run(long double target_gap) {
     std::cerr << "\rQueue size: " << graphs_.size() << " Evaluated: "
               << ++evaluated << " Discarded: " << discarded
               << " Best score: " << best_graph.score() << "        ";
+    current_graph.ReadyForUse(variables_);
     if (current_graph.score() > best_graph.score()) {
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);
@@ -34,6 +36,7 @@ Graph BranchAndBound::Run(long double target_gap) {
           unsigned parent = cycle[edge - 1], child = cycle[edge];
           Graph next_graph = current_graph;
           if (next_graph.RemoveArc(parent, child)) {
+            next_graph.mutable_variables().clear();
             graphs_.push(next_graph);
           }
           current_graph.mutable_h_matrix()[parent][child] = ArcStatus::PRESENT;

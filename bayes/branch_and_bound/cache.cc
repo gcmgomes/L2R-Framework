@@ -42,9 +42,9 @@ void Cache::Insert(const Bitset& bitset, const CacheEntry& entry) {
   }
 }
 
-bool Cache::BestComplyingEntry(const Bitset& prohibited_bits,
-                                 const Bitset& mandatory_bits,
-                                 Bitset& resulting_bits) const {
+bool Cache::BestCompliantEntry(const Bitset& prohibited_bits,
+                               const Bitset& mandatory_bits,
+                               Bitset& resulting_bits) const {
   Bitset best_complying_entry(prohibited_bits.bit_count());
   long double best_score = std::numeric_limits<int>::min();
   auto entry = cache_.cbegin();
@@ -57,7 +57,7 @@ bool Cache::BestComplyingEntry(const Bitset& prohibited_bits,
     }
     ++entry;
   }
-  if(best_score == std::numeric_limits<int>::min()) {
+  if (best_score == std::numeric_limits<int>::min()) {
     return false;
   }
   resulting_bits = best_complying_entry;
