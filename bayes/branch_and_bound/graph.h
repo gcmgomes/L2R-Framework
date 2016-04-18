@@ -84,6 +84,7 @@ class Graph {
   bool MakeCompliant(unsigned child_variable_id);
 
   long double score_;
+  std::vector<Variable> variables_;
   std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>
       h_matrix_;
 };
