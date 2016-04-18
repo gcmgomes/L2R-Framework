@@ -71,17 +71,19 @@ class Graph {
 
   std::string ToString(std::string left_padding = "") const;
 
+  Bitset Hashable() const;
+
  private:
   // Initializes the required structures and values.
   void Initialize();
 
   // Changes the parent set of |child_variable_id| to comply with the
   // restrictions imposed by |h_matrix|. In a worst case scenario, the variable
-  // will become orphan.
-  void MakeCompliant(unsigned child_variable_id);
+  // will become orphan. Returns true if it is possible to create a compliant
+  // graph, false otherwise.
+  bool MakeCompliant(unsigned child_variable_id);
 
   long double score_;
-  std::vector<Variable> variables_;
   std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>
       h_matrix_;
 };

@@ -48,6 +48,9 @@ class Bitset {
   // otherwise.
   bool BitwiseLogicalAnd(const Bitset& bitset) const;
 
+  // Returns true if |bitset| is a subset of |this|.
+  bool Contains(const Bitset& bitset) const;
+
   // This is the raw bit string, the most significant bit has the highest
   // position.
   const std::string bit_string() const;

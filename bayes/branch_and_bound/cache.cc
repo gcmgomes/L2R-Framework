@@ -1,4 +1,5 @@
 #include <cmath>
+#include <limits>
 #include <queue>
 #include <sstream>
 #include <unordered_set>
@@ -41,19 +42,26 @@ void Cache::Insert(const Bitset& bitset, const CacheEntry& entry) {
   }
 }
 
-Bitset Cache::BestComplyingEntry(const Bitset& prohibited_bits) const {
+bool Cache::BestComplyingEntry(const Bitset& prohibited_bits,
+                                 const Bitset& mandatory_bits,
+                                 Bitset& resulting_bits) const {
   Bitset best_complying_entry(prohibited_bits.bit_count());
-  long double best_score = cache_.at(best_complying_entry).score(w_);
+  long double best_score = std::numeric_limits<int>::min();
   auto entry = cache_.cbegin();
   while (entry != cache_.cend()) {
     if (best_score < entry->second.score(w_) &&
-        !prohibited_bits.BitwiseLogicalAnd(entry->first)) {
+        !prohibited_bits.BitwiseLogicalAnd(entry->first) &&
+        entry->first.Contains(mandatory_bits)) {
       best_score = entry->second.score(w_);
       best_complying_entry = entry->first;
     }
     ++entry;
   }
-  return best_complying_entry;
+  if(best_score == std::numeric_limits<int>::min()) {
+    return false;
+  }
+  resulting_bits = best_complying_entry;
+  return true;
 }
 
 void Cache::OpenRepository(const std::string& file_path,

@@ -103,6 +103,20 @@ bool Bitset::BitwiseLogicalAnd(const Bitset& bitset) const {
   return false;
 }
 
+bool Bitset::Contains(const Bitset& bitset) const {
+  auto super_high_bits = high_bits();
+  auto sub_high_bits = bitset.high_bits();
+  auto it = sub_high_bits.cbegin();
+  while(it != sub_high_bits.cend()) {
+    if(!std::binary_search(super_high_bits.cbegin(),
+                           super_high_bits.cend(), *it)) {
+      return false;
+    }
+    ++it;    
+  }
+  return true;
+}
+
 const std::string Bitset::bit_string() const {
   unsigned ull = 0;
   std::string bit_str;

@@ -17,11 +17,14 @@ void BranchAndBound::Initialize(const std::vector<Variable>& variables) {
 }
 
 Graph BranchAndBound::Run(long double target_gap) {
+  unsigned evaluated = 0, discarded = 0;
   Graph best_graph;
   while (!graphs_.empty()) {
     Graph current_graph = graphs_.top();
     graphs_.pop();
-    std::cerr << "\rQueue size: " << graphs_.size();
+    std::cerr << "\rQueue size: " << graphs_.size() << " Evaluated: "
+              << ++evaluated << " Discarded: " << discarded
+              << " Best score: " << best_graph.score() << "        ";
     if (current_graph.score() > best_graph.score()) {
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);
@@ -43,6 +46,8 @@ Graph BranchAndBound::Run(long double target_gap) {
         best_graph = current_graph;
         lower_bound_ = best_graph.score();
       }
+    } else {
+      discarded++;
     }
   }
   return best_graph;

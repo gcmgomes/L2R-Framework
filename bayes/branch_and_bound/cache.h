@@ -70,8 +70,13 @@ class Cache {
   }
 
   // Every bit set to 1 in |prohibited_bits| indicates that the given feature
-  // cannot exist in that parent set.
-  Bitset BestComplyingEntry(const Bitset& prohibited_bits) const;
+  // cannot exist in that parent set. Every bit set to 1 in |mandatory_bits|
+  // indicates that the given feature must exist in the set. Returns true if a
+  // complying entry was found, false otherwise. Check the return value before
+  // using the value stored in |resulting_bits|.
+  bool BestComplyingEntry(const Bitset& prohibited_bits,
+                          const Bitset& mandatory_bits,
+                          Bitset& resulting_bits) const;
 
   // Opens the file pointed by |file_path| to serve as |repository_| for this
   // cache. Set |open_mode| appropriately!

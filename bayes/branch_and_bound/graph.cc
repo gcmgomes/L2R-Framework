@@ -95,9 +95,11 @@ bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
   long double old_score = score_ - child_var.score();
   child_var.mutable_parent_set().Set(parent_variable_id, false);
   h_matrix_[parent_variable_id][child_variable_id] = ArcStatus::PROHIBITED;
-  MakeCompliant(child_variable_id);
-  score_ = old_score + child_var.score();
-  return true;
+  if(MakeCompliant(child_variable_id)) {
+    score_ = old_score + child_var.score();
+    return true;
+  }
+  return false;    
 }
 
 std::string Graph::ToString(std::string left_padding) const {
@@ -129,6 +131,23 @@ std::string Graph::ToString(std::string left_padding) const {
   return str.str();
 }
 
+Bitset Graph::Hashable() const {
+  Bitset bitset(variables_.size() * variables_.size());
+  auto variable = variables_.cbegin();
+  unsigned padding = 0;
+  while(variable != variables_.cend()) {
+    auto high_bits = variable->parent_set().high_bits();
+    auto bit = high_bits.begin();
+    while(bit != high_bits.end()) {
+      bitset.Set(*bit + padding, true);
+      ++bit;    
+    }
+    padding += variables_.size();
+    ++variable;
+  }
+  return bitset;
+}
+
 void Graph::Initialize() {
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
@@ -139,20 +158,30 @@ void Graph::Initialize() {
   }
 }
 
-void Graph::MakeCompliant(unsigned child_variable_id) {
+bool Graph::MakeCompliant(unsigned child_variable_id) {
   Bitset prohibited_bits(variables_.size());
+  Bitset mandatory_bits(variables_.size());
   unsigned parent_variable_id = 0;
   while (parent_variable_id < variables_.size()) {
-    if (parent_variable_id != child_variable_id &&
-        GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
-                 ArcStatus::PROHIBITED)) {
-      prohibited_bits.Set(parent_variable_id, true);
+    if (parent_variable_id != child_variable_id) {
+      if (GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
+                   ArcStatus::PROHIBITED)) {
+        prohibited_bits.Set(parent_variable_id, true);
+      }
+      else if(GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
+                   ArcStatus::PRESENT)) {
+        mandatory_bits.Set(parent_variable_id, true);
+      }
     }
     parent_variable_id++;
   }
-  variables_[child_variable_id].mutable_parent_set() =
-      variables_[child_variable_id].cache()->BestComplyingEntry(
-          prohibited_bits);
+  Bitset best_complying_entry;
+  if(variables_[child_variable_id].cache()->BestComplyingEntry(
+      prohibited_bits, mandatory_bits, best_complying_entry)) {
+    variables_[child_variable_id].mutable_parent_set() = best_complying_entry;
+    return true;
+  }
+  return false;
 }
 
 }  // namespce branch_and_bound
