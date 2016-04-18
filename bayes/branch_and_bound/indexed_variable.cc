@@ -44,6 +44,9 @@ static void AugmentSupersets(
 }
 
 long double Variable::score() const {
+  if(cache_->cache().empty()) {
+    return 0;
+  }
   return cache_->at(parent_set_).score(cache_->w());
 }
 

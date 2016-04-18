@@ -17,20 +17,33 @@ void BranchAndBound::Initialize() {
   lower_bound_ = std::numeric_limits<long double>::min();
 }
 
+static void SP(const std::vector<unsigned>& cycle) {
+  auto it = cycle.cbegin();
+  std::cout << *it;
+  it++;
+  while(it != cycle.cend()) {
+    std::cout << " -> " << *it;
+    ++it;    
+  }
+  std::cout << std::endl;         
+}
+
 Graph BranchAndBound::Run(long double target_gap) {
   unsigned evaluated = 0, discarded = 0;
   Graph best_graph;
   while (!graphs_.empty()) {
     Graph current_graph = graphs_.top();
     graphs_.pop();
-    std::cerr << "\rQueue size: " << graphs_.size() << " Evaluated: "
-              << ++evaluated << " Discarded: " << discarded
-              << " Best score: " << best_graph.score() << "        ";
     current_graph.ReadyForUse(variables_);
+    std::cerr << "\rQueue size: " << graphs_.size() << " Evaluated: "
+              << evaluated++ << " Discarded: " << discarded
+              << " Best score: " << best_graph.score() << "        ";
     if (current_graph.score() > best_graph.score()) {
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);
       if (!cycle.empty()) {  // Not a DAG, gotta fix this.
+        // std::cout << "Cycle: ";
+        // SP(cycle);
         unsigned edge = 1;
         while (edge < cycle.size()) {
           unsigned parent = cycle[edge - 1], child = cycle[edge];

@@ -110,22 +110,6 @@ std::string Graph::ToString(std::string left_padding) const {
     ++it;
   }
   str << left_padding << "Graph score: " << score() << std::endl;
-  str << left_padding << "H Matrix:" << std::endl;
-  unsigned line = 0;
-  while (line < h_matrix_.size()) {
-    unsigned column = 0;
-    str << left_padding;
-    while (column < h_matrix_.at(line).size()) {
-      if (column) {
-        str << " ";
-      }
-      unsigned x = static_cast<unsigned>(h_matrix_.at(line).at(column));
-      str << x;
-      column++;
-    }
-    str << std::endl;
-    line++;
-  }
   return str.str();
 }
 
