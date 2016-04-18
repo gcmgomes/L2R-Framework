@@ -25,7 +25,7 @@ Graph::Graph(const std::vector<Variable>& variables) {
 }
 
 static void CycleDFS(unsigned search_root,
-                     const std::vector<std::vector<unsigned> >& topology,
+                     const std::vector<std::vector<unsigned>>& topology,
                      std::vector<unsigned>& visited,
                      std::vector<unsigned>& cycle) {
   if (visited[search_root] == 1) {  // |search_root| is open, found a cycle!
@@ -51,7 +51,7 @@ static void CycleDFS(unsigned search_root,
 }
 
 void Graph::FindCycle(std::vector<unsigned>& cycle) const {
-  std::vector<std::vector<unsigned> > topology(variables_.size());
+  std::vector<std::vector<unsigned>> topology(variables_.size());
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
     auto high_bits = it->parent_set().high_bits();
@@ -76,9 +76,19 @@ void Graph::FindCycle(std::vector<unsigned>& cycle) const {
   }
 }
 
+static bool GoodToGo(
+    std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>
+        h_matrix,
+    unsigned parent_variable_id, unsigned child_variable_id, ArcStatus status) {
+  return (h_matrix.count(parent_variable_id) &&
+          h_matrix.at(parent_variable_id).count(child_variable_id) &&
+          h_matrix.at(parent_variable_id).at(child_variable_id) == status);
+}
+
 bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
   if (!variables_[child_variable_id].parent_set().at(parent_variable_id) ||
-      h_matrix_[parent_variable_id][child_variable_id] == ArcStatus::PRESENT) {
+      GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
+               ArcStatus::PRESENT)) {
     return false;
   }
   Variable& child_var = variables_[child_variable_id];
@@ -121,14 +131,10 @@ std::string Graph::ToString(std::string left_padding) const {
 
 void Graph::Initialize() {
   auto it = variables_.cbegin();
-  h_matrix_.resize(variables_.size(),
-                   std::vector<ArcStatus>(variables_.size(), ArcStatus::FREE));
-  h_matrix_.shrink_to_fit();
   while (it != variables_.cend()) {
     if (it->categories().size() > 1) {
       score_ += it->score();
     }
-    h_matrix_[it->variable_id()].shrink_to_fit();
     ++it;
   }
 }
@@ -138,8 +144,8 @@ void Graph::MakeCompliant(unsigned child_variable_id) {
   unsigned parent_variable_id = 0;
   while (parent_variable_id < variables_.size()) {
     if (parent_variable_id != child_variable_id &&
-        h_matrix_[parent_variable_id][child_variable_id] ==
-            ArcStatus::PROHIBITED) {
+        GoodToGo(h_matrix_, parent_variable_id, child_variable_id,
+                 ArcStatus::PROHIBITED)) {
       prohibited_bits.Set(parent_variable_id, true);
     }
     parent_variable_id++;

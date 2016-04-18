@@ -46,11 +46,13 @@ class Graph {
     return variables_;
   }
 
-  const std::vector<std::vector<ArcStatus>>& h_matrix() const {
+  const std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>&
+  h_matrix() const {
     return h_matrix_;
   }
 
-  std::vector<std::vector<ArcStatus>>& mutable_h_matrix() {
+  std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>&
+  mutable_h_matrix() {
     return h_matrix_;
   }
 
@@ -80,7 +82,8 @@ class Graph {
 
   long double score_;
   std::vector<Variable> variables_;
-  std::vector<std::vector<ArcStatus>> h_matrix_;
+  std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>
+      h_matrix_;
 };
 
 }  // namespce branch_and_bound
