@@ -37,6 +37,6 @@ int main(int argc, char** argv) {
   bayes::branch_and_bound::BranchAndBound bnb(variables);
 
   bayes::branch_and_bound::Graph best = bnb.Run(1.0);
-  std::cerr << "Best graph is:" << std::endl << best.ToString() << std::endl;
+  std::cout << "Best graph is:" << std::endl << best.ToString() << std::endl;
   return 0;
 }

@@ -29,7 +29,7 @@ class BranchAndBound {
   void Initialize();
 
   std::vector<Variable> variables_;
-  Heap graphs_;
+  std::priority_queue<Graph> graphs_;
 
   long double upper_bound_;
   long double lower_bound_;

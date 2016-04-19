@@ -17,17 +17,6 @@ void BranchAndBound::Initialize() {
   lower_bound_ = std::numeric_limits<long double>::min();
 }
 
-static void SP(const std::vector<unsigned>& cycle) {
-  auto it = cycle.cbegin();
-  std::cout << *it;
-  it++;
-  while(it != cycle.cend()) {
-    std::cout << " -> " << *it;
-    ++it;    
-  }
-  std::cout << std::endl;         
-}
-
 Graph BranchAndBound::Run(long double target_gap) {
   unsigned evaluated = 0, discarded = 0;
   Graph best_graph;

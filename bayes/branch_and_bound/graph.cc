@@ -122,7 +122,7 @@ bool Graph::ReadyForUse(const std::vector<Variable>& variables) {
     }
     ++it;
   }
-  Initialize(variables);
+  Initialize(variables_);
   return true;
 }
 

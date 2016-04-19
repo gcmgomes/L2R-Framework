@@ -50,6 +50,7 @@ cc_library(
   srcs = ["tube_node.cc"],
   hdrs = ["tube_node.h"],
   deps = [":tube_input"],
+  linkopts = ["-lm"],
 )
 
 cc_binary(
