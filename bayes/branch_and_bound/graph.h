@@ -13,7 +13,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "indexed_variable.h"
+#include "variable.h"
 
 namespace bayes {
 namespace branch_and_bound {

@@ -12,7 +12,7 @@
 #include <string>
 #include <cmath>
 #include <unordered_set>
-#include "../indexed_variable.h"
+#include "../variable.h"
 #include "../../../base/dataset.h"
 #include "../../../util/discretizer.h"
 

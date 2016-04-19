@@ -14,15 +14,15 @@
 #include "bitset.h"
 #include "cache.h"
 #include "external_queue.h"
-#include "instance.h"
+#include "inverted_index.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
-
 class Variable {
  public:
-  Variable(unsigned variable_id, Cache* cache, ExternalQueue* external_queue);
+  Variable(unsigned variable_id, Cache* cache, ExternalQueue* external_queue,
+           size_t variable_count);
 
   unsigned variable_id() const {
     return variable_id_;
@@ -50,30 +50,36 @@ class Variable {
 
   long double score() const;
 
-  void BuildCache(const std::vector<Instance>& instances,
+  void BuildCache(const InvertedIndex& index,
                   const std::vector<Variable>& variables);
 
-  long double LogLikelihood(const std::vector<Instance>& instances,
+  long double LogLikelihood(const InvertedIndex& index,
                             const std::vector<Variable>& variables) const;
 
   unsigned long long FreeParameters(
       const std::vector<Variable>& variables) const;
 
-  static void InitializeVariables(
-      const std::vector<Instance>& instances, std::vector<Variable>& variables,
-      std::vector<ExternalQueue>& external_queues, std::vector<Cache>& caches);
+  static void InitializeVariables(const InvertedIndex& index,
+                                  std::vector<Variable>& variables,
+                                  std::vector<ExternalQueue>& external_queues,
+                                  std::vector<Cache>& caches);
 
   std::string ToString() const;
 
+  // Sets |parent_set_| to the best entry found in |cache_|.
+  void FindBestEntry();
+
  private:
   // Recursively determines a configuration for the parents of the variable.
-  long double LLOuterSum(const std::vector<Instance>& instances,
+  long double LLOuterSum(const InvertedIndex& index,
                          const std::vector<Variable>& variables,
+                         const std::unordered_set<unsigned>& intersection,
                          std::vector<unsigned>& configuration) const;
 
   // Returns the innermost summation of the LogLikelihood metric.
-  long double LLInnerSum(const std::vector<Instance>& instances,
-                         std::vector<unsigned>& configuration) const;
+  long double LLInnerSum(
+      const InvertedIndex& index,
+      const std::unordered_set<unsigned>& intersection) const;
 
   unsigned variable_id_;
   Bitset parent_set_;

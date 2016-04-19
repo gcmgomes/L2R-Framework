@@ -31,12 +31,6 @@ cc_binary(
 )
 
 cc_binary(
-  name = "indexed_variable",
-  srcs = ["indexed_variable.cc"],
-  deps = ["//bayes/branch_and_bound:indexed_variable"],
-)
-
-cc_binary(
   name = "variable",
   srcs = ["variable.cc"],
   deps = ["//bayes/branch_and_bound:variable"],

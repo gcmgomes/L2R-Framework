@@ -9,10 +9,11 @@ namespace bayes {
 namespace branch_and_bound {
 
 Variable::Variable(unsigned variable_id, Cache* cache,
-                   ExternalQueue* external_queue) {
+                   ExternalQueue* external_queue, size_t variable_count) {
   variable_id_ = variable_id;
   cache_ = cache;
   external_queue_ = external_queue;
+  parent_set_ = Bitset(variable_count);
 }
 
 static void AugmentSupersets(
@@ -43,10 +44,13 @@ static void AugmentSupersets(
 }
 
 long double Variable::score() const {
+  if(cache_->cache().empty()) {
+    return 0;
+  }
   return cache_->at(parent_set_).score(cache_->w());
 }
 
-void Variable::BuildCache(const std::vector<Instance>& instances,
+void Variable::BuildCache(const InvertedIndex& index,
                           const std::vector<Variable>& variables) {
   if (categories_.size() < 2) {
     return;
@@ -76,7 +80,7 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
     bool missing_edges = best_subset_entries[parent_set_].first;
     if ((is_empty_set || free_parameters + subset_entry.score(w) <= 0) &&
         !missing_edges) {  // Passed Lemma 2
-      long double log_likelihood = LogLikelihood(instances, variables);
+      long double log_likelihood = LogLikelihood(index, variables);
       CacheEntry entry(log_likelihood, free_parameters);
       if (is_empty_set) {
         best_subset_entries[parent_set_].second = entry;
@@ -91,6 +95,8 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
       } else {
         discarded++;
       }
+      // Even if Lemma 1 doesn't pass, we need to check this set's
+      // supersets.
       AugmentSupersets(variable_id_, w, variables, best_subset_entries,
                        parent_set_, external_queue_);
     } else {
@@ -122,10 +128,10 @@ void Variable::BuildCache(const std::vector<Instance>& instances,
 }
 
 long double Variable::LogLikelihood(
-    const std::vector<Instance>& instances,
-    const std::vector<Variable>& variables) const {
+    const InvertedIndex& index, const std::vector<Variable>& variables) const {
   std::vector<unsigned> configuration;
-  return LLOuterSum(instances, variables, configuration);
+  std::unordered_set<unsigned> intersection;
+  return LLOuterSum(index, variables, intersection, configuration);
 }
 
 unsigned long long Variable::FreeParameters(
@@ -140,29 +146,32 @@ unsigned long long Variable::FreeParameters(
   return t;
 }
 
-void Variable::InitializeVariables(const std::vector<Instance>& instances,
+void Variable::InitializeVariables(const InvertedIndex& index,
                                    std::vector<Variable>& variables,
                                    std::vector<ExternalQueue>& external_queues,
                                    std::vector<Cache>& caches) {
-  auto instance = instances.cbegin();
-  std::vector<std::set<unsigned> > categories(instance->values().size());
-  while (instance != instances.cend()) {
-    unsigned variable = 0;
-    while (variable < instance->values().size()) {
-      categories[variable].insert(instance->values().at(variable));
-      variable++;
+  auto vart = index.index().cbegin();
+  std::vector<std::set<unsigned> > categories(index.index().size());
+  while (vart != index.index().cend()) {
+    auto valuet = vart->second.entries().cbegin();
+    while (valuet != vart->second.entries().cend()) {
+      categories[vart->first].insert(valuet->first);
+      ++valuet;
     }
-    ++instance;
+    ++vart;
   }
   unsigned variable_id = 0;
   while (variable_id < categories.size()) {
-    variables.emplace_back(variable_id, &(caches[variable_id]),
-                           &(external_queues[variable_id]));
+    ExternalQueue* external_queue =
+        (external_queues.empty()) ? NULL : &(external_queues[variable_id]);
+    variables.emplace_back(variable_id, &(caches[variable_id]), external_queue,
+                           index.index().size());
     auto category = categories[variable_id].cbegin();
     while (category != categories[variable_id].cend()) {
       variables[variable_id].mutable_categories().push_back(*category);
       ++category;
     }
+    variables[variable_id].FindBestEntry();
     variable_id++;
   }
 }
@@ -189,47 +198,62 @@ std::string Variable::ToString() const {
   return str.str();
 }
 
-long double Variable::LLOuterSum(const std::vector<Instance>& instances,
-                                 const std::vector<Variable>& variables,
-                                 std::vector<unsigned>& configuration) const {
+void Variable::FindBestEntry() {
+  if (cache_ == NULL || cache_->cache().empty()) {
+    return;
+  }
+  cache_->BestCompliantEntry(Bitset(parent_set_.bit_count()),
+                             Bitset(parent_set_.bit_count()), parent_set_);
+}
+
+long double Variable::LLOuterSum(
+    const InvertedIndex& index, const std::vector<Variable>& variables,
+    const std::unordered_set<unsigned>& intersection,
+    std::vector<unsigned>& configuration) const {
+  if (intersection.empty() && !configuration.empty()) {
+    return 0;
+  }
   std::vector<unsigned> high_bits = parent_set_.high_bits();
   if (configuration.size() == high_bits.size()) {
-    return LLInnerSum(instances, configuration);
+    return LLInnerSum(index, intersection);
   }
   unsigned parent_id = high_bits[configuration.size()];
   const Variable& variable = variables[parent_id];
   auto category = variable.categories_.cbegin();
   long double summation = 0;
   while (category != variable.categories_.cend()) {
+    std::unordered_set<unsigned> next_intersection;
+    if (configuration.empty()) {
+      next_intersection = index.at(variable.variable_id()).at(*category);
+    } else {
+      InvertedIndex::MinimalIntersection(
+          intersection, index.at(variable.variable_id()).at(*category),
+          next_intersection);
+    }
     configuration.push_back(*category);
-    summation += LLOuterSum(instances, variables, configuration);
+    summation += LLOuterSum(index, variables, next_intersection, configuration);
     configuration.pop_back();
     ++category;
   }
   return summation;
 }
 
-long double Variable::LLInnerSum(const std::vector<Instance>& instances,
-                                 std::vector<unsigned>& configuration) const {
-  auto instance = instances.cbegin();
-  std::vector<unsigned> high_bits = parent_set_.high_bits();
+long double Variable::LLInnerSum(
+    const InvertedIndex& index,
+    const std::unordered_set<unsigned>& intersection) const {
   std::unordered_map<unsigned, unsigned> n_ijks(categories_.size());
   unsigned n_ij = 0;
-  while (instance != instances.cend()) {
-    bool increment = true;
-    auto parent = high_bits.cbegin();
-    unsigned p_i = 0;
-    while (parent != high_bits.cend()) {
-      if (instance->values().at(*parent) != configuration[p_i]) {
-        increment = false;
-        break;
-      }
-      p_i++;
-      ++parent;
+  auto kt = index.at(variable_id_).entries().cbegin();
+  while (kt != index.at(variable_id_).entries().cend()) {
+    unsigned value = 0;
+    if (intersection.empty()) {
+      value = kt->second.size();
+    } else {
+      value = InvertedIndex::CountingIntersection(intersection, kt->second);
     }
-    n_ij += increment;
-    n_ijks[instance->values().at(variable_id_)] += increment;
-    ++instance;
+    n_ij += value;
+    n_ijks[kt->first] = value;
+    ++kt;
   }
   long double score = 0;
   auto k = n_ijks.cbegin();
