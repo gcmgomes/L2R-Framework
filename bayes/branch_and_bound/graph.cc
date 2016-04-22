@@ -114,6 +114,7 @@ std::string Graph::ToString(std::string left_padding) const {
 }
 
 bool Graph::ReadyForUse(const std::vector<Variable>& variables) {
+  score_ = 0.0;
   variables_ = variables;
   auto it = variables_.begin();
   while (it != variables_.end()) {

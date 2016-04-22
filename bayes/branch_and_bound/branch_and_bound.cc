@@ -12,22 +12,27 @@ BranchAndBound::BranchAndBound(const std::vector<Variable>& variables) {
 
 void BranchAndBound::Initialize() {
   Graph base(variables_);
-  graphs_.push(base);
+  graphs_.insert(base);
   upper_bound_ = base.score();
   lower_bound_ = std::numeric_limits<long double>::min();
 }
 
 Graph BranchAndBound::Run(long double target_gap) {
+  unsigned bottom = 10;
   unsigned evaluated = 0, discarded = 0;
   Graph best_graph;
   while (!graphs_.empty()) {
-    Graph current_graph = graphs_.top();
-    graphs_.pop();
-    current_graph.ReadyForUse(variables_);
-    std::cerr << "\rQueue size: " << graphs_.size() << " Evaluated: "
-              << evaluated++ << " Discarded: " << discarded
-              << " Best score: " << best_graph.score() << "        ";
+    Graph current_graph;
+    if (!bottom) {
+      bottom = 10;
+      current_graph = *graphs_.rbegin();
+    } else {
+      bottom--;
+      current_graph = *graphs_.begin();
+    }
+    graphs_.erase(current_graph);
     if (current_graph.score() > best_graph.score()) {
+      current_graph.ReadyForUse(variables_);
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);
       if (!cycle.empty()) {  // Not a DAG, gotta fix this.
@@ -39,7 +44,7 @@ Graph BranchAndBound::Run(long double target_gap) {
           Graph next_graph = current_graph;
           if (next_graph.RemoveArc(parent, child)) {
             next_graph.mutable_variables().clear();
-            graphs_.push(next_graph);
+            graphs_.insert(next_graph);
           }
           current_graph.mutable_h_matrix()[parent][child] = ArcStatus::PRESENT;
           current_graph.mutable_h_matrix()[child][parent] =
@@ -54,7 +59,11 @@ Graph BranchAndBound::Run(long double target_gap) {
     } else {
       discarded++;
     }
+    std::cerr << "\rQueue size: " << graphs_.size()
+              << " Evaluated: " << evaluated++ << " Discarded: " << discarded
+              << " Best score: " << best_graph.score() << "        ";
   }
+  std::cerr << std::endl;
   return best_graph;
 }
 

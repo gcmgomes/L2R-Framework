@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <set>
 #include <unordered_map>
 #include <vector>
 #include "graph.h"
@@ -29,7 +30,7 @@ class BranchAndBound {
   void Initialize();
 
   std::vector<Variable> variables_;
-  std::priority_queue<Graph> graphs_;
+  std::multiset<Graph> graphs_;
 
   long double upper_bound_;
   long double lower_bound_;
