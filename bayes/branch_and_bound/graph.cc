@@ -138,6 +138,9 @@ void Graph::Initialize(const std::vector<Variable>& variables) {
 }
 
 bool Graph::BestCompliantEntry(unsigned child_variable_id) {
+  if(variables_[child_variable_id].cache()->cache().empty()) {
+    return true;    
+  }
   Bitset prohibited_bits(variables_.size());
   Bitset mandatory_bits(variables_.size());
   unsigned parent_variable_id = 0;

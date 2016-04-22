@@ -31,8 +31,8 @@ Graph BranchAndBound::Run(long double target_gap) {
       current_graph = *graphs_.begin();
     }
     graphs_.erase(current_graph);
-    if (current_graph.score() > best_graph.score()) {
-      current_graph.ReadyForUse(variables_);
+    bool sound_graph = current_graph.ReadyForUse(variables_);
+    if (current_graph.score() > best_graph.score() && sound_graph) {
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);
       if (!cycle.empty()) {  // Not a DAG, gotta fix this.
