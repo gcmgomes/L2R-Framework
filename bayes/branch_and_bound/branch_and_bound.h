@@ -12,13 +12,16 @@
 #include <unordered_map>
 #include <vector>
 #include "graph.h"
-#include "heap.h"
+#include "min_max_heap.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
 class BranchAndBound {
  public:
+  BranchAndBound(unsigned bottom_frequency,
+                 const std::vector<Variable>& variables);
+
   BranchAndBound(const std::vector<Variable>& variables);
 
   // Executes the B&B algorithm. When the gap gets smaller than |target_gap|,
@@ -29,8 +32,10 @@ class BranchAndBound {
   // Makes everything ready to run the B&B algorithm.
   void Initialize();
 
+  unsigned bottom_frequency_;
+
   std::vector<Variable> variables_;
-  std::multiset<Graph> graphs_;
+  MinMaxHeap graphs_;
 
   long double upper_bound_;
   long double lower_bound_;

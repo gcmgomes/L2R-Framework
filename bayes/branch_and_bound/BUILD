@@ -59,7 +59,7 @@ cc_library(
   hdrs = ["branch_and_bound.h"],
   srcs = ["branch_and_bound.cc"],
   deps = [":graph",
-          ":heap"],
+          ":min_max_heap"],
 )
 
 cc_library(
@@ -69,3 +69,9 @@ cc_library(
   deps = [":graph"],
 )
 
+cc_library(
+  name = "min_max_heap",
+  hdrs = ["min_max_heap.h"],
+  srcs = ["min_max_heap.cc"],
+  deps = [":graph"],
+)

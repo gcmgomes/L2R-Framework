@@ -5,34 +5,39 @@
 namespace bayes {
 namespace branch_and_bound {
 
-BranchAndBound::BranchAndBound(const std::vector<Variable>& variables) {
+BranchAndBound::BranchAndBound(unsigned bottom_frequency,
+                               const std::vector<Variable>& variables) {
+  bottom_frequency_ = bottom_frequency;
   variables_ = variables;
   Initialize();
 }
 
+BranchAndBound::BranchAndBound(const std::vector<Variable>& variables)
+    : BranchAndBound(2, variables) {
+}
+
 void BranchAndBound::Initialize() {
   Graph base(variables_);
-  graphs_.insert(base);
+  graphs_.push(base);
   upper_bound_ = base.score();
   lower_bound_ = std::numeric_limits<long double>::min();
 }
 
 Graph BranchAndBound::Run(long double target_gap) {
-  unsigned bottom = 2;
+  unsigned bottom = bottom_frequency_;
   unsigned evaluated = 0, discarded = 0;
   Graph best_graph;
   while (!graphs_.empty()) {
     bottom--;
-    std::multiset<Graph>::iterator pos = graphs_.end();
-    --pos;
     Graph current_graph;
-    if(bottom) {
-      pos = graphs_.begin();
+    if (bottom) {
+      current_graph = graphs_.min();
+      graphs_.pop_min();
     } else {
-      bottom = 2;
+      bottom = bottom_frequency_;
+      current_graph = graphs_.max();
+      graphs_.pop_max();
     }
-    current_graph = *pos;
-    graphs_.erase(pos);
     bool sound_graph = current_graph.ReadyForUse(variables_);
     if (current_graph.score() > best_graph.score() && sound_graph) {
       std::vector<unsigned> cycle;
@@ -49,10 +54,9 @@ Graph BranchAndBound::Run(long double target_gap) {
             next_graph.FindCycle(next_cycle);
             if (next_cycle.empty() && next_graph.score() > best_graph.score()) {
               best_graph = next_graph;
-            }
-            else if (!next_cycle.empty()) {
+            } else if (!next_cycle.empty()) {
               next_graph.mutable_variables().clear();
-              graphs_.insert(next_graph);
+              graphs_.push(next_graph);
             }
           }
           current_graph.mutable_h_matrix()[parent][child] = ArcStatus::PRESENT;

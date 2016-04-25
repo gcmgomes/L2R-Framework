@@ -48,6 +48,11 @@ cc_binary(
   deps = ["//bayes/branch_and_bound:heap"],
 )
 
+cc_binary(
+  name = "min_max_heap",
+  srcs = ["min_max_heap.cc"],
+  deps = ["//bayes/branch_and_bound:min_max_heap"],
+)
 
 cc_binary(
   name = "branch_and_bound",
