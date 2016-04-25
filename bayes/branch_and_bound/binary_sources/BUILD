@@ -13,3 +13,10 @@ cc_binary(
   deps = ["//bayes/branch_and_bound:branch_and_bound"],
   linkopts = ["-lm"],
 )
+
+cc_binary(
+  name = "best_global_graph",
+  srcs = ["best_global_graph.cc"],
+  deps = ["//bayes/branch_and_bound:branch_and_bound"],
+  linkopts = ["-lm"],
+)
