@@ -18,19 +18,21 @@ void BranchAndBound::Initialize() {
 }
 
 Graph BranchAndBound::Run(long double target_gap) {
-  unsigned bottom = 10;
+  unsigned bottom = 2;
   unsigned evaluated = 0, discarded = 0;
   Graph best_graph;
   while (!graphs_.empty()) {
+    bottom--;
+    std::multiset<Graph>::iterator pos = graphs_.end();
+    --pos;
     Graph current_graph;
-    if (!bottom) {
-      bottom = 10;
-      current_graph = *graphs_.rbegin();
+    if(bottom) {
+      pos = graphs_.begin();
     } else {
-      bottom--;
-      current_graph = *graphs_.begin();
+      bottom = 2;
     }
-    graphs_.erase(current_graph);
+    current_graph = *pos;
+    graphs_.erase(pos);
     bool sound_graph = current_graph.ReadyForUse(variables_);
     if (current_graph.score() > best_graph.score() && sound_graph) {
       std::vector<unsigned> cycle;
@@ -43,8 +45,15 @@ Graph BranchAndBound::Run(long double target_gap) {
           unsigned parent = cycle[edge - 1], child = cycle[edge];
           Graph next_graph = current_graph;
           if (next_graph.RemoveArc(parent, child)) {
-            next_graph.mutable_variables().clear();
-            graphs_.insert(next_graph);
+            std::vector<unsigned> next_cycle;
+            next_graph.FindCycle(next_cycle);
+            if (next_cycle.empty() && next_graph.score() > best_graph.score()) {
+              best_graph = next_graph;
+            }
+            else if (!next_cycle.empty()) {
+              next_graph.mutable_variables().clear();
+              graphs_.insert(next_graph);
+            }
           }
           current_graph.mutable_h_matrix()[parent][child] = ArcStatus::PRESENT;
           current_graph.mutable_h_matrix()[child][parent] =
