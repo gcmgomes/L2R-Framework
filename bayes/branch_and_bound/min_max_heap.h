@@ -21,10 +21,10 @@ class MinMaxHeapNode {
   MinMaxHeapNode(const Graph& graph, MinMaxHeapNode* parent);
 
   const Graph& graph() const {
-    return graph_;
+    return *graph_.get();
   }
 
-  Graph& mutable_graph() {
+  std::unique_ptr<Graph>& mutable_graph() {
     return graph_;
   }
 
@@ -49,13 +49,13 @@ class MinMaxHeapNode {
   }
 
   long double score() const {
-    return graph_.score();
+    return graph_->score();
   }
 
   void Print(std::string left_padding) const;
 
  private:
-  Graph graph_;
+  std::unique_ptr<Graph> graph_;
 
   MinMaxHeapNode* parent_;
 

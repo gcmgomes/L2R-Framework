@@ -7,16 +7,16 @@ namespace bayes {
 namespace branch_and_bound {
 
 MinMaxHeapNode::MinMaxHeapNode(const Graph& graph, MinMaxHeapNode* parent)
-    : graph_(graph), parent_(parent) {
+    : graph_(new Graph(graph)), parent_(parent) {
 }
 
 MinMaxHeap::MinMaxHeap() : size_(0) {
 }
 
 static void Swap(MinMaxHeapNode* a, MinMaxHeapNode* b) {
-  Graph tmp = a->mutable_graph();
-  a->mutable_graph() = b->mutable_graph();
-  b->mutable_graph() = tmp;
+  Graph* tmp = a->mutable_graph().release();
+  a->mutable_graph().reset(b->mutable_graph().release());
+  b->mutable_graph().reset(tmp);
 }
 
 void MinMaxHeap::push(const Graph& graph) {
