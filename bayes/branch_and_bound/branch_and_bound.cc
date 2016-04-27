@@ -27,7 +27,8 @@ void BranchAndBound::Initialize() {
 
 Graph BranchAndBound::Run(long double target_gap) {
   unsigned bottom = bottom_frequency_;
-  unsigned evaluated = 0, discarded = 0;
+  unsigned evaluated = 0, discarded = 0, dags = 0;
+  std::cerr << "Root score: " << graphs_.max()->score() << std::endl;
   Graph best_graph;
   while (!graphs_.empty()) {
     bottom--;
@@ -56,6 +57,7 @@ Graph BranchAndBound::Run(long double target_gap) {
             std::vector<unsigned> next_cycle;
             next_graph.FindCycle(next_cycle);
             if (next_cycle.empty() && next_graph.score() > best_graph.score()) {
+              dags++;
               best_graph = next_graph;
             } else if (!next_cycle.empty()) {
               auto* next_leaf = current_leaf->AddChild(next_graph, child);
@@ -69,6 +71,7 @@ Graph BranchAndBound::Run(long double target_gap) {
         }
         upper_bound_ = current_graph.score();
       } else {  // Now we certainly have a DAG
+        dags++;
         best_graph = current_graph;
         lower_bound_ = best_graph.score();
       }
@@ -77,9 +80,10 @@ Graph BranchAndBound::Run(long double target_gap) {
     }
     std::cerr << "\rQueue size: " << graphs_.size()
               << " Evaluated: " << evaluated++ << " Discarded: " << discarded
-              << " Best score: " << best_graph.score() << "          ";
+              << " DAGs: " << dags << " Best score: " << best_graph.score()
+              << "          ";
     current_leaf->ClearMatrix();
-  } 
+  }
   std::cerr << std::endl;
   return best_graph;
 }
