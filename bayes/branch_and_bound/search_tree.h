@@ -39,7 +39,8 @@ class SearchTreeNode {
     return modified_parent_set_;
   }
 
-  const std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>&
+  const std::unordered_map<unsigned char,
+                           std::unordered_map<unsigned char, ArcStatus>>&
   h_matrix() const {
     return h_matrix_;
   }
@@ -57,8 +58,8 @@ class SearchTreeNode {
 
   std::vector<std::unique_ptr<SearchTreeNode>> children_;
 
-  std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>
-      h_matrix_;
+  std::unordered_map<unsigned char,
+                     std::unordered_map<unsigned char, ArcStatus>> h_matrix_;
 
   unsigned modified_variable_;
   Bitset modified_parent_set_;

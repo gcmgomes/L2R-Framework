@@ -18,7 +18,7 @@
 namespace bayes {
 namespace branch_and_bound {
 
-enum class ArcStatus {
+enum class ArcStatus : unsigned char {
   PRESENT = 1,     // Arc MUST exist in the structure
   PROHIBITED = 2,  // Arc CANNOT exist in the structure
   FREE = 3,        // Arc is free to be there or not
@@ -46,12 +46,14 @@ class Graph {
     return variables_;
   }
 
-  const std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>&
+  const std::unordered_map<unsigned char,
+                           std::unordered_map<unsigned char, ArcStatus>>&
   h_matrix() const {
     return h_matrix_;
   }
 
-  std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>&
+  std::unordered_map<unsigned char,
+                     std::unordered_map<unsigned char, ArcStatus>>&
   mutable_h_matrix() {
     return h_matrix_;
   }
@@ -90,8 +92,8 @@ class Graph {
 
   long double score_;
   std::vector<Variable> variables_;
-  std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>
-      h_matrix_;
+  std::unordered_map<unsigned char,
+                     std::unordered_map<unsigned char, ArcStatus>> h_matrix_;
 };
 
 }  // namespce branch_and_bound

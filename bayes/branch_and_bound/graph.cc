@@ -76,8 +76,8 @@ void Graph::FindCycle(std::vector<unsigned>& cycle) const {
 }
 
 static bool GoodToGo(
-    std::unordered_map<unsigned, std::unordered_map<unsigned, ArcStatus>>
-        h_matrix,
+    std::unordered_map<unsigned char,
+                       std::unordered_map<unsigned char, ArcStatus>> h_matrix,
     unsigned parent_variable_id, unsigned child_variable_id, ArcStatus status) {
   return (h_matrix.count(parent_variable_id) &&
           h_matrix.at(parent_variable_id).count(child_variable_id) &&
@@ -143,8 +143,8 @@ void Graph::Initialize(const std::vector<Variable>& variables) {
 }
 
 bool Graph::BestCompliantEntry(unsigned child_variable_id) {
-  if(variables_[child_variable_id].cache()->cache().empty()) {
-    return true;    
+  if (variables_[child_variable_id].cache()->cache().empty()) {
+    return true;
   }
   Bitset prohibited_bits(variables_.size());
   Bitset mandatory_bits(variables_.size());

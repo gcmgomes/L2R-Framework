@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
   vector<bayes::branch_and_bound::Variable> variables;
   bayes::branch_and_bound::Variable::InitializeVariables(
       index, variables, external_queues, caches);
+  index.clear();
   bayes::branch_and_bound::BranchAndBound bnb(variables);
 
   bayes::branch_and_bound::Graph best = bnb.Run(1.0);

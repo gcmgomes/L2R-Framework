@@ -53,10 +53,15 @@ class InvertedIndex {
                                   const std::unordered_set<unsigned>& second,
                                   std::unordered_set<unsigned>& intersection);
 
-  static unsigned CountingIntersection(const std::unordered_set<unsigned>& first,
-                                   const std::unordered_set<unsigned>& second);
+  static unsigned CountingIntersection(
+      const std::unordered_set<unsigned>& first,
+      const std::unordered_set<unsigned>& second);
 
   std::string ToString() const;
+
+  void clear() {
+    index_.clear();
+  }
 
  private:
   void Initialize(const std::vector<Instance>& instances);
