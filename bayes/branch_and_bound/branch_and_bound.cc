@@ -60,7 +60,8 @@ Graph BranchAndBound::Run(long double target_gap) {
               dags++;
               best_graph = next_graph;
             } else if (!next_cycle.empty()) {
-              auto* next_leaf = current_leaf->AddChild(next_graph, child);
+              auto* next_leaf =
+                  current_leaf->AddChild(next_graph, parent, child);
               graphs_.push(next_leaf);
             }
           }
@@ -82,7 +83,6 @@ Graph BranchAndBound::Run(long double target_gap) {
               << " Evaluated: " << evaluated++ << " Discarded: " << discarded
               << " DAGs: " << dags << " Best score: " << best_graph.score()
               << "          ";
-    current_leaf->ClearMatrix();
   }
   std::cerr << std::endl;
   return best_graph;
