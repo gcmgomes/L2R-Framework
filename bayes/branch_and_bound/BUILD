@@ -73,5 +73,12 @@ cc_library(
   name = "min_max_heap",
   hdrs = ["min_max_heap.h"],
   srcs = ["min_max_heap.cc"],
+  deps = [":search_tree"],
+)
+
+cc_library(
+  name = "search_tree",
+  hdrs = ["search_tree.h"],
+  srcs = ["search_tree.cc"],
   deps = [":graph"],
 )

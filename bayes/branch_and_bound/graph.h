@@ -76,6 +76,8 @@ class Graph {
   // successful, false otherwise.
   bool ReadyForUse(const std::vector<Variable>& variables);
 
+  void RecomputeScore();
+
  private:
   // Initializes the required structures and values.
   void Initialize(const std::vector<Variable>& variables);

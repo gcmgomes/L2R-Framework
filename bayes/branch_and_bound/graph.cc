@@ -127,6 +127,11 @@ bool Graph::ReadyForUse(const std::vector<Variable>& variables) {
   return true;
 }
 
+void Graph::RecomputeScore() {
+  score_ = 0;
+  Initialize(variables_);
+}
+
 void Graph::Initialize(const std::vector<Variable>& variables) {
   auto it = variables.cbegin();
   while (it != variables.cend()) {

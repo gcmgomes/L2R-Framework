@@ -11,7 +11,6 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
-#include "graph.h"
 #include "min_max_heap.h"
 
 namespace bayes {
@@ -35,6 +34,7 @@ class BranchAndBound {
   unsigned bottom_frequency_;
 
   std::vector<Variable> variables_;
+  std::unique_ptr<SearchTree> search_tree_;
   MinMaxHeap graphs_;
 
   long double upper_bound_;

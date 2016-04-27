@@ -12,7 +12,7 @@
 #include <string>
 #include <cmath>
 #include <unordered_set>
-#include "../min_max_heap.h"
+#include "../search_tree.h"
 
 using namespace std;
 

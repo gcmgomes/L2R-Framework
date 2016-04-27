@@ -18,7 +18,9 @@ BranchAndBound::BranchAndBound(const std::vector<Variable>& variables)
 
 void BranchAndBound::Initialize() {
   Graph base(variables_);
-  graphs_.push(base);
+  base.ReadyForUse(variables_);
+  search_tree_.reset(new SearchTree(base));
+  graphs_.push(search_tree_->root());
   upper_bound_ = base.score();
   lower_bound_ = std::numeric_limits<long double>::min();
 }
@@ -29,17 +31,18 @@ Graph BranchAndBound::Run(long double target_gap) {
   Graph best_graph;
   while (!graphs_.empty()) {
     bottom--;
-    Graph current_graph;
+    SearchTreeNode* current_leaf = NULL;
     if (bottom) {
-      current_graph = graphs_.min();
-      graphs_.pop_min();
+      current_leaf = graphs_.max();
+      graphs_.pop_max();
     } else {
       bottom = bottom_frequency_;
-      current_graph = graphs_.max();
-      graphs_.pop_max();
+      current_leaf = graphs_.min();
+      graphs_.pop_min();
     }
-    bool sound_graph = current_graph.ReadyForUse(variables_);
-    if (current_graph.score() > best_graph.score() && sound_graph) {
+    Graph current_graph;
+    search_tree_->RebuildGraph(current_leaf, current_graph);
+    if (current_graph.score() > best_graph.score()) {
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);
       if (!cycle.empty()) {  // Not a DAG, gotta fix this.
@@ -55,8 +58,8 @@ Graph BranchAndBound::Run(long double target_gap) {
             if (next_cycle.empty() && next_graph.score() > best_graph.score()) {
               best_graph = next_graph;
             } else if (!next_cycle.empty()) {
-              next_graph.mutable_variables().clear();
-              graphs_.push(next_graph);
+              auto* next_leaf = current_leaf->AddChild(next_graph, child);
+              graphs_.push(next_leaf);
             }
           }
           current_graph.mutable_h_matrix()[parent][child] = ArcStatus::PRESENT;
@@ -74,8 +77,9 @@ Graph BranchAndBound::Run(long double target_gap) {
     }
     std::cerr << "\rQueue size: " << graphs_.size()
               << " Evaluated: " << evaluated++ << " Discarded: " << discarded
-              << " Best score: " << best_graph.score() << "        ";
-  }
+              << " Best score: " << best_graph.score() << "          ";
+    current_leaf->ClearMatrix();
+  } 
   std::cerr << std::endl;
   return best_graph;
 }

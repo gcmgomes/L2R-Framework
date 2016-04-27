@@ -6,49 +6,50 @@
 namespace bayes {
 namespace branch_and_bound {
 
-MinMaxHeapNode::MinMaxHeapNode(const Graph& graph, MinMaxHeapNode* parent)
-    : graph_(new Graph(graph)), parent_(parent) {
+MinMaxHeapNode::MinMaxHeapNode(SearchTreeNode* search_tree_node,
+                               MinMaxHeapNode* parent)
+    : search_tree_node_(search_tree_node), parent_(parent) {
 }
 
 MinMaxHeap::MinMaxHeap() : size_(0) {
 }
 
 static void Swap(MinMaxHeapNode* a, MinMaxHeapNode* b) {
-  Graph* tmp = a->mutable_graph().release();
-  a->mutable_graph().reset(b->mutable_graph().release());
-  b->mutable_graph().reset(tmp);
+  SearchTreeNode* tmp = a->search_tree_node();
+  a->mutable_search_tree_node() = b->search_tree_node();
+  b->mutable_search_tree_node() = tmp;
 }
 
-void MinMaxHeap::push(const Graph& graph) {
+void MinMaxHeap::push(SearchTreeNode* search_tree_node) {
   size_++;
   if (size_ == 1) {
-    root_.reset(new MinMaxHeapNode(graph, NULL));
+    root_.reset(new MinMaxHeapNode(search_tree_node, NULL));
     return;
   }
   auto* node = GetNode(size_ >> 1);
   if (node->left() == NULL) {
-    node->mutable_left().reset(new MinMaxHeapNode(graph, node));
+    node->mutable_left().reset(new MinMaxHeapNode(search_tree_node, node));
     node = node->left();
   } else {
-    node->mutable_right().reset(new MinMaxHeapNode(graph, node));
+    node->mutable_right().reset(new MinMaxHeapNode(search_tree_node, node));
     node = node->right();
   }
   MinMaxHeapify(node);
 }
 
-const Graph& MinMaxHeap::max() const {
+SearchTreeNode* MinMaxHeap::max() const {
   if (size_ <= 1) {
-    return root_->graph();
+    return root_->search_tree_node();
   } else if (size_ == 2) {
-    return root_->left()->graph();
+    return root_->left()->search_tree_node();
   } else if (root_->left()->score() > root_->right()->score()) {
-    return root_->left()->graph();
+    return root_->left()->search_tree_node();
   }
-  return root_->right()->graph();
+  return root_->right()->search_tree_node();
 }
 
-const Graph& MinMaxHeap::min() const {
-  return root_->graph();
+SearchTreeNode* MinMaxHeap::min() const {
+  return root_->search_tree_node();
 }
 
 void MinMaxHeap::pop_max() {
@@ -253,10 +254,9 @@ MinMaxHeapNode* MinMaxHeap::GetNode(unsigned node_id) const {
   // std::cout << "Looking for node " << node_id << std::endl;
   while (mask) {
     node = (node_id & mask) ? node->right() : node->left();
-    if(node_id & mask) {
+    if (node_id & mask) {
       // std::cout << "Going right to " << node->score() << std::endl;
-    }
-    else {
+    } else {
       // std::cout << "Going left to " << node->score() << std::endl;
     }
     mask >>= 1;

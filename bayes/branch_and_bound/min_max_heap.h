@@ -1,7 +1,9 @@
-// This hepa structure will act as a priority queue for the branch and bound
-// proceedure. Experiments showed that the standard STL priority_queue is
-// actually a very big memory hog, requiring well over three times the required
-// space for a set of objects.
+// This heap structure will act as a double ended priority queue for the branch
+// and bound proceedure. Experiments showed that the standard STL multiset is
+// a bit slow and not really designed for this task. More
+// over, std::priority_queue does not support both top/max and bottom/min
+// operations.
+// Nodes on even levels of the heap are MIN nodes, the others are MAX nodes.
 #ifndef _L2RF_BAYES_BRANCH_AND_BOUND_MIN_MAX_HEAP_H_
 #define _L2RF_BAYES_BRANCH_AND_BOUND_MIN_MAX_HEAP_H_
 
@@ -11,21 +13,21 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "graph.h"
+#include "search_tree.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
 class MinMaxHeapNode {
  public:
-  MinMaxHeapNode(const Graph& graph, MinMaxHeapNode* parent);
+  MinMaxHeapNode(SearchTreeNode* search_tree_node, MinMaxHeapNode* parent);
 
-  const Graph& graph() const {
-    return *graph_.get();
+  SearchTreeNode* search_tree_node() const {
+    return search_tree_node_;
   }
 
-  std::unique_ptr<Graph>& mutable_graph() {
-    return graph_;
+  SearchTreeNode*& mutable_search_tree_node() {
+    return search_tree_node_;
   }
 
   MinMaxHeapNode* parent() const {
@@ -49,13 +51,13 @@ class MinMaxHeapNode {
   }
 
   long double score() const {
-    return graph_->score();
+    return search_tree_node_->score();
   }
 
   void Print(std::string left_padding) const;
 
  private:
-  std::unique_ptr<Graph> graph_;
+  SearchTreeNode* search_tree_node_;
 
   MinMaxHeapNode* parent_;
 
@@ -72,11 +74,11 @@ class MinMaxHeap {
     return size_;
   }
 
-  void push(const Graph& graph);
+  void push(SearchTreeNode* search_tree_node);
 
-  const Graph& max() const;
+  SearchTreeNode* max() const;
 
-  const Graph& min() const;
+  SearchTreeNode* min() const;
 
   void pop_max();
 
@@ -87,7 +89,6 @@ class MinMaxHeap {
   void Print() const;
 
  private:
-
   void MinMaxHeapify(MinMaxHeapNode* node);
 
   // Node is always a max level node.
