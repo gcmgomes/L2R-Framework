@@ -4,7 +4,7 @@ cc_library(
   name = "bitset",
   hdrs = ["bitset.h"],
   srcs = ["bitset.cc"],
-  deps = [],
+  linkopts = ["-lm"],
 )
 
 cc_library(

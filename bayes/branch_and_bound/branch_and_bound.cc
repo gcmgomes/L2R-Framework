@@ -31,6 +31,7 @@ Graph BranchAndBound::Run(long double target_gap) {
   std::cerr << "Root score: " << graphs_.max()->score() << std::endl;
   Graph best_graph;
   while (!graphs_.empty()) {
+    bool newline = false;
     bottom--;
     SearchTreeNode* current_leaf = NULL;
     if (bottom) {
@@ -62,6 +63,7 @@ Graph BranchAndBound::Run(long double target_gap) {
             } else if (!next_cycle.empty()) {
               auto* next_leaf =
                   current_leaf->AddChild(next_graph, parent, child);
+              newline = true;
               graphs_.push(next_leaf);
             }
           }
@@ -73,6 +75,7 @@ Graph BranchAndBound::Run(long double target_gap) {
         upper_bound_ = current_graph.score();
       } else {  // Now we certainly have a DAG
         dags++;
+        newline = true;
         best_graph = current_graph;
         lower_bound_ = best_graph.score();
       }
@@ -83,6 +86,9 @@ Graph BranchAndBound::Run(long double target_gap) {
               << " Evaluated: " << evaluated++ << " Discarded: " << discarded
               << " DAGs: " << dags << " Best score: " << best_graph.score()
               << "          ";
+    if (newline) {
+      std::cerr << std::endl;
+    }
   }
   std::cerr << std::endl;
   return best_graph;

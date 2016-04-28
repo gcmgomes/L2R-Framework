@@ -66,18 +66,9 @@ class SearchTreeNode {
     return matrix_entry_;
   }
 
-  const std::unordered_map<unsigned char,
-                           std::unordered_map<unsigned char, ArcStatus>>&
-  h_matrix() const {
-    return h_matrix_;
-  }
-
   // Returns a pointer to the added child.
   SearchTreeNode* AddChild(const Graph& graph, unsigned parent_variable,
                            unsigned child_variable);
-
-  // Erases |h_matrix_| to save up space.
-  void ClearMatrix();
 
  private:
   long double score_;
@@ -85,9 +76,6 @@ class SearchTreeNode {
   SearchTreeNode* parent_;
 
   std::vector<std::unique_ptr<SearchTreeNode>> children_;
-
-  std::unordered_map<unsigned char,
-                     std::unordered_map<unsigned char, ArcStatus>> h_matrix_;
 
   unsigned modified_variable_;
   Bitset modified_parent_set_;
