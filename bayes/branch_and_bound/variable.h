@@ -48,6 +48,10 @@ class Variable {
     return cache_;
   }
 
+  const ExternalQueue* external_queue() const {
+    return external_queue_;
+  }
+
   long double score() const;
 
   void BuildCache(const InvertedIndex& index,
