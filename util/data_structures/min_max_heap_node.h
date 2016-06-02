@@ -61,6 +61,20 @@ class MinMaxHeapNode {
     return node.key() < this->key();
   }
 
+  void Print(std::string padding) {
+    std::cout << padding << key_ << std::endl;
+    if (right_ == NULL) {
+      std::cout << padding << "  ||" << std::endl;
+    } else {
+      right_->Print(padding + "  ");
+    }
+    if (left_ == NULL) {
+      std::cout << padding << "  ||" << std::endl;
+    } else {
+      left_->Print(padding + "  ");
+    }
+  }
+
  private:
   T key_;
 

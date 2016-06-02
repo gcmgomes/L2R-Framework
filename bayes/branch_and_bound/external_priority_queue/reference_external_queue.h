@@ -1,5 +1,5 @@
-#ifndef _L2RF_BAYES_BRANCH_AND_BOUND_GRAPH_EXTERNAL_QUEUE_H_
-#define _L2RF_BAYES_BRANCH_AND_BOUND_GRAPH_EXTERNAL_QUEUE_H_
+#ifndef _L2RF_BAYES_BRANCH_AND_BOUND_REFERENCE_EXTERNAL_QUEUE_H_
+#define _L2RF_BAYES_BRANCH_AND_BOUND_REFERENCE_EXTERNAL_QUEUE_H_
 
 #include <cstdlib>
 #include <iostream>
@@ -8,29 +8,29 @@
 #include <memory>
 #include <unordered_map>
 #include <queue>
-#include "../graph.h"
+#include "external_graph_reference.h"
+#include "../../../util/data_structures/min_max_heap.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
-class GraphExternalQueue {
+class ReferenceExternalQueue {
  public:
-  GraphExternalQueue(const std::string& file_path, size_t queue_limit);
+  ReferenceExternalQueue(const std::string& file_path);
 
   bool empty();
 
-  const Graph& front() const;
+  Graph min();
+
+  Graph max();
 
   void push(const Graph& key);
 
-  void pop();
+  void pop_min();
+  void pop_max();
 
   size_t size() const {
-    return size_;
-  }
-
-  size_t& mutable_queue_limit() {
-    return queue_limit_;
+    return reference_heap_.size();
   }
 
   const std::string& file_path() const {
@@ -44,14 +44,11 @@ class GraphExternalQueue {
 
   void OpenRepository(const std::string& file_path);
 
-  void FetchFromRepository();
+  Graph FetchGraph(const ExternalGraphReference& reference);
 
-  size_t queue_limit_;
-  size_t size_;
   std::string file_path_;
-  std::streampos tellg_;
   std::streampos tellp_;
-  std::queue<Graph> queue_;
+  ::util::data_structures::MinMaxHeap<ExternalGraphReference> reference_heap_;
   std::fstream repository_;
 };
 

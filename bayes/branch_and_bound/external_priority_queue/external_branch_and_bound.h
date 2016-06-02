@@ -12,7 +12,7 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
-#include "graph_external_priority_queue.h"
+#include "reference_external_priority_queue.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -21,7 +21,7 @@ class ExternalBranchAndBound {
  public:
   ExternalBranchAndBound(unsigned bottom_frequency,
                          const std::vector<Variable>& variables,
-                         GraphExternalPriorityQueue* graphs);
+                         ReferenceExternalPriorityQueue* graphs);
 
   ExternalBranchAndBound(const std::vector<Variable>& variables);
 
@@ -36,7 +36,7 @@ class ExternalBranchAndBound {
   unsigned bottom_frequency_;
 
   std::vector<Variable> variables_;
-  std::unique_ptr<GraphExternalPriorityQueue> graphs_;
+  std::unique_ptr<ReferenceExternalPriorityQueue> graphs_;
 
   long double upper_bound_;
   long double lower_bound_;

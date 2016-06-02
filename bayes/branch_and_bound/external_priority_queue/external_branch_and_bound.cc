@@ -7,7 +7,7 @@ namespace branch_and_bound {
 
 ExternalBranchAndBound::ExternalBranchAndBound(
     unsigned bottom_frequency, const std::vector<Variable>& variables,
-    GraphExternalPriorityQueue* graphs) {
+    ReferenceExternalPriorityQueue* graphs) {
   bottom_frequency_ = bottom_frequency;
   variables_ = variables;
   graphs_.reset(graphs);
@@ -16,8 +16,8 @@ ExternalBranchAndBound::ExternalBranchAndBound(
 
 ExternalBranchAndBound::ExternalBranchAndBound(
     const std::vector<Variable>& variables)
-    : ExternalBranchAndBound(2, variables,
-                             new GraphExternalPriorityQueue(2, 2)) {
+    : ExternalBranchAndBound(
+          2, variables, new ReferenceExternalPriorityQueue(10000, 290000)) {
 }
 
 void ExternalBranchAndBound::Initialize() {
@@ -26,6 +26,7 @@ void ExternalBranchAndBound::Initialize() {
   graphs_->push(base);
   upper_bound_ = base.score();
   lower_bound_ = std::numeric_limits<long double>::min();
+  graphs_->mutable_bounding_score() = lower_bound_;
 }
 
 Graph ExternalBranchAndBound::Run(long double target_gap) {
@@ -39,19 +40,17 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
     Graph current_graph;
     if (bottom) {
       current_graph = graphs_->max();
+      upper_bound_ = current_graph.score();
       graphs_->pop_max();
     } else {
       bottom = bottom_frequency_;
       current_graph = graphs_->min();
       graphs_->pop_min();
     }
-    std::cout << current_graph.score() << std::endl;
     if (current_graph.score() > best_graph.score()) {
       std::vector<unsigned> cycle;
       current_graph.FindCycle(cycle);
       if (!cycle.empty()) {  // Not a DAG, gotta fix this.
-        // std::cout << "Cycle: ";
-        // SP(cycle);
         unsigned edge = 1;
         while (edge < cycle.size()) {
           unsigned parent = cycle[edge - 1], child = cycle[edge];
@@ -63,6 +62,8 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
               newline = true;
               dags++;
               best_graph = next_graph;
+              lower_bound_ = best_graph.score();
+              graphs_->mutable_bounding_score() = best_graph.score();
             } else if (!next_cycle.empty()) {
               graphs_->push(next_graph);
             }
@@ -72,12 +73,12 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
               ArcStatus::PROHIBITED;
           edge++;
         }
-        upper_bound_ = current_graph.score();
       } else {  // Now we certainly have a DAG
         dags++;
         newline = true;
         best_graph = current_graph;
         lower_bound_ = best_graph.score();
+        graphs_->mutable_bounding_score() = best_graph.score();
       }
     } else {
       discarded++;
@@ -85,8 +86,13 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
     std::cerr << "\rQueue size: " << graphs_->total_size()
               << " Evaluated: " << evaluated++ << " Discarded: " << discarded
               << " DAGs: " << dags << " Best score: " << best_graph.score()
+              << " Gap: "
+              << -((upper_bound_ - lower_bound_) / upper_bound_) * 100 << "\%"
               << "          ";
+    // std::cout << evaluated << " " << graphs_->total_size() << " " <<
+    // graphs_->memory_size() << " " << graphs_->external_size();
     if (newline) {
+      std::cout << best_graph.ToString() << std::endl;
       std::cerr << std::endl;
     }
   }

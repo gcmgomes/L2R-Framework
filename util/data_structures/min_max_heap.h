@@ -8,6 +8,7 @@
 #define _L2RF_UTIL_DATA_STRUCTURES_MIN_MAX_HEAP_H_
 
 #include <cstdlib>
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -38,6 +39,18 @@ class MinMaxHeap {
   void pop_min();
 
   bool empty() const;
+  
+  void Print() const {
+    static int i = 1;
+
+    std::cout << i++ << " Size: " << size() << std::endl;
+    if(root_ == NULL) {
+        std::cout << "||" << std::endl;
+    }
+    else {
+        root_->Print("");
+    }
+  }
 
  private:
   void Swap(MinMaxHeapNode<T>* a, MinMaxHeapNode<T>* b);
@@ -232,7 +245,7 @@ void MinMaxHeap<T>::MaxSiftDown(MinMaxHeapNode<T>* node) {
 template <class T>
 void MinMaxHeap<T>::MinSiftDown(MinMaxHeapNode<T>* node) {
   if (node->left() != NULL) {
-    if (node->left() < node) {
+    if (*node->left() < *node) {
       Swap(node->left(), node);
     }
   }

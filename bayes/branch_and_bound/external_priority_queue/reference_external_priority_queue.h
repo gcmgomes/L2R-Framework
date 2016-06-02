@@ -2,8 +2,8 @@
 // possibly be extended as a template class, but as demand hasn't risen yet, we
 // will not. Until then, every instantiation will reimplement this data
 // structure to fit it's needs.
-#ifndef _L2RF_BAYES_BRANCH_AND_BOUND_GRAPH_EXTERNAL_PRIORITY_QUEUE_H_
-#define _L2RF_BAYES_BRANCH_AND_BOUND_GRAPH_EXTERNAL_PRIORITY_QUEUE_H_
+#ifndef _L2RF_BAYES_BRANCH_AND_BOUND_REFERENCE_EXTERNAL_PRIORITY_QUEUE_H_
+#define _L2RF_BAYES_BRANCH_AND_BOUND_REFERENCE_EXTERNAL_PRIORITY_QUEUE_H_
 
 #include <cstdlib>
 #include <iostream>
@@ -11,15 +11,15 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "graph_external_queue.h"
-#include "graph_min_max_heap.h"
+#include "reference_external_queue.h"
+#include "../../../util/data_structures/min_max_heap.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
-class GraphExternalPriorityQueue {
+class ReferenceExternalPriorityQueue {
  public:
-  GraphExternalPriorityQueue(size_t min_maximum_size, size_t max_maximum_size);
+  ReferenceExternalPriorityQueue(size_t min_maximum_size, size_t max_maximum_size);
 
   size_t total_size() const {
     return minima_.size() + maxima_.size() + external_queue_->size();
@@ -33,12 +33,24 @@ class GraphExternalPriorityQueue {
     return minima_.size() + maxima_.size();
   }
 
+  size_t external_size() const {
+    return external_queue_->size();    
+  }
+
   size_t min_maximum_size() const {
     return min_maximum_size_;
   }
 
   size_t max_maximum_size() const {
     return max_maximum_size_;
+  }
+
+  size_t minima_size() const {
+    return minima_.size();
+  }
+
+  size_t maxima_size() const {
+    return maxima_.size();
   }
 
   size_t max_memory_size() const {
@@ -57,9 +69,24 @@ class GraphExternalPriorityQueue {
 
   void push(const Graph& key);
 
-  void Print();
+  long double bounding_score() const {
+    return bounding_score_;
+  }
+
+  long double& mutable_bounding_score() {
+    return bounding_score_;
+  }
+
+  ::util::data_structures::MinMaxHeap<Graph>& minima() {
+    return minima_;
+  }
+  ::util::data_structures::MinMaxHeap<Graph>& maxima() {
+    return maxima_;
+  }
 
  private:
+  long double bounding_score_;
+
   bool IsInRange(const Graph& key, bool check_maxima);
 
   void Write(const Graph& key);
@@ -69,10 +96,10 @@ class GraphExternalPriorityQueue {
   size_t min_maximum_size_;
   size_t max_maximum_size_;
 
-  GraphMinMaxHeap minima_;
-  GraphMinMaxHeap maxima_;
+  ::util::data_structures::MinMaxHeap<Graph> minima_;
+  ::util::data_structures::MinMaxHeap<Graph> maxima_;
 
-  std::unique_ptr<GraphExternalQueue> external_queue_;
+  std::unique_ptr<ReferenceExternalQueue> external_queue_;
 };
 
 }  // namespce branch_and_bound

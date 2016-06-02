@@ -104,9 +104,9 @@ std::string Graph::ToString(std::string left_padding) const {
   std::stringstream str;
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
-    str << left_padding << "Variable " << it->variable_id()
-        << ": Parents: " << it->parent_set().ToString()
-        << " Score:" << it->score() << std::endl;
+    str << left_padding << "Variable " << it->variable_id();
+    str << ": Parents: " << it->parent_set().ToString();
+    str << " Score:" << it->score() << std::endl;
     ++it;
   }
   str << left_padding << "Graph score: " << score() << std::endl;

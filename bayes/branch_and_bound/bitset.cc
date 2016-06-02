@@ -10,18 +10,18 @@ Bitset::Bitset() : Bitset(64){};
 
 Bitset::Bitset(size_t bit_count) {
   bit_count_ = bit_count;
-  size_t ull_count = std::max(std::ceil((double)bit_count / 64.0), 1.0);
+  size_t ull_count = std::max(std::ceil((double)bit_count / 8.0), 1.0);
   bits_.resize(ull_count, 0);
   bits_.shrink_to_fit();
 }
 
 bool Bitset::Set(unsigned bit, bool setting) {
-  unsigned ull_i = bit / 64;
+  unsigned ull_i = bit / 8;
   if (ull_i >= bits_.size()) {
     return false;
   }
-  unsigned long long mask = 1;
-  mask <<= (bit % 64);
+  unsigned char mask = 1;
+  mask <<= (bit % 8);
   if (setting) {
     bits_[ull_i] |= mask;
   } else {
@@ -35,9 +35,9 @@ bool Bitset::operator[](unsigned bit) {
   if (bit >= bit_count_) {
     return 0;
   }
-  unsigned ull_i = bit / 64;
-  bit %= 64;
-  unsigned long long bytes = bits_[ull_i];
+  unsigned ull_i = bit / 8;
+  bit %= 8;
+  unsigned char bytes = bits_[ull_i];
   return (bytes >> bit) & 1;
 }
 
@@ -45,9 +45,9 @@ bool Bitset::at(unsigned bit) const {
   if (bit >= bit_count_) {
     return bits_.at(bit);
   }
-  unsigned ull_i = bit / 64;
-  bit %= 64;
-  unsigned long long bytes = bits_.at(ull_i);
+  unsigned ull_i = bit / 8;
+  bit %= 8;
+  unsigned char bytes = bits_.at(ull_i);
   return (bytes >> bit) & 1;
 }
 
@@ -62,10 +62,10 @@ bool Bitset::operator==(const Bitset& bitset) const {
   return true;
 }
 
-static std::string Stringfy(unsigned long long bits, size_t count) {
+static std::string Stringfy(unsigned char bits, size_t count) {
   std::string str;
   unsigned i = 0;
-  while (i < count && i < 64) {
+  while (i < count && i < 8) {
     str += '0' + (bits & 1);
     bits >>= 1;
     i++;
@@ -78,7 +78,7 @@ const std::vector<unsigned> Bitset::high_bits() const {
   unsigned ull = 0;
   std::vector<unsigned> high_bits;
   while (ull < bits_.size() && bit < bit_count_) {
-    unsigned long long b = bits_.at(ull);
+    unsigned char b = bits_.at(ull);
     while (b) {
       if (b & 1) {
         high_bits.push_back(bit);
@@ -87,7 +87,7 @@ const std::vector<unsigned> Bitset::high_bits() const {
       b >>= 1;
     }
     ull++;
-    bit = ull * 64;
+    bit = ull * 8;
   }
   return high_bits;
 }
@@ -95,7 +95,7 @@ const std::vector<unsigned> Bitset::high_bits() const {
 bool Bitset::BitwiseLogicalAnd(const Bitset& bitset) const {
   unsigned ull = 0;
   while (ull < bitset.bits().size() && ull < bits_.size()) {
-    unsigned long long t_ull = bits_.at(ull), o_ull = bitset.bits().at(ull);
+    unsigned char t_ull = bits_.at(ull), o_ull = bitset.bits().at(ull);
     if (t_ull & o_ull) {
       return true;
     }
@@ -122,7 +122,7 @@ const std::string Bitset::bit_string() const {
   unsigned ull = 0;
   std::string bit_str;
   while (ull < bits_.size()) {
-    bit_str += Stringfy(bits_.at(ull), bit_count_ - (ull * 64));
+    bit_str += Stringfy(bits_.at(ull), bit_count_ - (ull * 8));
     ++ull;
   }
   return bit_str;
@@ -151,9 +151,9 @@ size_t Bitset::Hash() const {
   size_t hash = 0;
   while (ull < bits_.size()) {
     if (!ull) {
-      hash = std::hash<unsigned long long>()(bits_.at(ull));
+      hash = std::hash<unsigned char>()(bits_.at(ull));
     } else {
-      size_t rhs = std::hash<unsigned long long>()(bits_.at(ull));
+      size_t rhs = std::hash<unsigned char>()(bits_.at(ull));
       hash ^= rhs + 0x9e3779b9 + (hash << 6) + (hash >> 2);
     }
     ull++;

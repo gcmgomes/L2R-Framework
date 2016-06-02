@@ -80,6 +80,10 @@ class Graph {
 
   void RecomputeScore();
 
+  friend std::ostream& operator<<(std::ostream& stream, const Graph& g) {
+    return stream << g.score();
+  }
+
  private:
   // Initializes the required structures and values.
   void Initialize(const std::vector<Variable>& variables);
