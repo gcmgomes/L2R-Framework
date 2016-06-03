@@ -64,6 +64,14 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
               best_graph = next_graph;
               lower_bound_ = best_graph.score();
               graphs_->mutable_bounding_score() = best_graph.score();
+              heuristics::GreedyLocalSearch gls(best_graph);
+              if (gls.Run(10)) {
+                std::cerr << std::endl
+                          << "Augmentated DAG" << std::endl;
+                best_graph = gls.seed();
+              }
+              lower_bound_ = best_graph.score();
+              graphs_->mutable_bounding_score() = best_graph.score();
             } else if (!next_cycle.empty()) {
               graphs_->push(next_graph);
             }

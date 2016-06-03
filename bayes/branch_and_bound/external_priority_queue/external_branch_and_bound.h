@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <vector>
 #include "reference_external_priority_queue.h"
+#include "heuristics/greedy_local_search.h"
 
 namespace bayes {
 namespace branch_and_bound {
