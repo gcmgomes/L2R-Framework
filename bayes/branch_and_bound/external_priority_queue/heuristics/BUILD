@@ -6,3 +6,10 @@ cc_library(
   srcs = ["greedy_local_search.cc"],
   deps = ["//bayes/branch_and_bound:graph"],
 )
+
+cc_library(
+  name =  "backtrack_local_search",
+  hdrs = ["backtrack_local_search.h"],
+  srcs = ["backtrack_local_search.cc"],
+  deps = ["//bayes/branch_and_bound:graph"],
+)

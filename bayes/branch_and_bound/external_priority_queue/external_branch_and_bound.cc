@@ -1,6 +1,8 @@
 #include <limits>
 #include <sstream>
 #include "external_branch_and_bound.h"
+#include "heuristics/backtrack_local_search.h"
+#include "heuristics/greedy_local_search.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -17,7 +19,7 @@ ExternalBranchAndBound::ExternalBranchAndBound(
 ExternalBranchAndBound::ExternalBranchAndBound(
     const std::vector<Variable>& variables)
     : ExternalBranchAndBound(
-          2, variables, new ReferenceExternalPriorityQueue(10000, 290000)) {
+          2, variables, new ReferenceExternalPriorityQueue(100000, 900000)) {
 }
 
 void ExternalBranchAndBound::Initialize() {
@@ -55,17 +57,18 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
         while (edge < cycle.size()) {
           unsigned parent = cycle[edge - 1], child = cycle[edge];
           Graph next_graph = current_graph;
-          if (next_graph.RemoveArc(parent, child)) {
+          if (next_graph.RemoveArc(parent, child) && next_graph.score() > best_graph.score()) {
             std::vector<unsigned> next_cycle;
             next_graph.FindCycle(next_cycle);
-            if (next_cycle.empty() && next_graph.score() > best_graph.score()) {
+            if (next_cycle.empty()) {
               newline = true;
               dags++;
               best_graph = next_graph;
               lower_bound_ = best_graph.score();
               graphs_->mutable_bounding_score() = best_graph.score();
               heuristics::GreedyLocalSearch gls(best_graph);
-              if (gls.Run(10)) {
+              //heuristics::BacktrackLocalSearch gls(best_graph);
+              if (gls.Run(10000)) {
                 std::cerr << std::endl
                           << "Augmentated DAG" << std::endl;
                 best_graph = gls.seed();
@@ -75,6 +78,8 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
             } else if (!next_cycle.empty()) {
               graphs_->push(next_graph);
             }
+          } else if(next_graph.score() <= best_graph.score()) {
+            discarded++;
           }
           current_graph.mutable_h_matrix()[parent][child] = ArcStatus::PRESENT;
           current_graph.mutable_h_matrix()[child][parent] =

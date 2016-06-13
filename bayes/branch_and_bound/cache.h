@@ -95,6 +95,8 @@ class Cache {
                          unsigned variable_count, long double w,
                          std::vector<Cache>& caches);
 
+  std::string ToString() const;
+
  private:
   // If |repository_| is open, dumps the contents of |cache_| to |repository_|,
   // otherwise does nothing.

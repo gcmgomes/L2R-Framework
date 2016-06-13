@@ -112,12 +112,35 @@ void Cache::LoadCaches(const std::string& directory_root_path,
     str << path;
     str << "cache" << variable_id << ".txt";
     if (caches.size() <= variable_id) {
-      caches.emplace_back(w, -1);
+      caches.emplace_back(w, std::numeric_limits<size_t>::max());
     }
     caches[variable_id].OpenRepository(str.str(), std::fstream::in);
     caches[variable_id].LoadFromRepository();
     variable_id++;
   }
+}
+
+std::string Cache::ToString() const {
+  if(cache_.empty()) {
+    return std::string();
+  }
+  std::stringstream str_stream;
+  str_stream.precision(6);
+  str_stream << cache_.size() << std::endl;
+  auto it = cache_.cbegin();
+  while(it != cache_.cend()) {
+    auto high_bits = it->first.high_bits();
+    str_stream << std::fixed << it->second.score(w_);
+    str_stream << " " << high_bits.size();
+    auto bit_it = high_bits.cbegin();
+    while(bit_it != high_bits.cend()) {
+      str_stream << " " << *bit_it;
+      ++bit_it;
+    }
+    str_stream << std::endl;
+    ++it;
+  }
+  return str_stream.str();
 }
 
 void Cache::WriteToRepository() {

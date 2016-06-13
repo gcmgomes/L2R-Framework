@@ -5,6 +5,7 @@ cc_library(
   hdrs = ["external_branch_and_bound.h"],
   srcs = ["external_branch_and_bound.cc"],
   deps = [":reference_external_priority_queue",
+          "//bayes/branch_and_bound/external_priority_queue/heuristics:backtrack_local_search",
           "//bayes/branch_and_bound/external_priority_queue/heuristics:greedy_local_search"],
 )
 
