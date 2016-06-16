@@ -2,6 +2,7 @@
 #define _L2RF_BAYES_BRANCH_AND_BOUND_HEURISTIC_GRASP_H_
 
 #include <vector>
+
 #include "../graph.h"
 #include "../variable.h"
 #include "../inverted_index.h"
@@ -12,25 +13,23 @@ namespace heuristic {
 
 class Grasp {
  public:
-  Grasp(std::vector<Variable> &pvar, InvertedIndex *pindex);
+  Grasp(const std::vector<Variable> &variables, const InvertedIndex *index);
 
   // Runs Grasp and returns the best graph found.
-  Graph run(int maxParents, int maxRuns);
+  // Received the maximum number of parents allowed for each variable,
+  // and the number of runs executed.
+  Graph Run(int maxParents, int maxRuns);
 
  private:
-  //
-  std::vector<Variable> var;
-
-  // The best graph found so far at run.
-  Graph best;
-
-  // The score of the best graph found.
-  long double best_score;
-
-  //
-  InvertedIndex *index;
-  
+  // Method that runs one iteration of the heuristic.
   void RunRound(int maxParents);
+
+  std::vector<Variable> variables_;
+
+  // The best graph found by Run.
+  Graph best_graph_;
+
+  const InvertedIndex *index_;
 };
 
 }  // namespace heuristic

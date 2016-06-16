@@ -9,75 +9,77 @@ namespace bayes {
 namespace branch_and_bound {
 namespace heuristic {
 
-Grasp::Grasp(std::vector<Variable> &pvar, InvertedIndex *pindex) {
-  this->var = pvar;
-  this->best_score = LLONG_MIN;
-  this->index = pindex;
+Grasp::Grasp(const std::vector<Variable> &variables,
+             const InvertedIndex *index) {
+  this->variables_ = variables;
+  this->index_ = index;
   srand(time(NULL));
 }
 
-Graph Grasp::run(int maxParents, int maxRuns) {
+Graph Grasp::Run(int maxParents, int maxRuns) {
   maxRuns = std::max(0, maxRuns);
   while (maxRuns--) {
     this->RunRound(maxParents);
-    Graph result(this->var);
-    if (result.score() > this->best.score()) {
-      this->best = result;
+    Graph result(this->variables_);
+    if (result.score() > this->best_graph_.score()) {
+      this->best_graph_ = result;
     }
   }
 
-  return this->best;
+  return this->best_graph_;
 }
 
 void Grasp::RunRound(int maxParents) {
   maxParents = std::max(0, maxParents);
-  
-  for (unsigned i = 0; i < this->var.size(); i++) {
-    this->var[i].mutable_parent_set().clear();
+
+  for (unsigned i = 0; i < this->variables_.size(); i++) {
+    this->variables_[i].mutable_parent_set().clear();
   }
-  
+
   // Getting a random partial order...
-  for (unsigned i = 0; i < this->var.size(); i++) {
-    int randomPosition = (rand() % (this->var.size() - i)) + i;
-    std::swap(this->var[i], this->var[randomPosition]);
+  for (unsigned i = 0; i < this->variables_.size(); i++) {
+    int randomPosition = (rand() % (this->variables_.size() - i)) + i;
+    std::swap(this->variables_[i], this->variables_[randomPosition]);
   }
-  
+
   while (maxParents--) {
-    for (unsigned i = 1; i < this->var.size(); i++) {
+    for (unsigned i = 1; i < this->variables_.size(); i++) {
       long double best_parent_score = LLONG_MIN;
       int best_parent = -1;
-      
+
       // Checking which variable will increase the score the most.
       for (unsigned j = 0; j < i; j++) {
-        if (this->var[i].parent_set().at(j)) {
+        if (this->variables_[i].parent_set().at(j)) {
           continue;
         }
-        
-        this->var[i].mutable_parent_set().Set(j, true);
-        if (var[i].cache()->cache().find(var[i].parent_set()) ==
-            var[i].cache()->cache().end()) {
-          long double log_likelihood =
-              this->var[i].LogLikelihood(*this->index, this->var);
 
-          const CacheEntry entry(log_likelihood,
-                                 this->var[i].FreeParameters(this->var));
+        this->variables_[i].mutable_parent_set().Set(j, true);
+        if (this->variables_[i].cache()->cache().find(
+                this->variables_[i].parent_set()) ==
+            this->variables_[i].cache()->cache().end()) {
+          long double log_likelihood = this->variables_[i].LogLikelihood(
+              *this->index_, this->variables_);
 
-          Cache *cache = this->var[i].mutable_cache();
-          cache->Insert(this->var[i].parent_set(), entry);
+          const CacheEntry entry(
+              log_likelihood,
+              this->variables_[i].FreeParameters(this->variables_));
+
+          Cache *cache = this->variables_[i].mutable_cache();
+          cache->Insert(this->variables_[i].parent_set(), entry);
         }
 
-        long double var_score = this->var[i].score();
+        long double var_score = this->variables_[i].score();
 
         if (best_parent_score < var_score) {
           best_parent_score = var_score;
           best_parent = j;
         }
-        this->var[i].mutable_parent_set().Set(j, false);
+        this->variables_[i].mutable_parent_set().Set(j, false);
       }
-      
+
       // If found a parent that increases the variables score...
       if (best_parent != -1) {
-        this->var[i].mutable_parent_set().Set(best_parent, true);
+        this->variables_[i].mutable_parent_set().Set(best_parent, true);
       }
     }
   }

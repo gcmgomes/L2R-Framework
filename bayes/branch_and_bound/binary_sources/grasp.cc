@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   bayes::branch_and_bound::heuristic::Grasp grasp(variables, &index);
   
   cout << "Running Grasp\n";
-  bayes::branch_and_bound::Graph best = grasp.run(2, 10);
+  bayes::branch_and_bound::Graph best = grasp.Run(2, 10);
   std::cout << "Best graph is:" << std::endl
             << best.ToString() << std::endl;
   return 0;
