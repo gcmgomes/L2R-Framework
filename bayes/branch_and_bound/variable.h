@@ -48,6 +48,10 @@ class Variable {
     return cache_;
   }
 
+  Cache* mutable_cache() const {
+    return cache_;
+  }
+
   const ExternalQueue* external_queue() const {
     return external_queue_;
   }
