@@ -66,8 +66,6 @@ class Cache {
   }
 
   const CacheEntry& at(const Bitset& bitset) const {
-    if(cache_.count(bitset) == 0)
-      std::cout << bitset.bit_string() << std::endl;
     return cache_.at(bitset);
   }
 
