@@ -133,6 +133,7 @@ void Graph::RecomputeScore() {
 }
 
 void Graph::Initialize(const std::vector<Variable>& variables) {
+  variables_ = variables;
   auto it = variables.cbegin();
   while (it != variables.cend()) {
     if (it->categories().size() > 1) {

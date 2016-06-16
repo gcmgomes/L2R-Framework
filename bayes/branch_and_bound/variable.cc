@@ -44,7 +44,7 @@ static void AugmentSupersets(
 }
 
 long double Variable::score() const {
-  if(cache_->cache().empty()) {
+  if (cache_->cache().empty()) {
     return 0;
   }
   return cache_->at(parent_set_).score(cache_->w());
@@ -171,6 +171,15 @@ void Variable::InitializeVariables(const InvertedIndex& index,
       variables[variable_id].mutable_categories().push_back(*category);
       ++category;
     }
+
+    long double log_likelihood =
+        variables[variable_id].LogLikelihood(index, variables);
+    unsigned long long freeparameters =
+        variables[variable_id].FreeParameters(variables);
+    
+    CacheEntry entry(log_likelihood, freeparameters);
+    variables[variable_id].cache_->Insert(variables[variable_id].parent_set(), entry);
+    
     variables[variable_id].FindBestEntry();
     variable_id++;
   }
@@ -185,7 +194,8 @@ std::string Variable::ToString() const {
     str << " " << *category;
     ++category;
   }
-  str << std::endl << "Parents:";
+  str << std::endl
+      << "Parents:";
   std::vector<unsigned> high_bits = parent_set_.high_bits();
   if (high_bits.empty()) {
     str << " Empty";

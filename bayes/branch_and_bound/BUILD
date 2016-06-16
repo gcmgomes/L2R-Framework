@@ -13,6 +13,7 @@ cc_library(
   srcs = ["cache.cc"],
   deps = [":bitset",
           ":instance"],
+  linkopts = ["-lm"],
 )
 
 cc_library(

@@ -27,3 +27,11 @@ cc_binary(
   deps = ["//bayes/branch_and_bound:branch_and_bound"],
   linkopts = ["-lm"],
 )
+
+cc_binary(
+  name = "grasp",
+  srcs = ["grasp.cc"],
+  deps = ["//bayes/branch_and_bound/heuristic:grasp",
+          "//bayes/branch_and_bound:branch_and_bound"],
+  linkopts = ["-lm"],
+)
