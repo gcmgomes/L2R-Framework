@@ -1,9 +1,9 @@
+#include "variable.h"
 #include <cassert>
 #include <cmath>
 #include <queue>
 #include <sstream>
 #include <unordered_map>
-#include "variable.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -164,7 +164,8 @@ void Variable::InitializeVariables(const InvertedIndex& index,
   while (variable_id < categories.size()) {
     ExternalQueue* external_queue =
         (external_queues.empty()) ? NULL : &(external_queues[variable_id]);
-    variables.emplace_back(variable_id, &(caches[variable_id]), external_queue,
+    Cache* cache = (caches.empty()) ? NULL : &(caches[variable_id]);
+    variables.emplace_back(variable_id, cache, external_queue,
                            index.index().size());
     auto category = categories[variable_id].cbegin();
     while (category != categories[variable_id].cend()) {
