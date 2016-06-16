@@ -73,6 +73,8 @@ class Graph {
 
   std::string ToString(std::string left_padding = "") const;
 
+  void FromString(const std::string& graph_string);
+
   // Memory optimization. Builds |variables_| based on |variables| and the
   // constraints defined by |h_matrix_|. Returns true if the construction was
   // successful, false otherwise.

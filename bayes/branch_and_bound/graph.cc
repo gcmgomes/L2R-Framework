@@ -104,13 +104,29 @@ std::string Graph::ToString(std::string left_padding) const {
   std::stringstream str;
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
-    str << left_padding << "Variable " << it->variable_id();
-    str << ": Parents: " << it->parent_set().ToString();
-    str << " Score:" << it->score() << std::endl;
+    str << left_padding << it->variable_id();
+    str << " " << it->parent_set().bit_string();
+    str << " " << it->score() << std::endl;
     ++it;
   }
-  str << left_padding << "Graph score: " << score() << std::endl;
   return str.str();
+}
+
+void Graph::FromString(const std::string& graph_string) {
+  score_ = 0;
+  std::stringstream stream;
+  stream << graph_string;
+  while(!stream.eof()) {
+    unsigned id = 0;
+    std::string bit_string;
+    long double parent_score = 0;
+    stream >> id >> bit_string >> parent_score;
+    if(stream.eof()) {
+      break;
+    }
+    variables[id].mutable_parent_set() = Bitset::FromBitString(bit_string);
+    score_ += parent_score;
+  }
 }
 
 bool Graph::ReadyForUse(const std::vector<Variable>& variables) {
