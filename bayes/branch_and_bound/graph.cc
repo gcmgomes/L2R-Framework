@@ -124,7 +124,7 @@ void Graph::FromString(const std::string& graph_string) {
     if(stream.eof()) {
       break;
     }
-    variables[id].mutable_parent_set() = Bitset::FromBitString(bit_string);
+    variables_[id].mutable_parent_set() = Bitset::FromBitString(bit_string);
     score_ += parent_score;
   }
 }
