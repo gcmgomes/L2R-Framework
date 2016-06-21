@@ -6,3 +6,9 @@ cc_binary(
   deps = ["//bayes/branch_and_bound/inference:cp_table",
           "//bayes/branch_and_bound:variable"],
 )
+
+cc_binary(
+  name =  "ranker",
+  srcs = ["ranker.cc"],
+  deps = ["//bayes/branch_and_bound/inference:ranker"],
+)

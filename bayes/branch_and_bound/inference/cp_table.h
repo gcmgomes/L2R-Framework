@@ -1,5 +1,5 @@
-#ifndef _RI_2015_1_BAYES_BRANCH_AND_BOUND_INFERENCE_CP_TABLE__H_
-#define _RI_2015_1_BAYES_BRANCH_AND_BOUND_INFERENCE_CPP_TABLE__H_
+#ifndef _RI_2015_1_BAYES_BRANCH_AND_BOUND_INFERENCE_CP_TABLE_H_
+#define _RI_2015_1_BAYES_BRANCH_AND_BOUND_INFERENCE_CP_TABLE_H_
 
 #include "../bitset.h"
 #include "cpt_node.h"
@@ -17,13 +17,13 @@ class CPTable {
 
   void Build(const InvertedIndex& index);
 
-  long double Query(const Instance& instance);
+  long double Query(const Instance& instance) const;
 
   std::string ToString() const;
 
  private:
   unsigned variable_id_;
-  const Bitset& parent_set_;
+  Bitset parent_set_;
   std::unique_ptr<CPTNode> root_;
 };
 

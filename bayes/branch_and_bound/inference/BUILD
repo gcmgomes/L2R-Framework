@@ -14,3 +14,11 @@ cc_library(
   deps = [":cpt_node",
           "//bayes/branch_and_bound:bitset"],
 )
+
+cc_library(
+  name =  "ranker",
+  hdrs = ["ranker.h"],
+  srcs = ["ranker.cc"],
+  deps = ["//base:document",
+          "//bayes/branch_and_bound:graph"],
+)

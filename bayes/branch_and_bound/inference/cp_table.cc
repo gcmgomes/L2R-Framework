@@ -17,7 +17,7 @@ void CPTable::Build(const InvertedIndex& index) {
   root_->RootSplit(variable_set, index);
 }
 
-long double CPTable::Query(const Instance& instance) {
+long double CPTable::Query(const Instance& instance) const {
   std::vector<unsigned> variable_set = parent_set_.high_bits();
   variable_set.push_back(variable_id_);
   CPTNode* node = root_.get();
