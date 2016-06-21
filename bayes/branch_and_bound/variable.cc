@@ -8,39 +8,12 @@
 namespace bayes {
 namespace branch_and_bound {
 
-Variable::Variable(unsigned variable_id, Cache* cache,
-                   ExternalQueue* external_queue, size_t variable_count) {
+Variable::Variable(unsigned variable_id, const Bitset& parent_set, Cache* cache,
+                   inference::CPTable* cp_table) {
   variable_id_ = variable_id;
   cache_ = cache;
-  external_queue_ = external_queue;
-  parent_set_ = Bitset(variable_count);
-}
-
-static void AugmentSupersets(
-    unsigned variable_id, long double w, const std::vector<Variable>& variables,
-    std::unordered_map<Bitset, std::pair<unsigned, CacheEntry> >&
-        best_subset_entries,
-    Bitset& parent_set, ExternalQueue* external_queue_) {
-  auto& subset_entry = best_subset_entries[parent_set].second;
-  auto variable = variables.cbegin();
-  while (variable != variables.cend()) {
-    unsigned id = variable->variable_id();
-    if (id != variable_id && !parent_set.at(id) &&
-        variable->categories().size() > 1) {
-      parent_set.Set(id, true);
-      auto& entry = best_subset_entries[parent_set];
-      if (!entry.first) {
-        external_queue_->push(parent_set);
-        entry.first = parent_set.high_bits().size();
-        entry.second = subset_entry;
-      } else if (entry.second.score(w) < subset_entry.score(w)) {
-        entry.second = subset_entry;
-      }
-      best_subset_entries[parent_set].first--;
-      parent_set.Set(id, false);
-    }
-    ++variable;
-  }
+  cp_table_ = cp_table;
+  parent_set_ = parent_set;
 }
 
 long double Variable::score() const {
@@ -48,83 +21,6 @@ long double Variable::score() const {
     return 0;
   }
   return cache_->at(parent_set_).score(cache_->w());
-}
-
-void Variable::BuildCache(const InvertedIndex& index,
-                          const std::vector<Variable>& variables) {
-  if (categories_.size() < 2) {
-    return;
-  }
-  std::cout << "Variable: " << variable_id_ << std::endl;
-  unsigned long long evaluated = 0, discarded = 0;
-  assert(external_queue_ != NULL);
-  assert(cache_ != NULL);
-  long double w = cache_->w();
-  parent_set_ = Bitset(variables.size());
-  std::unordered_map<Bitset, std::pair<unsigned, CacheEntry> >
-      best_subset_entries;
-  external_queue_->push(parent_set_);
-  CacheEntry best_entry;
-  while (!external_queue_->empty()) {
-    parent_set_ = external_queue_->front();
-    external_queue_->pop();
-    std::cout << "\rQueue size: " << external_queue_->size()
-              << " Evaluated: " << evaluated++ << " Discarded: " << discarded
-              << " Cache size: " << cache_->cache().size()
-              << " Hash_size: " << best_subset_entries.size()
-              << " Set_size: " << parent_set_.high_bits().size()
-              << "                ";
-    bool is_empty_set = parent_set_.high_bits().empty();
-    unsigned long long free_parameters = FreeParameters(variables);
-    auto& subset_entry = best_subset_entries[parent_set_].second;
-    bool missing_edges = best_subset_entries[parent_set_].first;
-    if ((is_empty_set || free_parameters + subset_entry.score(w) <= 0) &&
-        !missing_edges) {  // Passed Lemma 2
-      long double log_likelihood = LogLikelihood(index, variables);
-      CacheEntry entry(log_likelihood, free_parameters);
-      if (is_empty_set) {
-        best_subset_entries[parent_set_].second = entry;
-      }
-      if (is_empty_set ||
-          subset_entry.score(w) <= entry.score(w)) {  // Passed Lemma 1
-        subset_entry = entry;
-        cache_->Insert(parent_set_, entry);
-        if (best_entry.score(w) < entry.score(w)) {
-          best_entry = entry;
-        }
-      } else {
-        discarded++;
-      }
-      // Even if Lemma 1 doesn't pass, we need to check this set's
-      // supersets.
-      AugmentSupersets(variable_id_, w, variables, best_subset_entries,
-                       parent_set_, external_queue_);
-    } else {
-      discarded++;
-    }
-    best_subset_entries.erase(parent_set_);
-  }
-  std::cout << std::endl;
-
-  if (false) {
-    std::cerr << std::endl
-              << "##########################################" << std::endl;
-    std::cerr << "Final cache for variable " << variable_id_ << "has "
-              << cache_->cache().size() << " entries: " << std::endl;
-    auto it = cache_->cache().cbegin();
-    while (it != cache_->cache().cend()) {
-      std::cerr << it->first.ToString() << ": " << it->second.ToString()
-                << " Score: " << it->second.score(w) << std::endl;
-      ++it;
-    }
-    std::cerr << "Best local config:" << std::endl;
-    std::cerr << parent_set_.ToString() << ": " << best_entry.ToString()
-              << " Score: " << best_entry.score(w) << std::endl;
-    std::cerr << "Final cache for variable " << variable_id_ << "has "
-              << cache_->cache().size() << " entries: " << std::endl;
-    std::cerr << "##########################################" << std::endl;
-  }
-  cache_->Flush();
 }
 
 long double Variable::LogLikelihood(
@@ -148,8 +44,8 @@ unsigned long long Variable::FreeParameters(
 
 void Variable::InitializeVariables(const InvertedIndex& index,
                                    std::vector<Variable>& variables,
-                                   std::vector<ExternalQueue>& external_queues,
-                                   std::vector<Cache>& caches) {
+                                   std::vector<Cache>& caches,
+                                   std::vector<inference::CPTable>& cp_tables) {
   auto vart = index.index().cbegin();
   std::vector<std::set<unsigned> > categories(index.index().size());
   while (vart != index.index().cend()) {
@@ -162,11 +58,11 @@ void Variable::InitializeVariables(const InvertedIndex& index,
   }
   unsigned variable_id = 0;
   while (variable_id < categories.size()) {
-    ExternalQueue* external_queue =
-        (external_queues.empty()) ? NULL : &(external_queues[variable_id]);
     Cache* cache = (caches.empty()) ? NULL : &(caches[variable_id]);
-    variables.emplace_back(variable_id, cache, external_queue,
-                           index.index().size());
+    inference::CPTable* cp_table =
+        (cp_tables.empty()) ? NULL : &(cp_tables[variable_id]);
+    variables.emplace_back(variable_id, Bitset(variables.size()), cache,
+                           cp_table);
     auto category = categories[variable_id].cbegin();
     while (category != categories[variable_id].cend()) {
       variables[variable_id].mutable_categories().push_back(*category);
@@ -177,10 +73,11 @@ void Variable::InitializeVariables(const InvertedIndex& index,
         variables[variable_id].LogLikelihood(index, variables);
     unsigned long long freeparameters =
         variables[variable_id].FreeParameters(variables);
-    
+
     CacheEntry entry(log_likelihood, freeparameters);
-    variables[variable_id].cache_->Insert(variables[variable_id].parent_set(), entry);
-    
+    variables[variable_id].cache_->Insert(variables[variable_id].parent_set(),
+                                          entry);
+
     variables[variable_id].FindBestEntry();
     variable_id++;
   }
@@ -195,8 +92,7 @@ std::string Variable::ToString() const {
     str << " " << *category;
     ++category;
   }
-  str << std::endl
-      << "Parents:";
+  str << std::endl << "Parents:";
   std::vector<unsigned> high_bits = parent_set_.high_bits();
   if (high_bits.empty()) {
     str << " Empty";

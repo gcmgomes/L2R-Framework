@@ -19,7 +19,7 @@ int main() {
   size_t size = 16;
   bayes::branch_and_bound::Bitset bitset(size);
   unordered_set<bayes::branch_and_bound::Bitset> bitsets;
-  int i = 0;
+  unsigned i = 0;
   while (i < size) {
     bitset.Set(i, true);
     bitsets.insert(bitset);

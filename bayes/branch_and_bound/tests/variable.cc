@@ -33,14 +33,8 @@ int main(int argc, char** argv) {
   bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
       "/var/tmp/", index.index().size(), 1000000, external_queues);
   vector<bayes::branch_and_bound::Variable> variables;
+  vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
   bayes::branch_and_bound::Variable::InitializeVariables(
-      index, variables, external_queues, caches);
-  auto it = variables.begin();
-  while (it != variables.end()) {
-    it->BuildCache(index, variables);
-    bayes::branch_and_bound::ExternalQueue::ClearExternalQueue(
-      "/var/tmp/", it->variable_id());
-    ++it;
-  }
+      index, variables, caches, cp_tables);
   return 0;
 }

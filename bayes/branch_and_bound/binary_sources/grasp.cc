@@ -29,11 +29,10 @@ int main(int argc, char *argv[]) {
   vector<bayes::branch_and_bound::Cache> caches;
   bayes::branch_and_bound::Cache::InitializeCaches(
       cache_directory, instances, caches, 100000000);
-  vector<bayes::branch_and_bound::ExternalQueue> external_queues;
   vector<bayes::branch_and_bound::Variable> variables;
-  
+  vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
   bayes::branch_and_bound::Variable::InitializeVariables(
-      index, variables, external_queues, caches);
+      index, variables, caches, cp_tables);
   
   bayes::branch_and_bound::heuristic::Grasp grasp(variables, &index);
   

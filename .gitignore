@@ -23,4 +23,9 @@
 *.out
 *.app
 
+# Vim temporary files
+*.swp
+*.swo
+
+# Bazel directories
 bazel*

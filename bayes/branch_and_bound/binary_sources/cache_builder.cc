@@ -1,20 +1,20 @@
-#include <cassert>
+#include "../cache_builder.h"
+#include "../../../base/dataset.h"
+#include "../../../util/discretizer.h"
 #include <algorithm>
-#include <cstdlib>
+#include <cassert>
+#include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <list>
-#include <vector>
 #include <map>
 #include <queue>
 #include <set>
 #include <stack>
 #include <string>
-#include <cmath>
 #include <unordered_set>
-#include "../variable.h"
-#include "../../../base/dataset.h"
-#include "../../../util/discretizer.h"
+#include <vector>
 
 using namespace std;
 
@@ -46,12 +46,15 @@ int main(int argc, char** argv) {
   bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
       queue_directory, index.index().size(), queue_size, external_queues);
   vector<bayes::branch_and_bound::Variable> variables;
-  bayes::branch_and_bound::Variable::InitializeVariables(
-      index, variables, external_queues, caches);
-  auto it = variables.begin();
-  while (it != variables.end()) {
-    it->BuildCache(index, variables);
-    ++it;
+  vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
+  bayes::branch_and_bound::Variable::InitializeVariables(index, variables,
+                                                         caches, cp_tables);
+  unsigned id = 0;
+  while (id < variables.size()) {
+    bayes::branch_and_bound::CacheBuilder builder(&variables[id],
+                                                  &external_queues[id]);
+    builder.Build(index, variables);
+    id++;
   }
   return 0;
 }

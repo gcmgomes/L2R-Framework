@@ -1,5 +1,5 @@
-#include <sstream>
 #include "reference_external_queue.h"
+#include <sstream>
 
 namespace bayes {
 namespace branch_and_bound {
@@ -31,7 +31,7 @@ static std::string ToLogString(const Graph& key) {
   auto var_it = key.variables().cbegin();
   while (var_it != key.variables().cend()) {
     unsigned long long cache_ptr = (unsigned long long)var_it->cache(),
-                       eq_ptr = (unsigned long long)var_it->external_queue();
+                       eq_ptr = (unsigned long long)var_it->cp_table();
     str << var_it->variable_id() << " " << cache_ptr << " " << eq_ptr << " "
         << var_it->parent_set().bit_string() << std::endl;
     ++var_it;
@@ -72,20 +72,18 @@ static void FromLogString(std::fstream& repository, Graph& key) {
   // std::cerr << "Var structs" << std::endl;
   while (variable_count) {
     unsigned variable_id = 0;
-    unsigned long long cache_ptr = 0, external_queue_ptr = 0;
+    unsigned long long cache_ptr = 0, cp_table_ptr = 0;
     std::string bit_string;
-    repository >> variable_id >> cache_ptr >> external_queue_ptr >> bit_string;
+    repository >> variable_id >> cache_ptr >> cp_table_ptr >> bit_string;
     Cache* cache = (Cache*)cache_ptr;
-    ExternalQueue* external_queue = (ExternalQueue*)external_queue_ptr;
-    key.mutable_variables().emplace_back(variable_id, cache, external_queue,
-                                         bit_string.size());
-    key.mutable_variables().back().mutable_parent_set() =
-        Bitset::FromBitString(bit_string);
+    inference::CPTable* cp_table = (inference::CPTable*)cp_table_ptr;
+    key.mutable_variables().emplace_back(
+        variable_id, Bitset::FromBitString(bit_string), cache, cp_table);
     // std::cerr << key.mutable_variables().back().variable_id()
     //          << " " << (unsigned long long)
     //          key.mutable_variables().back().cache()
     //          << " " << (unsigned long long)
-    //          key.mutable_variables().back().external_queue()
+    //          key.mutable_variables().back().cp_table()
     //          << " " <<
     //          key.mutable_variables().back().parent_set().bit_string()
     //          << std::endl;

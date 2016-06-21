@@ -6,23 +6,23 @@
 #ifndef _L2RF_BAYES_BRANCH_AND_BOUND_VARIABLE_H_
 #define _L2RF_BAYES_BRANCH_AND_BOUND_VARIABLE_H_
 
+#include "bitset.h"
+#include "cache.h"
+#include "inference/cp_table.h"
+#include "inverted_index.h"
 #include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <set>
 #include <vector>
-#include "bitset.h"
-#include "cache.h"
-#include "external_queue.h"
-#include "inverted_index.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
 class Variable {
  public:
-  Variable(unsigned variable_id, Cache* cache, ExternalQueue* external_queue,
-           size_t variable_count);
+  Variable(unsigned variable_id, const Bitset& parent_set, Cache* cache = NULL,
+           inference::CPTable* cp_table = NULL);
 
   unsigned variable_id() const {
     return variable_id_;
@@ -52,14 +52,11 @@ class Variable {
     return cache_;
   }
 
-  const ExternalQueue* external_queue() const {
-    return external_queue_;
+  const inference::CPTable* cp_table() const {
+    return cp_table_;
   }
 
   long double score() const;
-
-  void BuildCache(const InvertedIndex& index,
-                  const std::vector<Variable>& variables);
 
   long double LogLikelihood(const InvertedIndex& index,
                             const std::vector<Variable>& variables) const;
@@ -69,8 +66,8 @@ class Variable {
 
   static void InitializeVariables(const InvertedIndex& index,
                                   std::vector<Variable>& variables,
-                                  std::vector<ExternalQueue>& external_queues,
-                                  std::vector<Cache>& caches);
+                                  std::vector<Cache>& caches,
+                                  std::vector<inference::CPTable>& cp_tables);
 
   std::string ToString() const;
 
@@ -93,7 +90,7 @@ class Variable {
   Bitset parent_set_;
   std::vector<unsigned> categories_;
   Cache* cache_;
-  ExternalQueue* external_queue_;
+  inference::CPTable* cp_table_;
 };
 
 }  // namespce branch_and_bound

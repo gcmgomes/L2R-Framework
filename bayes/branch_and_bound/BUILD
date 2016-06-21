@@ -17,6 +17,16 @@ cc_library(
 )
 
 cc_library(
+  name = "cache_builder",
+  hdrs = ["cache_builder.h"],
+  srcs = ["cache_builder.cc"],
+  deps = [":bitset",
+          ":instance",
+          ":variable"],
+  linkopts = ["-lm"],
+)
+
+cc_library(
   name = "inverted_index",
   hdrs = ["inverted_index.h"],
   srcs = ["inverted_index.cc"],
@@ -45,7 +55,8 @@ cc_library(
   srcs = ["variable.cc"],
   deps = [":cache",
           ":external_queue",
-          ":inverted_index"],
+          ":inverted_index",
+          "//bayes/branch_and_bound/inference:cp_table"],
 )
 
 cc_library(
@@ -61,13 +72,6 @@ cc_library(
   srcs = ["branch_and_bound.cc"],
   deps = [":graph",
           ":min_max_heap"],
-)
-
-cc_library(
-  name = "heap",
-  hdrs = ["heap.h"],
-  srcs = ["heap.cc"],
-  deps = [":graph"],
 )
 
 cc_library(
