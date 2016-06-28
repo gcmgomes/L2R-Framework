@@ -49,9 +49,9 @@ void Instance::ParseDataset(const std::string& file_path,
 std::string Instance::ToString() const {
   unsigned i = 1;
   std::stringstream str;
-  str << "L:" << values_.at(0);
+  str << values_.at(0);
   while (i < values_.size()) {
-      str << " " << i << ":" << values_.at(i);
+      str << " " << values_.at(i);
     i++;
   }
   return str.str();

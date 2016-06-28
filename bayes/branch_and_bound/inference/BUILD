@@ -22,3 +22,10 @@ cc_library(
   deps = ["//base:document",
           "//bayes/branch_and_bound:graph"],
 )
+
+cc_library(
+  name =  "sampler",
+  hdrs = ["sampler.h"],
+  srcs = ["sampler.cc"],
+  deps = ["//bayes/branch_and_bound:graph"],
+)

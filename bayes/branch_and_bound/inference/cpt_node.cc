@@ -28,11 +28,23 @@ void CPTNode::push_child(unsigned var_id, unsigned val) {
   children_[key].reset(new CPTNode(var_id, val, 0));
 }
 
+static void FullSet(const InvertedIndex& index,
+                    std::unordered_set<unsigned>& set) {
+  const IndexEntry& index_entry = index.index().cbegin()->second;
+  for (const auto& category : index_entry.entries()) {
+    for (const auto& id : category.second) {
+      set.insert(id);
+    }
+  }
+}
+
 void CPTNode::RootSplit(std::vector<unsigned>& variable_set,
                         const InvertedIndex& index) {
+  std::unordered_set<unsigned> root_set;
+  FullSet(index, root_set);
   PopulateChildren(variable_set[0], index);
   for (auto& child : children_) {
-    child.second->Split(0, variable_set, std::unordered_set<unsigned>(), index);
+    child.second->Split(0, variable_set, root_set, index);
   }
 }
 

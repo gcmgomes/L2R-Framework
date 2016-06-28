@@ -8,6 +8,13 @@ cc_binary(
 )
 
 cc_binary(
+  name = "dataset_builder",
+  srcs = ["dataset_builder.cc"],
+  deps = ["//bayes/branch_and_bound:instance"],
+  linkopts = ["-lm"],
+)
+
+cc_binary(
   name = "branch_and_bound",
   srcs = ["branch_and_bound.cc"],
   deps = ["//bayes/branch_and_bound:branch_and_bound"],
