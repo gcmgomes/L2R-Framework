@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <limits>
 #include <sstream>
 #include "graph.h"
@@ -119,14 +120,26 @@ void Graph::FromString(const std::string& graph_string) {
   while(!stream.eof()) {
     unsigned id = 0;
     std::string bit_string;
-    long double parent_score = 0;
-    stream >> id >> bit_string >> parent_score;
+    stream >> id >> bit_string;
     if(stream.eof()) {
       break;
     }
     variables_[id].mutable_parent_set() = Bitset::FromBitString(bit_string);
-    score_ += parent_score;
   }
+}
+
+void Graph::FromFile(const std::string& file_path) {
+  std::ifstream input_file(file_path);
+  std::string graph_string;
+  while(true) {
+    std::string line;
+    getline(input_file, line);
+    if(input_file.eof()) {
+      break;
+    }
+    graph_string += line + " ";
+  }
+  FromString(graph_string);
 }
 
 bool Graph::ReadyForUse(const std::vector<Variable>& variables) {

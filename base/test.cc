@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 
   d.Parse(argv[1]);
 
-  /*auto query = d.queries().begin();
+  auto query = d.queries().begin();
   while(query != d.queries().end()) {
     auto document = query->documents().begin();
     while(document != query->documents().end()) {
@@ -21,5 +21,5 @@ int main(int argc, char** argv) {
       ++document;
     }
     ++query;
-  }*/
+  }
 }

@@ -40,10 +40,14 @@ class CPTNode {
 
   const std::unique_ptr<CPTNode>& at(unsigned var_id, unsigned val) const;
 
+  bool count(unsigned var_id, unsigned val) const;
+
   void push_child(unsigned var_id, unsigned val);
 
   void RootSplit(std::vector<unsigned>& variable_set,
                  const bayes::branch_and_bound::InvertedIndex& index);
+
+  std::string ToString() const;
 
  private:
   void PopulateChildren(unsigned child_variable_id,

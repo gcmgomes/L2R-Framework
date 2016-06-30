@@ -75,6 +75,8 @@ class Graph {
 
   void FromString(const std::string& graph_string);
 
+  void FromFile(const std::string& file_path);
+
   // Memory optimization. Builds |variables_| based on |variables| and the
   // constraints defined by |h_matrix_|. Returns true if the construction was
   // successful, false otherwise.

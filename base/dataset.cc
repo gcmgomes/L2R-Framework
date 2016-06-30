@@ -62,8 +62,7 @@ void Dataset::OrderedParse(const std::string& file_path) {
 void Dataset::UnorderedParse(const std::string& file_path) {
   std::unordered_map<std::string, unsigned> query_mapping;
   std::pair<std::string, unsigned> data = GetStartingData(file_path);
-  std::ifstream input_file;
-  input_file.open(file_path.c_str());
+  std::ifstream input_file(file_path);
   while(!input_file.eof()) {
     std::string current_vector;
     getline(input_file, current_vector);

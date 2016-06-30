@@ -10,6 +10,7 @@ void Query::AddDocument(const std::string& vector) {
   unsigned id = documents_.size();
   documents_.emplace_back(Document(id, vector, dimension_count_));
   documents_.back().GetKnownFeatures(feature_set_);
+  documents_.back().mutable_query_id() = id_;
 }
 
 void Query::AddDocument(const Document& document) {
@@ -17,6 +18,7 @@ void Query::AddDocument(const Document& document) {
   documents_.push_back(document);
   documents_.back().mutable_id() = id;
   documents_.back().GetKnownFeatures(feature_set_);
+  documents_.back().mutable_query_id() = id_;
 }
 
 }  // namespace base

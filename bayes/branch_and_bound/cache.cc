@@ -1,9 +1,9 @@
+#include "cache.h"
 #include <cmath>
 #include <limits>
 #include <queue>
 #include <sstream>
 #include <unordered_set>
-#include "cache.h"
 
 namespace bayes {
 
@@ -70,6 +70,9 @@ void Cache::OpenRepository(const std::string& file_path,
     repository_.close();
   }
   repository_.open(file_path, open_mode);
+  if (open_mode == std::fstream::out) {
+    repository_ << w_ << std::endl;
+  }
 }
 
 void Cache::Flush() {
@@ -100,8 +103,7 @@ void Cache::InitializeCaches(const std::string& directory_root_path,
 }
 
 void Cache::LoadCaches(const std::string& directory_root_path,
-                       unsigned variable_count, long double w,
-                       std::vector<Cache>& caches) {
+                       unsigned variable_count, std::vector<Cache>& caches) {
   std::string path = directory_root_path;
   if (path.back() != '/') {
     path += '/';
@@ -112,7 +114,7 @@ void Cache::LoadCaches(const std::string& directory_root_path,
     str << path;
     str << "cache" << variable_id << ".txt";
     if (caches.size() <= variable_id) {
-      caches.emplace_back(w, std::numeric_limits<size_t>::max());
+      caches.emplace_back(1000000, std::numeric_limits<size_t>::max());
     }
     caches[variable_id].OpenRepository(str.str(), std::fstream::in);
     caches[variable_id].LoadFromRepository();
@@ -121,19 +123,19 @@ void Cache::LoadCaches(const std::string& directory_root_path,
 }
 
 std::string Cache::ToString() const {
-  if(cache_.empty()) {
+  if (cache_.empty()) {
     return std::string();
   }
   std::stringstream str_stream;
   str_stream.precision(6);
   str_stream << cache_.size() << std::endl;
   auto it = cache_.cbegin();
-  while(it != cache_.cend()) {
+  while (it != cache_.cend()) {
     auto high_bits = it->first.high_bits();
     str_stream << std::fixed << it->second.score(w_);
     str_stream << " " << high_bits.size();
     auto bit_it = high_bits.cbegin();
-    while(bit_it != high_bits.cend()) {
+    while (bit_it != high_bits.cend()) {
       str_stream << " " << *bit_it;
       ++bit_it;
     }
@@ -157,6 +159,7 @@ void Cache::WriteToRepository() {
 }
 
 void Cache::LoadFromRepository() {
+  repository_ >> w_;
   while (!repository_.eof()) {
     std::string bit_string;
     long double log_likelihood = 0;

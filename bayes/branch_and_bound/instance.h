@@ -25,6 +25,8 @@ class Instance {
   Instance(const base::Document& document,
            const util::Discretizer& discretizer);
 
+  Instance(const std::string& instance_string);
+
   const std::vector<unsigned>& values() const {
     return values_;
   }
@@ -34,7 +36,10 @@ class Instance {
   }
 
   static void ParseDataset(const std::string& file_path,
-                           const util::Discretizer& discretizer,
+                           util::Discretizer& discretizer,
+                           std::vector<Instance>& instances);
+
+  static void ParseDataset(const std::string& file_path,
                            std::vector<Instance>& instances);
 
   std::string ToString() const;
@@ -44,6 +49,9 @@ class Instance {
   // |discretizer| to perform the appropriate transformation.
   void Initialize(const base::Document& document,
                   const util::Discretizer& discretizer);
+
+  // Parses |înstance_string|.
+  void Initialize(const std::string& instance_string);
 
   std::vector<unsigned> values_;
 };

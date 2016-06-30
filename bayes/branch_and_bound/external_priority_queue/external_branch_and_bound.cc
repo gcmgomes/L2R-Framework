@@ -104,10 +104,10 @@ Graph ExternalBranchAndBound::Run(long double target_gap) {
               << "          ";
     // std::cout << evaluated << " " << graphs_->total_size() << " " <<
     // graphs_->memory_size() << " " << graphs_->external_size();
-    if (newline) {
+    /*if (newline) {
       std::cout << best_graph.ToString() << std::endl;
       std::cerr << std::endl;
-    }
+    }*/
   }
   std::cerr << std::endl;
   return best_graph;

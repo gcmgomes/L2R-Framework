@@ -17,6 +17,8 @@ class CPTable {
 
   void Build(const InvertedIndex& index);
 
+  void Rebuild(const InvertedIndex& index, const Bitset& parent_set);
+
   long double Query(const Instance& instance) const;
 
   std::string ToString() const;

@@ -1,4 +1,5 @@
 #include "cpt_node.h"
+#include <sstream>
 
 namespace bayes {
 namespace branch_and_bound {
@@ -21,6 +22,10 @@ static unsigned long long MakeKey(unsigned var_id, unsigned val) {
 const std::unique_ptr<CPTNode>& CPTNode::at(unsigned var_id,
                                             unsigned val) const {
   return children_.at(MakeKey(var_id, val));
+}
+
+bool CPTNode::count(unsigned var_id, unsigned val) const {
+  return children_.count(MakeKey(var_id, val));
 }
 
 void CPTNode::push_child(unsigned var_id, unsigned val) {
@@ -46,6 +51,23 @@ void CPTNode::RootSplit(std::vector<unsigned>& variable_set,
   for (auto& child : children_) {
     child.second->Split(0, variable_set, root_set, index);
   }
+}
+
+static void Decompose(unsigned long long ull, unsigned& var_id, unsigned& value) {
+  var_id = ull >> 32;
+  ull <<= 32;
+  value = ull >> 32;
+}
+
+std::string CPTNode::ToString() const {
+  std::stringstream stream;
+  stream << "Id:" << variable_id_;
+  for(const auto& child : children_) {
+    unsigned var_id = 0, value = 0;
+    Decompose(child.first, var_id, value);
+    stream << " " << var_id << ":" << value;
+  }
+  return stream.str();
 }
 
 void CPTNode::PopulateChildren(

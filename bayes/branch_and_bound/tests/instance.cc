@@ -1,27 +1,30 @@
+#include "../instance.h"
+#include "../../../base/dataset.h"
+#include "../../../util/discretizer.h"
 #include <algorithm>
-#include <cstdlib>
+#include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <list>
-#include <vector>
 #include <map>
 #include <queue>
 #include <set>
 #include <stack>
 #include <string>
-#include <cmath>
 #include <unordered_set>
-#include "../instance.h"
-#include "../../../base/dataset.h"
-#include "../../../util/discretizer.h"
+#include <vector>
 
 using namespace std;
 
-int main() {
-  string file_path =
-      "/Users/gcmgomes/git_repositories/learning_to_rank_parse/bayes/x.txt";
-  util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, 2);
+int main(int argc, char** argv) {
+  if (argc < 2) {
+    cerr << "[input file]" << endl;
+    return 0;
+  }
+  string file_path = argv[1];
   vector<bayes::branch_and_bound::Instance> instances;
+  util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, 2);
   bayes::branch_and_bound::Instance::ParseDataset(file_path, disc, instances);
   auto it = instances.cbegin();
   while (it != instances.cend()) {

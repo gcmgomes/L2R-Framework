@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   instances.clear();
   vector<bayes::branch_and_bound::Cache> caches;
   bayes::branch_and_bound::Cache::LoadCaches(cache_directory,
-                                             index.index().size(), 1, caches);
+                                             index.index().size(), caches);
   vector<bayes::branch_and_bound::Variable> variables;
   vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
   bayes::branch_and_bound::Variable::InitializeVariables(

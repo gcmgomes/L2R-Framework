@@ -4,15 +4,15 @@
 #ifndef _L2RF_BAYES_BRANCH_AND_BOUND_CACHE_H_
 #define _L2RF_BAYES_BRANCH_AND_BOUND_CACHE_H_
 
+#include "bitset.h"
+#include "instance.h"
 #include <cstdlib>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "bitset.h"
-#include "instance.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -92,8 +92,7 @@ class Cache {
       Criterion criterion = Criterion::AKAIKE_INFORMATION_CRITERION);
 
   static void LoadCaches(const std::string& directory_root_path,
-                         unsigned variable_count, long double w,
-                         std::vector<Cache>& caches);
+                         unsigned variable_count, std::vector<Cache>& caches);
 
   std::string ToString() const;
 
