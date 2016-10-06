@@ -28,9 +28,9 @@ bool BacktrackLocalSearch::Run(unsigned max_rounds) {
     augmented = true;
     std::vector<std::set<unsigned>> powerset;
     std::set<unsigned> dummy;
-    std::cerr << std::endl << "Computing powerset" << std::endl;
+    //std::cerr << std::endl << "Computing powerset" << std::endl;
     Powerset(powerset, 0, best_parent_sets.size(), max_rounds, dummy);
-    std::cerr << " Done" << std::endl;
+    //std::cerr << " Done" << std::endl;
     unsigned subset = 0;
     while(subset < powerset.size()) {
       bayes::branch_and_bound::Graph current_graph = seed_;

@@ -6,5 +6,7 @@ cc_library(
   srcs = ["grasp.cc"],
   deps = ["//bayes/branch_and_bound:graph",
           "//bayes/branch_and_bound:variable",
-          "//bayes/branch_and_bound:inverted_index"],
+          "//bayes/branch_and_bound:inverted_index",
+          "//bayes/branch_and_bound/external_priority_queue/heuristics:backtrack_local_search",
+          "//bayes/branch_and_bound/external_priority_queue/heuristics:greedy_local_search"],
 )

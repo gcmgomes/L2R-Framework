@@ -39,6 +39,8 @@ cc_binary(
   name = "grasp",
   srcs = ["grasp.cc"],
   deps = ["//bayes/branch_and_bound/heuristic:grasp",
+          "//bayes/branch_and_bound/external_priority_queue/heuristics:backtrack_local_search",
+          "//bayes/branch_and_bound/external_priority_queue/heuristics:greedy_local_search",
           "//bayes/branch_and_bound:branch_and_bound"],
   linkopts = ["-lm"],
 )
