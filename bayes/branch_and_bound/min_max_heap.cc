@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <limits>
 #include <sstream>
+#include <cmath>
 #include "min_max_heap.h"
 
 namespace bayes {

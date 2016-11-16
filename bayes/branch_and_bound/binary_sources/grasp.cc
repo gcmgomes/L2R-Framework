@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
                          bin_count);
   vector<bayes::branch_and_bound::Instance> instances;
   
+  cout << "Parsing Dataset...\n";
   bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc,
                                                   instances);
   
@@ -37,9 +38,20 @@ int main(int argc, char *argv[]) {
   bayes::branch_and_bound::heuristic::Grasp grasp(variables, &index);
   
   cout << "Running Grasp\n";
-  bayes::branch_and_bound::Graph best = grasp.Run(2, 10);
+  bayes::branch_and_bound::Graph best = grasp.Run(2, 100);
+  std::cout << "Score of the Best Graph: " << best.score() << endl;
   std::cout << "Best graph is:" << std::endl
             << best.ToString() << std::endl;
+  
+  long double sum = 0;
+  
+  for(int i = 0; i < 30; i++)
+  {
+    best = grasp.Run(2, 100);
+    sum += best.score();
+  }
+  
+  cout << "Average Score for 30 runs: " << sum/30 << endl;
   return 0;
 }
 
