@@ -101,6 +101,27 @@ bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
   return false;
 }
 
+void Graph::AddArc(unsigned parent_variable_id, unsigned child_variable_id, const InvertedIndex *index) {
+  Variable& child_var = variables_[child_variable_id];
+  long double old_score = score_ - child_var.score();
+  child_var.mutable_parent_set().Set(parent_variable_id, true);
+  if (child_var.cache()->cache().find(child_var.parent_set()) ==
+      child_var.cache()->cache().end()) {
+    long double log_likelihood = child_var.LogLikelihood(
+        *index, this->variables_);
+
+    const CacheEntry entry(
+        log_likelihood,
+        child_var.FreeParameters(this->variables_));
+  
+    Cache *cache = child_var.mutable_cache();
+    cache->Insert(child_var.parent_set(), entry);
+  }
+  h_matrix_[parent_variable_id][child_variable_id] = ArcStatus::PRESENT;
+  score_ = old_score + child_var.score();
+}
+
+
 std::string Graph::ToString(std::string left_padding) const {
   std::stringstream str;
   auto it = variables_.cbegin();

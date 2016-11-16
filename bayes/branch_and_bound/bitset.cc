@@ -32,18 +32,12 @@ bool Bitset::Set(unsigned bit, bool setting) {
 }
 
 bool Bitset::operator[](unsigned bit) {
-  if (bit >= bit_count_) {
-    return 0;
-  }
-  unsigned ull_i = bit / 8;
-  bit %= 8;
-  unsigned char bytes = bits_[ull_i];
-  return (bytes >> bit) & 1;
+  return this->at(bit);
 }
 
 bool Bitset::at(unsigned bit) const {
   if (bit >= bit_count_) {
-    return bits_.at(bit);
+    return 0;
   }
   unsigned ull_i = bit / 8;
   bit %= 8;

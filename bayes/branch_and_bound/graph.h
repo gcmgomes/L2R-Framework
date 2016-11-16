@@ -7,13 +7,13 @@
 #ifndef _L2RF_BAYES_BRANCH_AND_BOUND_GRAPH_H_
 #define _L2RF_BAYES_BRANCH_AND_BOUND_GRAPH_H_
 
+#include "variable.h"
 #include <cstdlib>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "variable.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -66,10 +66,18 @@ class Graph {
     return this->score() < other.score();
   }
 
+  bool operator!=(const Graph& other) const {
+    if (this->variables_.size() != other.variables().size())
+      return true;
+    return (this->ToString() != other.ToString());
+  }
+
   // Removes the arc |parent_variable| -> |child_variable| and updates the score
   // to reflect the change. Returns true if the removal was successful, false
   // otherwise.
   bool RemoveArc(unsigned parent_variable_id, unsigned child_variable_id);
+
+  void AddArc(unsigned parent_variable_id, unsigned child_variable_id, const InvertedIndex *index);
 
   std::string ToString(std::string left_padding = "") const;
 
@@ -101,7 +109,8 @@ class Graph {
   long double score_;
   std::vector<Variable> variables_;
   std::unordered_map<unsigned char,
-                     std::unordered_map<unsigned char, ArcStatus>> h_matrix_;
+                     std::unordered_map<unsigned char, ArcStatus>>
+      h_matrix_;
 };
 
 }  // namespce branch_and_bound

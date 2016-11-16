@@ -1,6 +1,6 @@
 // A class containing a more lightweight bitset.
 //
-// Attentio:All bits are 0 indexed!
+// Attention: All bits are 0 indexed!
 //
 #ifndef _RI_2015_1_BAYES_BRANCH_AND_BOUND_BITSET_H_
 #define _RI_2015_1_BAYES_BRANCH_AND_BOUND_BITSET_H_
