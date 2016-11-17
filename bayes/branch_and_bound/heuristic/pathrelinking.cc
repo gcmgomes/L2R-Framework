@@ -76,7 +76,7 @@ Graph PathRelinking::walk(Graph &origin, Graph &destiny) {
     std::pair<unsigned, unsigned> edge = toBeAdded.front();
     toBeAdded.pop();
     cycleTmp.clear();
-
+    
     current.AddArc(edge.second, edge.first, this->index_);
     current.FindCycle(cycleTmp);
     while (not cycleTmp.empty()) {
@@ -90,23 +90,22 @@ Graph PathRelinking::walk(Graph &origin, Graph &destiny) {
           toBeRemoved.erase(std::make_pair(child, parent));
           current.RemoveArc(parent, child);
           cycleTmp.clear();
-          foundNewCycle = true;
-          current.FindCycle(cycleTmp);
           break;
         }
+        current.FindCycle(cycleTmp);
       }
-      if (not foundNewCycle)
-        cycleTmp.clear();
     }
-
+    
     bayes::branch_and_bound::heuristics::GreedyLocalSearch gls(current);
     gls.Run(1000);
 
-    if (bestGraph < current) {
-      bestGraph = current;
-    }
-    if (bestGraph < gls.seed()) {
-      bestGraph = gls.seed();
+    if (cycleTmp.size() == 0) {
+      if (bestGraph < current) {
+        bestGraph = current;
+      }
+      if (bestGraph < gls.seed()) {
+        bestGraph = gls.seed();
+      }
     }
   }
 

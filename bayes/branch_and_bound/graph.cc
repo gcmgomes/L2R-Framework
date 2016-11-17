@@ -51,6 +51,7 @@ static void CycleDFS(unsigned search_root,
 }
 
 void Graph::FindCycle(std::vector<unsigned>& cycle) const {
+  cycle.clear();
   std::vector<std::vector<unsigned>> topology(variables_.size());
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
