@@ -46,7 +46,6 @@ int main(int argc, char *argv[]) {
   std::cout << "Best graph is:" << std::endl
             << best.ToString() << std::endl;
   
-  /*
   std::cout << "Calculating Average of 30 runs ...\n";
   long double sum = 0;
   for(int i = 0; i < 30; i++)
@@ -57,7 +56,6 @@ int main(int argc, char *argv[]) {
   }
   
   cout << "Average Score for 30 runs: " << sum/30 << endl;
-  */
   return 0;
 }
 
