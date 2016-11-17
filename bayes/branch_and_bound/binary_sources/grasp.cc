@@ -1,11 +1,11 @@
-#include <cstdio>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <cstdlib>
-#include <iostream>
-#include "../branch_and_bound.h"
 #include "../heuristic/grasp.h"
+#include "../branch_and_bound.h"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <string>
+#include <vector>
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -20,41 +20,37 @@ int main(int argc, char *argv[]) {
   util::Discretizer disc(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED,
                          bin_count);
   vector<bayes::branch_and_bound::Instance> instances;
-  
+
   cout << "Parsing Dataset...\n";
   bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc,
                                                   instances);
-  
+
   bayes::branch_and_bound::InvertedIndex index(instances);
-  //instances.clear();
+  // instances.clear();
   vector<bayes::branch_and_bound::Cache> caches;
-  bayes::branch_and_bound::Cache::InitializeCaches(
-      cache_directory, instances, caches, 100000000);
+  bayes::branch_and_bound::Cache::InitializeCaches(cache_directory, instances,
+                                                   caches, 100000000);
   vector<bayes::branch_and_bound::Variable> variables;
   vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
-  bayes::branch_and_bound::Variable::InitializeVariables(
-      index, variables, caches, cp_tables);
-  
+  bayes::branch_and_bound::Variable::InitializeVariables(index, variables,
+                                                         caches, cp_tables);
+
   bayes::branch_and_bound::heuristic::Grasp grasp(variables, &index);
-  
+
   cout << "Running Grasp\n";
   grasp.run(2, 100);
   bayes::branch_and_bound::Graph best = grasp.getBest();
   std::cout << "Score of the Best Graph: " << best.score() << endl;
-  std::cout << "Best graph is:" << std::endl
-            << best.ToString() << std::endl;
-  
+  std::cout << "Best graph is:" << std::endl << best.ToString() << std::endl;
+
   long double sum = 0;
-  
-  for(int i = 0; i < 30; i++)
-  {
+
+  for (int i = 0; i < 30; i++) {
     grasp.run(2, 100);
     best = grasp.getBest();
     sum += best.score();
   }
-  
-  cout << "Average Score for 30 runs: " << sum/30 << endl;
+
+  cout << "Average Score for 30 runs: " << sum / 30 << endl;
   return 0;
 }
-
-

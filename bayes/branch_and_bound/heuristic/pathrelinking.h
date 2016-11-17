@@ -27,7 +27,7 @@ class PathRelinking {
 
   const InvertedIndex *index_;
 
-  //Scorer scorer_;
+  // Scorer scorer_;
 
   std::vector<Graph> baseSolutions_;
 

@@ -1,8 +1,8 @@
+#include "graph.h"
 #include <algorithm>
 #include <fstream>
 #include <limits>
 #include <sstream>
-#include "graph.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -78,7 +78,8 @@ void Graph::FindCycle(std::vector<unsigned>& cycle) const {
 
 static bool GoodToGo(
     std::unordered_map<unsigned char,
-                       std::unordered_map<unsigned char, ArcStatus>> h_matrix,
+                       std::unordered_map<unsigned char, ArcStatus>>
+        h_matrix,
     unsigned parent_variable_id, unsigned child_variable_id, ArcStatus status) {
   return (h_matrix.count(parent_variable_id) &&
           h_matrix.at(parent_variable_id).count(child_variable_id) &&
@@ -101,26 +102,25 @@ bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
   return false;
 }
 
-void Graph::AddArc(unsigned parent_variable_id, unsigned child_variable_id, const InvertedIndex *index) {
+void Graph::AddArc(unsigned parent_variable_id, unsigned child_variable_id,
+                   const InvertedIndex* index) {
   Variable& child_var = variables_[child_variable_id];
   long double old_score = score_ - child_var.score();
   child_var.mutable_parent_set().Set(parent_variable_id, true);
   if (child_var.cache()->cache().find(child_var.parent_set()) ==
       child_var.cache()->cache().end()) {
-    long double log_likelihood = child_var.LogLikelihood(
-        *index, this->variables_);
+    long double log_likelihood =
+        child_var.LogLikelihood(*index, this->variables_);
 
-    const CacheEntry entry(
-        log_likelihood,
-        child_var.FreeParameters(this->variables_));
-  
-    Cache *cache = child_var.mutable_cache();
+    const CacheEntry entry(log_likelihood,
+                           child_var.FreeParameters(this->variables_));
+
+    Cache* cache = child_var.mutable_cache();
     cache->Insert(child_var.parent_set(), entry);
   }
   h_matrix_[parent_variable_id][child_variable_id] = ArcStatus::PRESENT;
   score_ = old_score + child_var.score();
 }
-
 
 std::string Graph::ToString(std::string left_padding) const {
   std::stringstream str;
@@ -138,11 +138,11 @@ void Graph::FromString(const std::string& graph_string) {
   score_ = 0;
   std::stringstream stream;
   stream << graph_string;
-  while(!stream.eof()) {
+  while (!stream.eof()) {
     unsigned id = 0;
     std::string bit_string;
     stream >> id >> bit_string;
-    if(stream.eof()) {
+    if (stream.eof()) {
       break;
     }
     variables_[id].mutable_parent_set() = Bitset::FromBitString(bit_string);
@@ -152,10 +152,10 @@ void Graph::FromString(const std::string& graph_string) {
 void Graph::FromFile(const std::string& file_path) {
   std::ifstream input_file(file_path);
   std::string graph_string;
-  while(true) {
+  while (true) {
     std::string line;
     getline(input_file, line);
-    if(input_file.eof()) {
+    if (input_file.eof()) {
       break;
     }
     graph_string += line + " ";

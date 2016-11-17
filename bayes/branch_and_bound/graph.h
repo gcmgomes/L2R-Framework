@@ -77,7 +77,8 @@ class Graph {
   // otherwise.
   bool RemoveArc(unsigned parent_variable_id, unsigned child_variable_id);
 
-  void AddArc(unsigned parent_variable_id, unsigned child_variable_id, const InvertedIndex *index);
+  void AddArc(unsigned parent_variable_id, unsigned child_variable_id,
+              const InvertedIndex* index);
 
   std::string ToString(std::string left_padding = "") const;
 

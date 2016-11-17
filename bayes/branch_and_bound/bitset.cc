@@ -1,7 +1,7 @@
+#include "bitset.h"
 #include <algorithm>
 #include <cmath>
 #include <sstream>
-#include "bitset.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -102,12 +102,12 @@ bool Bitset::Contains(const Bitset& bitset) const {
   auto super_high_bits = high_bits();
   auto sub_high_bits = bitset.high_bits();
   auto it = sub_high_bits.cbegin();
-  while(it != sub_high_bits.cend()) {
-    if(!std::binary_search(super_high_bits.cbegin(),
-                           super_high_bits.cend(), *it)) {
+  while (it != sub_high_bits.cend()) {
+    if (!std::binary_search(super_high_bits.cbegin(), super_high_bits.cend(),
+                            *it)) {
       return false;
     }
-    ++it;    
+    ++it;
   }
   return true;
 }

@@ -2,9 +2,9 @@
 #include <set>
 #include <utility>
 
+#include "../external_priority_queue/heuristics/greedy_local_search.h"
 #include "grasp.h"
 #include "pathrelinking.h"
-#include "../external_priority_queue/heuristics/greedy_local_search.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -69,9 +69,9 @@ Graph PathRelinking::walk(Graph &origin, Graph &destiny) {
       }
     }
   }
-  
+
   std::vector<unsigned> cycleTmp;
-  
+
   while (not toBeAdded.empty()) {
     std::pair<unsigned, unsigned> edge = toBeAdded.front();
     toBeAdded.pop();
@@ -98,10 +98,10 @@ Graph PathRelinking::walk(Graph &origin, Graph &destiny) {
       if (not foundNewCycle)
         cycleTmp.clear();
     }
-    
+
     bayes::branch_and_bound::heuristics::GreedyLocalSearch gls(current);
     gls.Run(1000);
-    
+
     if (bestGraph < current) {
       bestGraph = current;
     }
