@@ -17,7 +17,8 @@ Variable::Variable(unsigned variable_id, const Bitset& parent_set, Cache* cache,
 }
 
 long double Variable::score() const {
-  if (cache_->cache().empty()) {
+  if (cache_->cache().find(parent_set_) == cache_->cache().end()) {
+  //if(cache_->cache().empty()) {
     return 0;
   }
   return cache_->at(parent_set_).score(cache_->w());
