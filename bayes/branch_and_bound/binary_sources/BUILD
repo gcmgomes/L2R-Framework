@@ -44,3 +44,10 @@ cc_binary(
           "//bayes/branch_and_bound:branch_and_bound"],
   linkopts = ["-lm"],
 )
+
+cc_binary(
+  name = "pathrelinking",
+  srcs = ["pathrelinking.cc"],
+  deps = ["//bayes/branch_and_bound/heuristic:pathrelinking",
+          "//bayes/branch_and_bound:branch_and_bound"],
+)

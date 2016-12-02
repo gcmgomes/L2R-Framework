@@ -1,5 +1,5 @@
-#include "../instance.h"
 #include "../../../base/dataset.h"
+#include "../instance.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
   bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc,
                                                   instances);
   unsigned id = 1;
-  cout << "L"; 
-  while(id < instances[0].values().size()) {
+  cout << "L";
+  while (id < instances[0].values().size()) {
     cout << " " << id;
     id++;
   }
