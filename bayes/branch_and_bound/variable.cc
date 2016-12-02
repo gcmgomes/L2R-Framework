@@ -18,7 +18,6 @@ Variable::Variable(unsigned variable_id, const Bitset& parent_set, Cache* cache,
 
 long double Variable::score() const {
   if (cache_->cache().find(parent_set_) == cache_->cache().end()) {
-  //if(cache_->cache().empty()) {
     return 0;
   }
   return cache_->at(parent_set_).score(cache_->w());
@@ -62,7 +61,7 @@ void Variable::InitializeVariables(const InvertedIndex& index,
     Cache* cache = (caches.empty()) ? NULL : &(caches[variable_id]);
     inference::CPTable* cp_table =
         (cp_tables.empty()) ? NULL : &(cp_tables[variable_id]);
-    variables.emplace_back(variable_id, Bitset(variables.size()), cache,
+    variables.emplace_back(variable_id, Bitset(index.index().size()), cache,
                            cp_table);
     auto category = categories[variable_id].cbegin();
     while (category != categories[variable_id].cend()) {

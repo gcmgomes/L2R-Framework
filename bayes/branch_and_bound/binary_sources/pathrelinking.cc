@@ -9,11 +9,12 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  cout << "BEGIN!\n";
   if (argc < 4) {
     cerr << argv[0] << " [input file] [cache directory] [bin count]" << endl;
     return 0;
   }
+
+  cout << "BEGIN!\n";
   string input_file_path = argv[1];  //, cache_directory = argv[2];
   string cache_directory = "/tmp";
   unsigned bin_count = 0;

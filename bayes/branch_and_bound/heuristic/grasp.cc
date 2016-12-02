@@ -26,7 +26,7 @@ void Grasp::run(int maxParents, int maxRuns) {
     Graph result(this->variables_);
 
     bayes::branch_and_bound::heuristics::GreedyLocalSearch gls(result);
-    gls.Run(1000);
+    gls.Run(50);
     result = gls.seed();
 
     /*
@@ -58,54 +58,59 @@ std::vector<Graph> Grasp::getAll() {
 void Grasp::runRound(int maxParents) {
   maxParents = std::max(0, maxParents);
 
+  std::vector<unsigned> order(this->variables_.size(), 0);
   for (unsigned i = 0; i < this->variables_.size(); i++) {
     this->variables_[i].mutable_parent_set().clear();
+    order[i] = i;
   }
 
   // Getting a random partial order...
   for (unsigned i = 0; i < this->variables_.size(); i++) {
     int randomPosition = (rand() % (this->variables_.size() - i)) + i;
-    std::swap(this->variables_[i], this->variables_[randomPosition]);
+    std::swap(order[i], order[randomPosition]);
   }
 
   while (maxParents--) {
     for (unsigned i = 1; i < this->variables_.size(); i++) {
+      int child_id = order[i];
+      int parent_id = 0;
       long double best_parent_score = LLONG_MIN;
       int best_parent = -1;
 
       // Checking which variable will increase the score the most.
       for (unsigned j = 0; j < i; j++) {
-        if (this->variables_[i].parent_set().at(j)) {
+        parent_id = order[j];
+        if (this->variables_[child_id].parent_set().at(parent_id)) {
           continue;
         }
 
-        this->variables_[i].mutable_parent_set().Set(j, true);
-        if (this->variables_[i].cache()->cache().find(
-                this->variables_[i].parent_set()) ==
-            this->variables_[i].cache()->cache().end()) {
-          long double log_likelihood = this->variables_[i].LogLikelihood(
+        this->variables_[child_id].mutable_parent_set().Set(parent_id, true);
+        if (this->variables_[child_id].cache()->cache().find(
+                this->variables_[child_id].parent_set()) ==
+            this->variables_[child_id].cache()->cache().end()) {
+          long double log_likelihood = this->variables_[child_id].LogLikelihood(
               *this->index_, this->variables_);
 
           const CacheEntry entry(
               log_likelihood,
-              this->variables_[i].FreeParameters(this->variables_));
+              this->variables_[child_id].FreeParameters(this->variables_));
 
-          Cache *cache = this->variables_[i].mutable_cache();
-          cache->Insert(this->variables_[i].parent_set(), entry);
+          Cache *cache = this->variables_[child_id].mutable_cache();
+          cache->Insert(this->variables_[child_id].parent_set(), entry);
         }
 
-        long double var_score = this->variables_[i].score();
+        long double var_score = this->variables_[child_id].score();
 
         if (best_parent_score < var_score) {
           best_parent_score = var_score;
-          best_parent = j;
+          best_parent = parent_id;
         }
-        this->variables_[i].mutable_parent_set().Set(j, false);
+        this->variables_[child_id].mutable_parent_set().Set(parent_id, false);
       }
 
       // If found a parent that increases the variables score...
       if (best_parent != -1) {
-        this->variables_[i].mutable_parent_set().Set(best_parent, true);
+        this->variables_[child_id].mutable_parent_set().Set(best_parent, true);
       }
     }
   }
