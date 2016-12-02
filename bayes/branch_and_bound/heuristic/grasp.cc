@@ -26,7 +26,7 @@ void Grasp::run(int maxParents, int maxRuns) {
     Graph result(this->variables_);
 
     bayes::branch_and_bound::heuristics::GreedyLocalSearch gls(result);
-    gls.Run(50);
+    gls.Run(20);
     result = gls.seed();
 
     /*
