@@ -51,6 +51,7 @@ static void CycleDFS(unsigned search_root,
 }
 
 void Graph::FindCycle(std::vector<unsigned>& cycle) const {
+  cycle.clear();
   std::vector<std::vector<unsigned>> topology(variables_.size());
   auto it = variables_.cbegin();
   while (it != variables_.cend()) {
@@ -95,17 +96,19 @@ bool Graph::RemoveArc(unsigned parent_variable_id, unsigned child_variable_id) {
   long double old_score = score_ - child_var.score();
   child_var.mutable_parent_set().Set(parent_variable_id, false);
   h_matrix_[parent_variable_id][child_variable_id] = ArcStatus::PROHIBITED;
-  if (BestCompliantEntry(child_variable_id)) {
-    score_ = old_score + child_var.score();
-    return true;
-  }
-  return false;
+  //  if (BestCompliantEntry(child_variable_id)) {
+  //    score_ = old_score + child_var.score();
+  return true;
+  //  }
+  //  return false;
 }
 
 void Graph::AddArc(unsigned parent_variable_id, unsigned child_variable_id,
                    const InvertedIndex* index) {
   Variable& child_var = variables_[child_variable_id];
-  long double old_score = score_ - child_var.score();
+  if (child_var.parent_set().at(parent_variable_id))
+    return;
+
   child_var.mutable_parent_set().Set(parent_variable_id, true);
   if (child_var.cache()->cache().find(child_var.parent_set()) ==
       child_var.cache()->cache().end()) {
@@ -119,7 +122,7 @@ void Graph::AddArc(unsigned parent_variable_id, unsigned child_variable_id,
     cache->Insert(child_var.parent_set(), entry);
   }
   h_matrix_[parent_variable_id][child_variable_id] = ArcStatus::PRESENT;
-  score_ = old_score + child_var.score();
+  score_ = score_ + child_var.score();
 }
 
 std::string Graph::ToString(std::string left_padding) const {

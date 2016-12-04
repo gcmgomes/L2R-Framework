@@ -51,3 +51,11 @@ cc_binary(
   deps = ["//bayes/branch_and_bound/heuristic:pathrelinking",
           "//bayes/branch_and_bound:branch_and_bound"],
 )
+
+cc_binary(
+  name = "graph_reader",
+  srcs = ["graph_reader.cc"],
+  deps = ["//bayes/branch_and_bound/heuristic:pathrelinking",
+          "//bayes/branch_and_bound:graph",
+          "//bayes/branch_and_bound:branch_and_bound"],
+)

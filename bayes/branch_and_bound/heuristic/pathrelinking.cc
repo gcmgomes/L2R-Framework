@@ -20,6 +20,7 @@ PathRelinking::PathRelinking(const std::vector<Variable> &variables,
 // TODO: Think in nice parameters for the path relinking method.
 Graph PathRelinking::run() {
   generateBaseSolutions();
+
   Graph bestGraph = *this->baseSolutions_.begin();
 
   for (int i = this->baseSolutions_.size() - 1; i >= 0; i--) {
@@ -54,59 +55,79 @@ Graph PathRelinking::walk(Graph &origin, Graph &destiny) {
   // Edges to be removed, they're initially at origin and not in destiny.
   std::set<std::pair<unsigned, unsigned> > toBeRemoved;
 
+  // Vector used to check if a graph has cycles.
+  std::vector<unsigned> cycleTmp;
+
   Graph bestGraph = origin;
   Graph current = origin;
 
-  for (unsigned i = 0; i < origin.variables().size(); i++) {
-    Bitset bOrigin = origin.variables()[i].parent_set();
-    Bitset bDestiny = destiny.variables()[i].parent_set();
+  // If there is a cycle either at origin or destiny,
+  // just return an empty graph.
+  origin.FindCycle(cycleTmp);
+  if (cycleTmp.size()) {
+    return Graph();
+  }
 
-    for (unsigned j = 0; j < bOrigin.bit_count(); j++) {
+  destiny.FindCycle(cycleTmp);
+  if (cycleTmp.size()) {
+    return Graph();
+  }
+
+  // Discovering which edges will be added and which will be removed.
+  for (unsigned i = 0; i < origin.variables().size(); i++) {
+    const Bitset &bOrigin = origin.variables()[i].parent_set();
+    const Bitset &bDestiny = destiny.variables()[i].parent_set();
+    unsigned sz = std::max(bOrigin.bit_count(), bDestiny.bit_count());
+
+    for (unsigned j = 0; j <= sz; j++) {
       if (not bOrigin.at(j) && bDestiny.at(j)) {
+        // An edge will be added to the origin graph if it's not in the origin
+        // graph and it's at the destiny.
         toBeAdded.push(std::make_pair(i, j));
       } else if (bOrigin.at(j) && not bDestiny.at(j)) {
+        // Same logic as above, but the inverse.
         toBeRemoved.insert(std::make_pair(i, j));
       }
     }
   }
 
-  std::vector<unsigned> cycleTmp;
-
+  // Adding the edges to origin.
   while (not toBeAdded.empty()) {
     std::pair<unsigned, unsigned> edge = toBeAdded.front();
     toBeAdded.pop();
+    if (edge.first == edge.second)
+      continue;
     cycleTmp.clear();
 
+    // If adding the current edge creates a cycle, I'll remove edges until the
+    // cycle is removed...
     current.AddArc(edge.second, edge.first, this->index_);
     current.FindCycle(cycleTmp);
-    while (not cycleTmp.empty()) {
-      cycleTmp.push_back(*cycleTmp.begin());
-      bool foundNewCycle = false;
+    while (not cycleTmp.empty() && not toBeRemoved.empty()) {
       for (unsigned i = 1; i < cycleTmp.size(); i++) {
-        unsigned parent = cycleTmp[i - 1] - 1;
-        unsigned child = cycleTmp[i] - 1;
+        unsigned parent = cycleTmp[i - 1];
+        unsigned child = cycleTmp[i];
         if (toBeRemoved.find(std::make_pair(child, parent)) !=
             toBeRemoved.end()) {
           toBeRemoved.erase(std::make_pair(child, parent));
           current.RemoveArc(parent, child);
-          cycleTmp.clear();
-          foundNewCycle = true;
-          current.FindCycle(cycleTmp);
           break;
         }
       }
-      if (not foundNewCycle)
-        cycleTmp.clear();
+
+      current.FindCycle(cycleTmp);
     }
 
-    bayes::branch_and_bound::heuristics::GreedyLocalSearch gls(current);
-    gls.Run(1000);
+    if (cycleTmp.empty()) {
+      if (bestGraph < current) {
+        bestGraph = current;
+      }
 
-    if (bestGraph < current) {
-      bestGraph = current;
-    }
-    if (bestGraph < gls.seed()) {
-      bestGraph = gls.seed();
+      bayes::branch_and_bound::heuristics::GreedyLocalSearch gls(current);
+      gls.Run(10);
+      if (bestGraph < gls.seed()) {
+        bestGraph = gls.seed();
+      }
     }
   }
 

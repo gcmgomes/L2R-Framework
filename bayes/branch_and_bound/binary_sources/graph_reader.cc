@@ -1,5 +1,5 @@
-#include "../heuristic/pathrelinking.h"
 #include "../branch_and_bound.h"
+#include "../graph.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -9,12 +9,11 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+  cout << "BEGIN!\n";
   if (argc < 4) {
     cerr << argv[0] << " [input file] [cache directory] [bin count]" << endl;
     return 0;
   }
-
-  cout << "BEGIN!\n";
   string input_file_path = argv[1];  //, cache_directory = argv[2];
   string cache_directory = "/tmp";
   unsigned bin_count = 0;
@@ -39,23 +38,32 @@ int main(int argc, char *argv[]) {
   bayes::branch_and_bound::Variable::InitializeVariables(index, variables,
                                                          caches, cp_tables);
 
-  bayes::branch_and_bound::heuristic::PathRelinking pathrelinking(variables,
-                                                                  &index);
-
-  cout << "Running Path-Relinking\n";
-  bayes::branch_and_bound::Graph best = pathrelinking.run();
-  std::cout << "Score of the Best Graph: " << best.score() << endl;
-  std::cout << "Best graph is:" << std::endl << best.ToString() << std::endl;
   
-  std::cout << "Calculating Average of 30 runs ...\n";
-  long double sum = 0;
-  for (int i = 0; i < 30; i++) {
-    cout << "#" << i + 1 << " Run.\n";
-    best = pathrelinking.run();
-    sum += best.score();
-    cout << "Score:  " << sum/(i+1) << " " << (i+1) << "\n";
+  int n, id;
+  string parentset;
+  cin >> n;
+  
+  variables.clear();
+  for(int i = 0; i < n; i++)
+    variables.push_back(bayes::branch_and_bound::Variable(i, bayes::branch_and_bound::Bitset()));
+  
+  while(n--)
+  {
+    cin >> id;
+    cin >> parentset;
+    
+    for(int i = 0; i < parentset.size(); i++)
+      if(parentset[i]=='1')
+        variables[i].mutable_parent_set().Set(i, true);
+    
+    cin >> id;
   }
-
-  cout << "Average Score for 30 runs: " << sum / 30 << endl;
+  
+  bayes::branch_and_bound::Graph g(variables);
+  vector<unsigned> fudeu;
+  g.FindCycle(fudeu);
+  if(fudeu.size()) cout << "FUDEU\n";
+  else cout << "FUDEO NAO - HEUAHUEAHUEHUAEHEAUHEUEEHAUEAH\n";
+  
   return 0;
 }
