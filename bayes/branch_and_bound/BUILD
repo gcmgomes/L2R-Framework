@@ -72,6 +72,7 @@ cc_library(
   srcs = ["branch_and_bound.cc"],
   deps = [":graph",
           ":min_max_heap"],
+  linkopts = ["-lm"],
 )
 
 cc_library(
@@ -79,6 +80,7 @@ cc_library(
   hdrs = ["min_max_heap.h"],
   srcs = ["min_max_heap.cc"],
   deps = [":search_tree"],
+  linkopts = ["-lm"],
 )
 
 cc_library(

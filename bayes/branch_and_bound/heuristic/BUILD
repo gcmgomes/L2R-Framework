@@ -11,7 +11,6 @@ cc_library(
           "//bayes/branch_and_bound/external_priority_queue/heuristics:greedy_local_search"],
 )
 
-
 cc_library(
   name = "pathrelinking",
   hdrs = ["pathrelinking.h"],
