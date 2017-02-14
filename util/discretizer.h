@@ -4,7 +4,7 @@
 // class, build it with the appropriate |mode| value and then call the
 // Initialize method. Afterwards, the splitting points will be stored in
 // |frontiers_| and available for use through the accessor method.
-// IMPORANT: this class (for now) only handles values in the range [0, 1]. If
+// IMPORTANT: this class (for now) only handles values in the range [0, 1]. If
 // necessary we will contemplate extending it to arbitrary ranges.
 #ifndef _RI_2015_1_UTIL_DISCRETIZER_H_
 #define _RI_2015_1_UTIL_DISCRETIZER_H_
@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+
 #include "../base/query.h"
 
 namespace util {

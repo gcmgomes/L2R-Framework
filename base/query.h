@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+
 #include "document.h"
 
 namespace base {

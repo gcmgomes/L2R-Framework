@@ -13,6 +13,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+
 #include "../../base/dataset.h"
 #include "../../util/discretizer.h"
 
@@ -24,6 +25,9 @@ class Instance {
   Instance();
   Instance(const base::Document& document,
            const util::Discretizer& discretizer);
+
+  Instance(const base::Document& document, const util::Discretizer& discretizer,
+           const unsigned& query_id, const unsigned& doc_id);
 
   Instance(const std::string& instance_string);
 
@@ -44,16 +48,22 @@ class Instance {
 
   std::string ToString() const;
 
+  // This method returns a string using the same format,
+  // used to read the dataset.
+  std::string ToPrintableString() const;
+
  private:
   // Performs initialization of |this| using |document| as the data source and
   // |discretizer| to perform the appropriate transformation.
   void Initialize(const base::Document& document,
                   const util::Discretizer& discretizer);
 
-  // Parses |înstance_string|.
+  // Parses |instance_string|.
   void Initialize(const std::string& instance_string);
 
   std::vector<unsigned> values_;
+
+  unsigned query_id_, doc_id_;
 };
 
 }  // namespce branch_and_bound

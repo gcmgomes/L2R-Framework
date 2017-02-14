@@ -5,7 +5,8 @@
 // with some additional functionalities and helpers, such as the Parse and
 // ToString methods, respectively.
 // We use hash tables instead of simpler vectors because we might have to work
-// with sparse data. In the future, we might consider using serialization libraries
+// with sparse data. In the future, we might consider using serialization
+// libraries
 // such as Google's Protocol Buffer to allow some portability across languages.
 // Another possible optimization (in terms of space), would be to keep pointers
 // to the locations of the vector in the dataset files. If we reach the point of

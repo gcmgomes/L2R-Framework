@@ -1,14 +1,17 @@
-#include <cstdlib>
+#include "instance.h"
+
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "instance.h"
 
 namespace bayes {
 namespace branch_and_bound {
 
 Instance::Instance() {
+  query_id_ = -1;
+  doc_id_ = -1;
 }
 
 Instance::Instance(const base::Document& document,
@@ -20,9 +23,19 @@ Instance::Instance(const std::string& instance_string) {
   Initialize(instance_string);
 }
 
+Instance::Instance(const base::Document& document,
+                   const util::Discretizer& discretizer,
+                   const unsigned& query_id, const unsigned& doc_id) {
+  Initialize(document, discretizer);
+  query_id_ = query_id;
+  doc_id_ = doc_id;
+}
+
 void Instance::Initialize(const base::Document& document,
                           const util::Discretizer& discretizer) {
-  values_.resize(document.vector().size()+1, 0);
+  query_id_ = -1;
+  doc_id_ = -1;
+  values_.resize(document.vector().size() + 1, 0);
   values_[0] = document.relevance_label();
   auto feature_it = document.cbegin();
   while (feature_it != document.cend()) {
@@ -35,18 +48,20 @@ void Instance::Initialize(const base::Document& document,
 
 void Instance::Initialize(const std::string& instance_string) {
   std::stringstream stream;
+  query_id_ = -1;
+  doc_id_ = -1;
   stream << instance_string << " ";
-  while(!stream.eof()) {
+  while (!stream.eof()) {
     unsigned value = 0;
     stream >> value;
-    if(stream.eof()) {
+    if (stream.eof()) {
       break;
     }
     values_.push_back(value);
   }
 }
 
-//Returns true if we are handling a matrix dataset.
+// Returns true if we are handling a matrix dataset.
 static bool ParserType(const std::string& file_path) {
   std::ifstream file(file_path);
   std::string str;
@@ -57,7 +72,7 @@ static bool ParserType(const std::string& file_path) {
 void Instance::ParseDataset(const std::string& file_path,
                             util::Discretizer& discretizer,
                             std::vector<Instance>& instances) {
-  if(ParserType(file_path)) {
+  if (ParserType(file_path)) {
     ParseDataset(file_path, instances);
     return;
   }
@@ -70,7 +85,8 @@ void Instance::ParseDataset(const std::string& file_path,
   disc.Initialize(query);
   auto document = query.cbegin();
   while (document != query.cend()) {
-    instances.emplace_back(*document, disc);
+    instances.emplace_back(*document, disc, document->query_id(),
+                           document->id());
     ++document;
   }
   instances.shrink_to_fit();
@@ -79,10 +95,10 @@ void Instance::ParseDataset(const std::string& file_path,
 void Instance::ParseDataset(const std::string& file_path,
                             std::vector<Instance>& instances) {
   std::ifstream input_file(file_path);
-  while(!input_file.eof()) {
+  while (!input_file.eof()) {
     std::string instance_string;
     getline(input_file, instance_string);
-    if(input_file.eof()) {
+    if (input_file.eof()) {
       break;
     }
     instances.emplace_back(instance_string);
@@ -95,9 +111,22 @@ std::string Instance::ToString() const {
   std::stringstream str;
   str << values_.at(0);
   while (i < values_.size()) {
-      str << " " << i << ":" << values_.at(i);
+    str << " " << i << ":" << values_.at(i);
     i++;
   }
+  return str.str();
+}
+
+std::string Instance::ToPrintableString() const {
+  unsigned i = 1;
+  std::stringstream str;
+  str << values_.at(0);
+  str << " qid:" << query_id_;
+  while (i < values_.size()) {
+    str << " " << i << ":" << values_.at(i);
+    i++;
+  }
+  str << " #id" << doc_id_;
   return str.str();
 }
 

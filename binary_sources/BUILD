@@ -43,3 +43,11 @@ cc_binary(
           "//base:query",
           "//util:statistics"],
 )
+
+cc_binary(
+    name = "discretize_dataset",
+    srcs = ["discretize_dataset.cc"],
+    deps = ["//base:dataset",
+            "//util:discretizer",
+            "//bayes/branch_and_bound:instance",]
+)
