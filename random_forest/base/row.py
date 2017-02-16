@@ -17,6 +17,8 @@ class Row:
 
   def initialize(self, line):
     '''
+      The method initialize parses a row from the dataset passed as input.
+      It follows the schema used at TD2003/TD2004.
     '''
     self.feature_set_ = []
     splitted = line.split()
