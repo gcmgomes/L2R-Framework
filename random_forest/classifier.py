@@ -1,39 +1,59 @@
-#!/usr/bin/env python
-# coding: utf-8
-#
-# This snippet of code receives train and test data, generates a random forest
-# and prints the Mean Average Precision.
-
-
-import sys
 from inputter import Inputter
+from sklearn.ensemble import RandomForestRegressor
 
 
-def usage():
-  return "Usage:\npython " + sys.argv[0] + " [train filename] [test filename]"
+class Classifier:
+  '''
+    The Classifier class can train a random forest and:
+      * Classify new data.
+      * Print the Mean Average Precision given a test dataset.
+  '''
+
+  # A list of rows (base/row.py).
+  parsed_train_ = None
+
+  # The Random Forest Object.
+  clf_ = None
+
+  def __init__(self):
+    pass
 
 
-def main():
-  if len(sys.argv) != 3:
-    print usage()
-    return
+  def load_train_data(self, train_filename):
+    '''
+      The load_train_data method loads and parses the dataset found
+      at the file stored at [train_filename].
+    ''' 
+    train_file = open(train_filename)
+    train_file_content = train_file.readlines()
+    inp = Inputter()
+    self.parsed_train_ = inp.parse(train_file_content)
+    train_file.close()
   
-  train_file = open(sys.argv[1])
-  train_file_content = train_file.readlines()
-  inp = Inputter()
-  train_file_parsed = inp.parse(train_file_content)
-
-  for row in train_file_parsed:
-    label = str(row.label())
-    doc_id = str(row.doc_id())
-    query_id = str(row.query_id())
-    feature_set = row.feature_set()
+  
+  def train(self, number_trees=10):
+    '''
+      The train method fits the random forest using the train data loaded by
+      load_train_data and with [number_trees] decision trees.
+    '''
     
-    sys.stdout.write(label + " #" + doc_id + " qid:" + query_id + " ")
-    for feature in feature_set:
-      sys.stdout.write(str(feature.id()) + ":" + str(feature.value()) + " ")
-    print ""
-
-
-if __name__ == '__main__':
-  main()
+    if self.parsed_train_ == None:
+      raise Exception('Error: The train file was not loaded.')
+    
+    # Initializing the random forest object.
+    self.clf_ = RandomForestRegressor(n_estimators=number_trees, n_jobs=3, oob_score=True)
+    
+    X = []
+    Y = []
+    
+    # Loading X and Y...
+    for row in self.parsed_train_:
+      Y.append(row.label())
+      feature_set = row.feature_set()
+      features = []    
+      
+      for feature in feature_set:
+        features.append(feature.value())
+      X.append(features)
+    
+    self.clf_.fit(X, Y) 
