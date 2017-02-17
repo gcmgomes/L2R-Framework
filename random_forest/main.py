@@ -6,7 +6,7 @@
 
 
 import sys
-from classifier import Classifier
+from regressor import Regressor
 
 
 def usage():
@@ -21,7 +21,7 @@ def main():
     print usage()
     return
   
-  random_forest = Classifier()
+  random_forest = Regressor()
   random_forest.load_train_data(sys.argv[1])
   random_forest.train(300)
 

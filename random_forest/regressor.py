@@ -2,9 +2,9 @@ from inputter import Inputter
 from sklearn.ensemble import RandomForestRegressor
 
 
-class Classifier:
+class Regressor:
   '''
-    The Classifier class can train a random forest and:
+    The Regressor class can train a random forest and:
       * Classify new data.
       * Print the Mean Average Precision given a test dataset.
   '''
