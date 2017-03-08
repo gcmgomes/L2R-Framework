@@ -1,6 +1,6 @@
 from inputter import Inputter
 from sklearn.ensemble import RandomForestRegressor
-
+from sklearn.metrics import average_precision_score
 
 class Regressor:
   '''
@@ -11,12 +11,28 @@ class Regressor:
 
   # A list of rows (base/row.py).
   parsed_train_ = None
+  
+  # A list of rows (base/row.py).
+  parsed_test_ = None
 
   # The Random Forest Object.
   clf_ = None
 
   def __init__(self):
     pass
+  
+
+  def load_dataset(self, filename):
+    '''
+      The load_dataset method loads and parses the dataset found
+      at the file stored at [filename].
+    ''' 
+    fileb = open(filename)
+    file_content = fileb.readlines()
+    inp = Inputter()
+    parsed_dataset = inp.parse(file_content)
+    fileb.close()
+    return parsed_dataset
 
 
   def load_train_data(self, train_filename):
@@ -24,12 +40,50 @@ class Regressor:
       The load_train_data method loads and parses the dataset found
       at the file stored at [train_filename].
     ''' 
-    train_file = open(train_filename)
-    train_file_content = train_file.readlines()
-    inp = Inputter()
-    self.parsed_train_ = inp.parse(train_file_content)
-    train_file.close()
+    self.parsed_train_ = self.load_dataset(train_filename)
+
+
+  def load_test_data(self, test_filename):
+    '''
+      The load_test_data method loads and parses the dataset found
+      at the file stored at [test_filename].
+    ''' 
+    self.parsed_test_ = self.load_dataset(test_filename)
+
   
+  def get_train_size(self):
+    '''
+      Returns the number of rows train has.
+    '''
+    return len(self.parsed_train_)
+
+  
+  def get_test_size(self):
+    '''
+      Returns the number of rows test has.
+    '''
+    return len(self.parsed_test_)
+  
+
+  def toXY(self, parsed_dataset):
+    '''
+      toXY takes a parsed dataset and transforms it to two arrays,
+      X and Y, being X the classifier input and Y the output.
+    '''
+    X = []
+    Y = []
+    
+    # Loading X and Y...
+    for row in parsed_dataset:
+      Y.append(row.label())
+      feature_set = row.feature_set()
+      features = []    
+      
+      for feature in feature_set:
+        features.append(feature.value())
+      X.append(features)
+    return [X, Y]
+
   
   def train(self, number_trees=10):
     '''
@@ -43,17 +97,45 @@ class Regressor:
     # Initializing the random forest object.
     self.clf_ = RandomForestRegressor(n_estimators=number_trees, n_jobs=3, oob_score=True)
     
-    X = []
-    Y = []
-    
-    # Loading X and Y...
-    for row in self.parsed_train_:
-      Y.append(row.label())
-      feature_set = row.feature_set()
-      features = []    
-      
-      for feature in feature_set:
-        features.append(feature.value())
-      X.append(features)
-    
+    transformed_dataset = self.toXY(self.parsed_train_)
+    X = transformed_dataset[0]
+    Y = transformed_dataset[1]
     self.clf_.fit(X, Y) 
+
+
+  def mapk(self, k):
+    '''
+      Returns the Mean Average Precision at min(k, test_size).
+    '''
+    
+    if self.parsed_train_ == None:
+      raise Exception('Error: The train file was not loaded.')
+    
+    if self.parsed_test_ == None:
+      raise Exception('Error: The test file was not loaded.')
+    
+    transformed_dataset = self.toXY(self.parsed_test_)
+    X = transformed_dataset[0]
+    expected = transformed_dataset[1]
+    predictions = self.clf_.predict(X)
+  
+    joined_y = [(predictions[i], expected[i]) for i in range(len(expected))]  
+    joined_y.sort()
+    joined_y = list(reversed(joined_y))
+    
+    precision = 0
+    average_precision = 0.0
+    mean_average_precision = 0.0
+    cnt=0
+    for value in joined_y:
+      if cnt == k:
+        break
+      if value[1] == 1:
+        precision+=1
+      print value, " ", precision
+      cnt+=1
+      average_precision += precision
+      mean_average_precision += average_precision/cnt
+    
+    return mean_average_precision/cnt
+    
