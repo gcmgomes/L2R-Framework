@@ -7,7 +7,7 @@ class Row:
   '''
 
   query_id_ = -1
-  doc_id_ = -1
+  doc_id_ = None
   label_ = -1
   feature_set_ = []
 
@@ -25,7 +25,8 @@ class Row:
     for field in splitted:
       if field.find('#') != -1:
         # Docid
-        self.doc_id_ = int(field[field.find('#')+3:])
+        self.doc_id_ = field[field.find('#'):]
+        break
       elif field.find('qid') != -1:
         # Queryid
         self.query_id_ = int(field[field.find('qid')+4:])

@@ -95,7 +95,7 @@ class Regressor:
       raise Exception('Error: The train file was not loaded.')
     
     # Initializing the random forest object.
-    self.clf_ = RandomForestRegressor(n_estimators=number_trees, n_jobs=3, oob_score=True)
+    self.clf_ = RandomForestRegressor(n_estimators=number_trees, n_jobs=4, oob_score=True)
     
     transformed_dataset = self.toXY(self.parsed_train_)
     X = transformed_dataset[0]
