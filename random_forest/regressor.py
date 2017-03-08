@@ -124,18 +124,15 @@ class Regressor:
     joined_y = list(reversed(joined_y))
     
     precision = 0
-    average_precision = 0.0
     mean_average_precision = 0.0
     cnt=0
     for value in joined_y:
       if cnt == k:
         break
-      if value[1] == 1:
+      if int(value[1]) == 1:
         precision+=1
-      print value, " ", precision
       cnt+=1
-      average_precision += precision
-      mean_average_precision += average_precision/cnt
+      mean_average_precision += float(precision)/cnt
     
     return mean_average_precision/cnt
     

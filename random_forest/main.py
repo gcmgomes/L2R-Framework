@@ -25,11 +25,11 @@ def main():
   random_forest.load_train_data(sys.argv[1])
   random_forest.load_test_data(sys.argv[2])
 
-  total = 0
+  total = 0.0
   for i in range(30):
     random_forest.train(500)
     total += random_forest.mapk(10)
-  print "MAP@10:", total/30
+  print "MAP@10:", float(total)/30
 
 
 if __name__ == '__main__':

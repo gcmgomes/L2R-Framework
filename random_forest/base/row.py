@@ -32,7 +32,7 @@ class Row:
       elif field.find(':') != -1:
         # feature
         feature_id = int(field[:field.find(':')])
-        feature_value = int(field[field.find(':')+1:])
+        feature_value = float(field[field.find(':')+1:])
         self.feature_set_.append(Feature(feature_id, feature_value))
       else:
         # label
