@@ -52,6 +52,8 @@ class Instance {
   // used to read the dataset.
   std::string ToPrintableString() const;
 
+  const unsigned query_id() { return query_id_; }
+
  private:
   // Performs initialization of |this| using |document| as the data source and
   // |discretizer| to perform the appropriate transformation.

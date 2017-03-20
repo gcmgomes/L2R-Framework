@@ -1,0 +1,15 @@
+2003_td_dataset_discretized_10_bins_tube/Fold2/vali.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold3/train.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold1/test.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold3/test.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold5/test.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold5/train.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold5/vali.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold3/vali.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold4/train.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold1/train.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold1/vali.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold2/test.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold2/train.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold4/test.txt filter=lfs diff=lfs merge=lfs -text
+2003_td_dataset_discretized_10_bins_tube/Fold4/vali.txt filter=lfs diff=lfs merge=lfs -text

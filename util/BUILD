@@ -6,6 +6,7 @@ cc_library(
   hdrs = ["statistics.h"],
   deps = ["//base:document",
           "//base:query"],
+  linkopts = ["-lm"],
 )
 
 cc_library(

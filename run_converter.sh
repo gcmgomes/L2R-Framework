@@ -1,22 +1,13 @@
 #!/bin/bash
 
-script_path="util/binary_sources/to_dat_converter.py"
+script_path="bazel-bin/binary_sources/discretize_dataset"
 
-echo "Running original..."
+echo "Running..."
 for i in {1..5}; do
-  path="datasets/2003_td_dataset/Fold$i"
+  in_path="datasets/2003_td_dataset/Fold$i"
+  out_path="datasets/2003_td_dataset_discretized_10_bins_tube/Fold$i"
   echo "Running Fold $i..."
-  python $script_path $path/test.txt $path/test.dat
-  python $script_path $path/train.txt $path/train.dat
-  python $script_path $path/vali.txt $path/vali.dat
-done
-
-echo ""
-echo "Running discretized uniform 20 bins..."
-for i in {1..5}; do
-  path="datasets/2003_td_dataset_discretized_20_bins_uniform/Fold$i"
-  echo "Running Fold $i..."
-  python $script_path $path/test.txt $path/test.dat
-  python $script_path $path/train.txt $path/train.dat
-  python $script_path $path/vali.txt $path/vali.dat
+  ./$script_path $in_path/test.txt $out_path/test.txt
+  ./$script_path $in_path/train.txt $out_path/train.txt
+  ./$script_path $in_path/vali.txt $out_path/vali.txt
 done
