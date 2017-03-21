@@ -12,9 +12,9 @@ done
 
 echo ""
 echo ""
-echo "Running discretized uniform 20 bins..."
+echo "Running discretized tube 10 bins..."
 for i in {1..5}; do
-  path="datasets/2003_td_dataset_discretized_20_bins_uniform/Fold$i"
+  path="datasets/2003_td_dataset_discretized_10_bins_tube/Fold$i"
   echo "Running Fold $i..."
   python $script_path $path/train.txt $path/test.txt
   echo ""
