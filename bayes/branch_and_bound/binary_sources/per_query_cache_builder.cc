@@ -6,20 +6,15 @@
 #include "../../../base/dataset.h"
 #include "../../../util/discretizer.h"
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <list>
 #include <map>
-#include <queue>
 #include <set>
-#include <stack>
 #include <string>
 #include <unordered_set>
 #include <vector>
-
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -46,36 +41,12 @@ int main(int argc, char** argv) {
   vector<bayes::branch_and_bound::Instance> instances;
   bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc,
                                                   instances);
-  map<unsigned, vector<bayes::branch_and_bound::Instance> > queries;
   
+  map<unsigned, vector<bayes::branch_and_bound::Instance> > queries;
   for(auto inst : instances)
   {
     queries[inst.query_id()].push_back(inst);
   }
   
-  /*
-  for (auto kv : queries)
-  {
-    vector<bayes::branch_and_bound::Cache> caches;
-    bayes::branch_and_bound::Cache::InitializeCaches(
-        cache_directory, instances, caches, cache_size, criterion);
-    bayes::branch_and_bound::InvertedIndex index(instances);
-    instances.clear();
-    vector<bayes::branch_and_bound::ExternalQueue> external_queues;
-    bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
-        queue_directory, index.index().size(), queue_size, external_queues);
-    vector<bayes::branch_and_bound::Variable> variables;
-    vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
-    bayes::branch_and_bound::Variable::InitializeVariables(index, variables,
-        caches, cp_tables);
-
-    // Label's id
-    unsigned id = 0;
-    bayes::branch_and_bound::CacheBuilder builder(&variables[id],
-        &external_queues[id]);
-    builder.Build(index, variables);
-    bayes::branch_and_bound::ExternalQueue::ClearExternalQueue(queue_directory,
-        id);
-  }*/
   return 0;
 }

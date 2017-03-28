@@ -2,7 +2,6 @@
 #include "../../../base/dataset.h"
 #include "../../../util/discretizer.h"
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -15,7 +14,6 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
-
 using namespace std;
 
 int main(int argc, char** argv) {

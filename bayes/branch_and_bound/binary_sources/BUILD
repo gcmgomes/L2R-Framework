@@ -10,7 +10,10 @@ cc_binary(
 cc_binary(
   name = "per_query_cache_builder",
   srcs = ["per_query_cache_builder.cc"],
-  deps = ["//bayes/branch_and_bound:cache_builder"],
+  deps = ["//base:dataset",
+          "//bayes/branch_and_bound:cache_builder",
+          "//bayes/branch_and_bound:instance",
+          "//util:discretizer"],
   linkopts = ["-lm"],
 )
 

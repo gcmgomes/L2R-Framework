@@ -80,7 +80,7 @@ void Instance::ParseDataset(const std::string& file_path,
   base::Dataset* dataset = new base::Dataset();
   dataset->Parse(file_path);
   base::Query query(1, dataset->cbegin()->dimension_count());
-  dataset->Collapse(query);
+  dataset->Collapse(query, false);
   delete dataset;
   disc.Initialize(query);
   auto document = query.cbegin();
