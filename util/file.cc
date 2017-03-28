@@ -1,10 +1,10 @@
 #include "file.h"
 
-#include <iostream>
-#include <stack>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+
+#include <stack>
 
 namespace util {
 bool File::CreateDirectory(const std::string& path)
@@ -31,7 +31,6 @@ bool File::CreateDirectory(const char* path)
   {
     while(!current.empty() && *current.rbegin() != '/')
       current.pop_back();
-    std::cout << current << std::endl;
     status = mkdir(current.c_str(),
                    S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     

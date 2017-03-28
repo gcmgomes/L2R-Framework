@@ -4,9 +4,7 @@
 // This is a set of utilitary classes to manipulate the filesystem.
 //  For now it's just working on POSIX systems.
 
-
 #include <string>
-
 
 namespace util {
   class File {
