@@ -10,6 +10,12 @@ cc_library(
 )
 
 cc_library(
+  name = "file",
+  srcs = ["file.cc"],
+  hdrs = ["file.h"],
+)
+
+cc_library(
   name = "normalizer",
   srcs = ["normalizer.cc"],
   hdrs = ["normalizer.h"],
