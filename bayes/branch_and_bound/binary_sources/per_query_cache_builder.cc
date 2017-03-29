@@ -5,6 +5,7 @@
 #include "../cache_builder.h"
 #include "../../../base/dataset.h"
 #include "../../../util/discretizer.h"
+#include "../../../util/file.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -12,6 +13,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <sstream>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -42,11 +44,46 @@ int main(int argc, char** argv) {
   bayes::branch_and_bound::Instance::ParseDataset(input_file_path, disc,
                                                   instances);
   
+  // Separating the instances by query ids.
   map<unsigned, vector<bayes::branch_and_bound::Instance> > queries;
   for(auto inst : instances)
   {
-    queries[inst.query_id()].push_back(inst);
+    queries[inst.query_id()].push_back(inst);  
   }
-  
+
+  for(auto q : queries)
+  {
+    vector<bayes::branch_and_bound::Instance> &inst = q.second;
+    
+    // Initializing everything.
+    vector<bayes::branch_and_bound::Cache> caches;
+    
+    stringstream ss;
+    ss << "query" << q.first;
+    
+    std::string dir = cache_directory+ss.str();
+    util::File::CreateDirectory(dir);
+    
+    bayes::branch_and_bound::Cache::InitializeCaches(
+        dir, inst, caches, cache_size, criterion);
+    bayes::branch_and_bound::InvertedIndex index(inst);
+    inst.clear();
+    vector<bayes::branch_and_bound::ExternalQueue> external_queues;
+    bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
+        queue_directory, index.index().size(), queue_size, external_queues);
+    vector<bayes::branch_and_bound::Variable> variables;
+    vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
+    bayes::branch_and_bound::Variable::InitializeVariables(index, variables,
+        caches, cp_tables);
+    
+    
+    // Building the cache just for the label
+    bayes::branch_and_bound::CacheBuilder builder(&variables[0],
+                                                  &external_queues[0]);
+    builder.Build(index, variables);
+    bayes::branch_and_bound::ExternalQueue::ClearExternalQueue(queue_directory,
+                                                               0);
+  }
+
   return 0;
 }

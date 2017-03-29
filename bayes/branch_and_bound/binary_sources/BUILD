@@ -13,7 +13,8 @@ cc_binary(
   deps = ["//base:dataset",
           "//bayes/branch_and_bound:cache_builder",
           "//bayes/branch_and_bound:instance",
-          "//util:discretizer"],
+          "//util:discretizer",
+          "//util:file"],
   linkopts = ["-lm"],
 )
 
