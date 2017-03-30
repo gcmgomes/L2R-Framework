@@ -29,7 +29,7 @@ class CacheBuilder {
   inference::CPTable* cp_table_;
 };
 
-}  // namespce branch_and_bound
+}  // namespace branch_and_bound
 }  // namespace bayes
 
 #endif
