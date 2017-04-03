@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
   sscanf(argv[3], "%zu", &cache_size);
   sscanf(argv[5], "%zu", &queue_size);
   sscanf(argv[6], "%u", &bin_count);
-  
+ 
   if(*cache_directory.rbegin() != '/')
     cache_directory += '/';
 

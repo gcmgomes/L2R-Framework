@@ -92,6 +92,7 @@ void CacheBuilder::Build(const InvertedIndex& index,
     best_subset_entries.erase(parent_set);
   }
   std::cout << std::endl;
+  std::cout.flush();
   cache_->Flush();
 }
 

@@ -27,7 +27,6 @@ void ExternalQueue::push(const Bitset& bitset) {
       repository_.seekp(tellp_);
     }
     repository_.clear();
-    // std::cerr << "Writing to " << tellp_ << std::endl;
     repository_ << bitset.bit_string() << std::endl;
     tellp_ = repository_.tellp();
     repository_.flush();
@@ -101,6 +100,7 @@ void ExternalQueue::FetchFromRepository() {
     tellg_ = repository_.tellg();
     queue_.push(Bitset::FromBitString(bit_string));
   }
+  repository_.flush();
 }
 
 }  // namespce branch_and_bound

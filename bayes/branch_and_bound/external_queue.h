@@ -15,8 +15,6 @@ namespace branch_and_bound {
 
 class ExternalQueue {
  public:
-  ExternalQueue(const ExternalQueue& other) {}
-  
   ExternalQueue(size_t queue_limit);
 
   bool empty();
