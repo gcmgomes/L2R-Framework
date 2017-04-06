@@ -54,8 +54,6 @@ class Cache {
   // Defaults to AIC.
   Cache();
 
-  Cache(const Cache& other) {}
-
   Cache(long double w, size_t maximum_cache_size);
 
   void Insert(const Bitset& bitset, const CacheEntry& entry);

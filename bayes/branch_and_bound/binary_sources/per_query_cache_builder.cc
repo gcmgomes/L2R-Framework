@@ -62,6 +62,11 @@ int main(int argc, char** argv) {
     // Initializing everything.
     vector<bayes::branch_and_bound::Cache> caches;
     
+    bayes::branch_and_bound::InvertedIndex index(query_instances);
+    
+    // Ignoring queries that don't have multiple relevance labels.
+    if(index.at(0).entries().size() < 2) continue;
+    
     stringstream ss;
     ss << "query" << q.first;
     
@@ -70,7 +75,8 @@ int main(int argc, char** argv) {
     
     bayes::branch_and_bound::Cache::InitializeCaches(
         dir, query_instances, caches, cache_size, criterion);
-    bayes::branch_and_bound::InvertedIndex index(query_instances);
+    
+    
     query_instances.clear();
     vector<bayes::branch_and_bound::ExternalQueue> external_queues;
     bayes::branch_and_bound::ExternalQueue::InitializeExternalQueues(
@@ -80,17 +86,14 @@ int main(int argc, char** argv) {
     bayes::branch_and_bound::Variable::InitializeVariables(index, variables,
         caches, cp_tables);
     
-
+    
     // Building the cache just for the label
     unsigned id = 0;
-    while (id < variables.size()) {
-      bayes::branch_and_bound::CacheBuilder builder(&variables[id],
-          &external_queues[id]);
-      builder.Build(index, variables);
-      bayes::branch_and_bound::ExternalQueue::
-        ClearExternalQueue(queue_directory, id);
-      id++;
-    }
+    bayes::branch_and_bound::CacheBuilder builder(&variables[id],
+        &external_queues[id]);
+    builder.Build(index, variables);
+    bayes::branch_and_bound::ExternalQueue::
+      ClearExternalQueue(queue_directory, id);
   }
 
   return 0;
