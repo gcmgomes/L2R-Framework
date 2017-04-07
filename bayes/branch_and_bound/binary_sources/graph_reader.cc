@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     cin >> id;
     cin >> parentset;
     
-    for(int i = 0; i < parentset.size(); i++)
+    for(unsigned i = 0; i < parentset.size(); i++)
       if(parentset[i]=='1')
         variables[i].mutable_parent_set().Set(i, true);
     
