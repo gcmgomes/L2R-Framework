@@ -1,7 +1,9 @@
-#include <iostream>
-#include <fstream>
 #include "tube_node.h"
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 int main() {

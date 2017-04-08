@@ -14,7 +14,17 @@ cc_binary(
           "//bayes/branch_and_bound:cache_builder",
           "//bayes/branch_and_bound:instance",
           "//util:discretizer",
-          "//util:file"],
+          "//util:file",
+          "//util:error_output"],
+  linkopts = ["-lm"],
+)
+
+cc_binary(
+  name = "classifier",
+  srcs = ["classifier.cc"],
+  deps = ["//base:dataset",
+          "//util:file",
+          "//util:error_output"],
   linkopts = ["-lm"],
 )
 

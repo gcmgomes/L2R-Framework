@@ -6,6 +6,7 @@
 #include "../../../base/dataset.h"
 #include "../../../util/discretizer.h"
 #include "../../../util/file.h"
+#include "../../../util/error_output.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -43,20 +44,14 @@ int main(int argc, char** argv) {
   // Creating cache and queue directories.
   if(!util::File::CreateDirectory(cache_directory))
   {
-    std::cerr << "\e[1;31m";  // ANSI light red code.
-    std::cerr << "Error: ";
-    std::cerr << "\e[0m"; // ANSI black code.
-    
-    std::cerr << "Could not create cache directory\n";
+    util::Error::Print("Could not create cache directory");
+    return 1;
   }
 
   if(!util::File::CreateDirectory(queue_directory))
   {
-    std::cerr << "\e[1;31m";  // ANSI light red code.
-    std::cerr << "Error: ";
-    std::cerr << "\e[0m"; // ANSI black code.
-    
-    std::cerr << "Could not create temporary queue directory\n";
+    util::Error::Print("Could not create temporary queue directory");
+    return 1;
   }
 
   bayes::branch_and_bound::Criterion criterion =

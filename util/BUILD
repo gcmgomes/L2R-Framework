@@ -73,6 +73,13 @@ cc_library(
   deps = [":tube_node"],
 )
 
+cc_library(
+  name = "error_output",
+  srcs = ["error_output.cc"],
+  hdrs = ["error_output.h"],
+  deps = [],
+)
+
 cc_binary(
   name = "tube_tree_test",
   srcs = ["tube_tree_test.cc"],

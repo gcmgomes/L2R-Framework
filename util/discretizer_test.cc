@@ -10,7 +10,6 @@ int main() {
   vector<double> values(n);
   util::Discretizer discretizer(util::Discretizer::Mode::TREE_BASED_UNSUPERVISED, bin_count);
   while (n) {
-    double value = 0;
     cin >> values[n - 1];
     n--;
   }
