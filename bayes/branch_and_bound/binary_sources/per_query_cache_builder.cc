@@ -15,17 +15,16 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include <unordered_set>
 #include <vector>
 using namespace std;
 
 int main(int argc, char** argv) {
   if (argc < 8) {
-    cerr << "[input file] [cache directory] [memory cache size] [temporary "
+    cerr << ("[input file] [cache directory] [memory cache size] [temporary "
             "queue directory] [memory queue size] [bin count] "
-            "[criterion (0 -> AIC), (1 -> BIC)]"
+            "[criterion (0 -> AIC), (1 -> BIC)]")
          << endl;
-    return 0;
+    return 1;
   }
   string input_file_path = argv[1], cache_directory = argv[2],
          queue_directory = argv[4];
@@ -37,6 +36,28 @@ int main(int argc, char** argv) {
  
   if(*cache_directory.rbegin() != '/')
     cache_directory += '/';
+
+  if(*queue_directory.rbegin() != '/')
+    queue_directory += '/';
+
+  // Creating cache and queue directories.
+  if(!util::File::CreateDirectory(cache_directory))
+  {
+    std::cerr << "\e[1;31m";  // ANSI light red code.
+    std::cerr << "Error: ";
+    std::cerr << "\e[0m"; // ANSI black code.
+    
+    std::cerr << "Could not create cache directory\n";
+  }
+
+  if(!util::File::CreateDirectory(queue_directory))
+  {
+    std::cerr << "\e[1;31m";  // ANSI light red code.
+    std::cerr << "Error: ";
+    std::cerr << "\e[0m"; // ANSI black code.
+    
+    std::cerr << "Could not create temporary queue directory\n";
+  }
 
   bayes::branch_and_bound::Criterion criterion =
       (argv[7][0] == '0')

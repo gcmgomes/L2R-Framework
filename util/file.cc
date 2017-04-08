@@ -33,7 +33,7 @@ bool File::CreateDirectory(const char* path)
       current.pop_back();
     status = mkdir(current.c_str(),
                    S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    
+
     // If the folder already exists, then just let it there...
     if(index==0 && errno==EEXIST) return true;
     if(status==0) break;
