@@ -46,7 +46,6 @@ class CacheEntry {
 enum class Criterion {
   MINIMUM_DESCRIPTION_LEGNTH,    // w = (log N) / 2
   AKAIKE_INFORMATION_CRITERION,  // w = 1.
-
 };
 
 class Cache {

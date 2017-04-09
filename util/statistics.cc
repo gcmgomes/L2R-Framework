@@ -5,6 +5,28 @@
 
 namespace util {
 
+double Statistics::Mapk(std::vector<std::pair<double, unsigned> >
+                        v_classification, unsigned k)
+{
+  if(v_classification.size()==0 || k==0) return 0;
+  
+  sort(v_classification.begin(), v_classification.end());
+  reverse(v_classification.begin(), v_classification.end());
+  
+  double average_precision=0;
+  double mean_average_precision=0;
+  unsigned precision=0, i=0;
+
+  for(i = 0; i < std::min((unsigned)v_classification.size(), k); i++)
+  {
+    if(v_classification[i].second == 1)
+      precision++;
+    average_precision = ((double)precision)/(i+1);
+    mean_average_precision+=average_precision;
+  }
+  return mean_average_precision/i;
+}
+
 static void MeanFeatureValues(const ::base::Query& query,
                               std::unordered_map<unsigned, double>& means) {
   auto document = query.cbegin();

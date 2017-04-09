@@ -23,8 +23,12 @@ cc_binary(
   name = "classifier",
   srcs = ["classifier.cc"],
   deps = ["//base:dataset",
+          "//bayes/branch_and_bound:cache",
+          "//bayes/branch_and_bound:bitset",
+          "//bayes/branch_and_bound/inference:cp_table",
           "//util:file",
-          "//util:error_output"],
+          "//util:error_output",
+          "//util:statistics"],
   linkopts = ["-lm"],
 )
 

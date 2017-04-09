@@ -19,6 +19,11 @@ class Statistics {
   const std::unordered_map<unsigned, double>& standard_deviations() const {
     return standard_deviations_;
   }
+  
+  // Calculates the Mean Average Precision at K.
+  // Receives a vector of pairs <Classification, Expectation>.
+  static double Mapk(std::vector<std::pair<double, unsigned> >
+                     v_classification, unsigned k);
 
   // Calculates Pearson's Rho correlation coefficient between features
   // |feature_1|
