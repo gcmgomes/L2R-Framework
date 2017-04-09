@@ -47,18 +47,37 @@ void Instance::Initialize(const base::Document& document,
 }
 
 void Instance::Initialize(const std::string& instance_string) {
-  std::stringstream stream;
+  std::istringstream stream(instance_string);
+  int cnt = -1;
   query_id_ = -1;
   doc_id_ = -1;
-  stream << instance_string << " ";
-  while (!stream.eof()) {
-    unsigned value = 0;
-    stream >> value;
-    if (stream.eof()) {
-      break;
+  
+  do {
+    std::string str_value;
+    unsigned value=-1;
+    stream >> str_value;
+    cnt++;
+
+    if(cnt==0)
+    {
+      sscanf(str_value.c_str(), "%u", &value);
     }
+    else if(cnt==1)
+    {
+      sscanf(str_value.c_str(), "qid:%u", &value);
+      query_id_ = value;
+      continue;
+    }
+    else
+    {
+      unsigned tmp;
+      if(str_value.find(":") != std::string::npos)
+        sscanf(str_value.c_str(), "%u:%u", &tmp, &value);
+      else continue;
+    }
+    
     values_.push_back(value);
-  }
+  } while(stream);
 }
 
 // Returns true if we are handling a matrix dataset.

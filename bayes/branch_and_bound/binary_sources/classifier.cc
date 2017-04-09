@@ -2,7 +2,7 @@
 // parent sets. Then, for each parent set it classifies all entries from the
 // test file.
 //
-// The output of this script follows the same format as the cache, but for
+// The output of this script follows a format similar to the cache, but for
 // every parent set a MAP is printed as well.
 
 
@@ -44,7 +44,7 @@ double run(const bayes::branch_and_bound::Bitset& parent_set,
            const vector<bayes::branch_and_bound::Instance>& instances)
 {
   bayes::branch_and_bound::inference::CPTable cp_table(0, parent_set);
-
+  
   // Keeps pairs <classification, expectation>
   std::vector<std::pair<double, unsigned> > v_classification;
   
@@ -104,6 +104,7 @@ int main(int argc, char* argv[])
     v_output.push_back(sOutput(entry.second.score(1), MAP, entry.first));
   }
   
+  std::cerr << "Printing output...\n";
   std::fstream outstream;
   outstream.open(output_path+"results", std::fstream::out);
   outstream << std::setprecision(6) << std::fixed;
@@ -111,7 +112,7 @@ int main(int argc, char* argv[])
   for(output out : v_output)
   {
     outstream << std::fixed << out.bitset.bit_string() << " "
-              << out.parent_set_score
+              << out.parent_set_score << " "
               << out.MAP << std::endl;
   }
   outstream.close();
