@@ -224,5 +224,5 @@ bool Graph::BestCompliantEntry(unsigned child_variable_id) {
   return false;
 }
 
-}  // namespce branch_and_bound
+}  // namespace branch_and_bound
 }  // namespace bayes

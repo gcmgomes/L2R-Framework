@@ -114,7 +114,7 @@ class Graph {
       h_matrix_;
 };
 
-}  // namespce branch_and_bound
+}  // namespace branch_and_bound
 }  // namespace bayes
 
 #endif

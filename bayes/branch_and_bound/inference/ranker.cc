@@ -1,5 +1,7 @@
 #include "ranker.h"
 
+#include <iostream> 
+
 namespace bayes {
 namespace branch_and_bound {
 namespace inference {
@@ -24,6 +26,6 @@ long double Ranker::Rank(const ::base::Document& document) const {
   return Rank(instance);
 }
 
-}  // namespce inference
-}  // namespce branch_and_bound
+}  // namespace inference
+}  // namespace branch_and_bound
 }  // namespace bayes
