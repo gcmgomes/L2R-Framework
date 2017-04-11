@@ -3,7 +3,6 @@
 
 #include "../inverted_index.h"
 #include <cstdlib>
-#include <iostream>
 #include <unordered_map>
 
 namespace bayes {

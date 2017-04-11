@@ -4,7 +4,6 @@
 #include "../bitset.h"
 #include "cpt_node.h"
 #include <cstdlib>
-#include <iostream>
 #include <unordered_set>
 
 namespace bayes {

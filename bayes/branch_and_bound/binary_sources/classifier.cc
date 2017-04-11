@@ -94,7 +94,7 @@ double run(const bayes::branch_and_bound::Bitset& parent_set,
   for(bayes::branch_and_bound::Instance inst : instances) {
     v_classification.push_back({ranker.Rank(inst), inst.values()[0]});
   }
-  
+
   return util::Statistics::Mapk(v_classification, 10u);
 }
 

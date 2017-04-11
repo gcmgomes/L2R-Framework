@@ -4,7 +4,6 @@
 #include "../graph.h"
 #include "base/dataset.h"
 #include <cstdlib>
-#include <iostream>
 #include <unordered_set>
 
 namespace bayes {
