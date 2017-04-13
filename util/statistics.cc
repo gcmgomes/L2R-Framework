@@ -3,23 +3,27 @@
 #include <algorithm>
 #include "statistics.h"
 
+#include <iostream>
+
 namespace util {
 
-double Statistics::Mapk(std::vector<std::pair<double, unsigned> >
-                        v_classification, unsigned k)
+// Calculates the Mean Average Precision at K.
+// Receives a vector of pairs <Classification, Expectation>.
+long double Statistics::Mapk(std::vector<std::pair<double, unsigned> >
+                        v_ranker, unsigned k)
 {
-  if(v_classification.size()==0 || k==0) return 0;
+  if(v_ranker.size()==0 || k==0) return 0;
   
-  sort(v_classification.begin(), v_classification.end());
-  reverse(v_classification.begin(), v_classification.end());
+  sort(v_ranker.begin(), v_ranker.end());
+  reverse(v_ranker.begin(), v_ranker.end());
   
-  double average_precision=0;
-  double mean_average_precision=0;
+  long double average_precision=0;
+  long double mean_average_precision=0;
   unsigned precision=0, i=0;
 
-  for(i = 0; i < std::min((unsigned)v_classification.size(), k); i++)
+  for(i = 0; i < std::min((unsigned)v_ranker.size(), k); i++)
   {
-    if(v_classification[i].second == 1)
+    if(v_ranker[i].first != 0 && v_ranker[i].second != 0)
       precision++;
     average_precision = ((double)precision)/(i+1);
     mean_average_precision+=average_precision;

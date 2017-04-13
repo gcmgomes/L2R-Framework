@@ -22,7 +22,7 @@ class Statistics {
   
   // Calculates the Mean Average Precision at K.
   // Receives a vector of pairs <Classification, Expectation>.
-  static double Mapk(std::vector<std::pair<double, unsigned> >
+  static long double Mapk(std::vector<std::pair<double, unsigned> >
                      v_classification, unsigned k);
 
   // Calculates Pearson's Rho correlation coefficient between features

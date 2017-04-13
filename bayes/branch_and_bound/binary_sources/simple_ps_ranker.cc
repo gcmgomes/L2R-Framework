@@ -17,6 +17,7 @@
 #include "../../../util/statistics.h"
 #include <algorithm>
 #include <cstdio>
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -28,11 +29,11 @@ using namespace std;
 
 typedef struct sOutput {
   long double parent_set_score;
-  double MAP;
+  long double MAP;
   bayes::branch_and_bound::Bitset bitset;
   
   sOutput() {}
-  sOutput(long double parent_set_score_, double MAP_,
+  sOutput(long double parent_set_score_, long double MAP_,
           bayes::branch_and_bound::Bitset bitset_)
   {
     parent_set_score = parent_set_score_;
@@ -61,7 +62,7 @@ vector<bayes::branch_and_bound::Instance> FilterInstances(
 
 
 // This methods calculates the MAP@10 given a parent set.
-double run(const bayes::branch_and_bound::Bitset& parent_set,
+long double run(const bayes::branch_and_bound::Bitset& parent_set,
            const vector<bayes::branch_and_bound::Instance>& instances,
            const bayes::branch_and_bound::InvertedIndex& index,
            std::vector<bayes::branch_and_bound::Cache>& caches)
@@ -88,33 +89,35 @@ double run(const bayes::branch_and_bound::Bitset& parent_set,
   bayes::branch_and_bound::inference::Ranker ranker(graph, disc);
   
   
-  // Keeps pairs <classification, expectation>
-  std::vector<std::pair<double, unsigned> > v_classification;
+  // Keeps pairs <ranker, expectation>
+  std::vector<std::pair<double, unsigned> > v_ranker;
   
   for(bayes::branch_and_bound::Instance inst : instances) {
-    v_classification.push_back({ranker.Rank(inst), inst.values()[0]});
+    v_ranker.push_back({ranker.Rank(inst), inst.values()[0]});
   }
 
-  return util::Statistics::Mapk(v_classification, 10u);
+  return util::Statistics::Mapk(v_ranker, 10u);
 }
 
 
 int main(int argc, char* argv[])
 {
-  if(argc != 6)
+  if(argc != 7)
   {
     cerr << "Usage:\n    ./" << argv[0]
          << " [train filename] [query number -> -1 if all queries]"
-         << " [test filename] [label cache directory] [output path]\n";
+         << " [test filename] [label cache directory] [output path]"
+         << " [criterion (0 -> AIC), (1 -> BIC)]\n";
     return 1;
   }
   
   string train_filename = argv[1];
-  int query_number = -1;
+  int query_number = -1, criterion=-1;
   string test_filename = argv[3], label_cache_directory = argv[4];
   string output_path = argv[5];
   
   sscanf(argv[2], "%d", &query_number);
+  sscanf(argv[6], "%d", &criterion);
 
   if(*output_path.rbegin() != '/') {
     output_path += "/";
@@ -154,11 +157,15 @@ int main(int argc, char* argv[])
   // Calculate MAP for every parent set of the label.
   for(auto entry : caches[0].cache())
   {
-    double MAP = run(entry.first, test_instances, index, caches);
+    long double MAP = run(entry.first, test_instances, index, caches);
     
-    // Passing w=1 to score, that means that the score is calculated as AIC.
-    // TODO: Change that, so we can run experiments with BIC as well.
-    v_output.push_back(sOutput(entry.second.score(1), MAP, entry.first));
+    // For AIC w = 1.
+    // For BIC, w = log2(n) / 2.
+    long double w = 1;
+    if(criterion == 1) {
+      w = log2(test_instances.size()) / 2.0;
+    }
+    v_output.push_back(sOutput(entry.second.score(w), MAP, entry.first));
   }
   
   std::cerr << "Printing output...\n";

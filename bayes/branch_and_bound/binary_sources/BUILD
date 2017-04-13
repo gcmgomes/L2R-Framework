@@ -20,8 +20,8 @@ cc_binary(
 )
 
 cc_binary(
-  name = "classifier",
-  srcs = ["classifier.cc"],
+  name = "simple_ps_ranker",
+  srcs = ["simple_ps_ranker.cc"],
   deps = ["//base:dataset",
           "//bayes/branch_and_bound:cache",
           "//bayes/branch_and_bound:graph",
