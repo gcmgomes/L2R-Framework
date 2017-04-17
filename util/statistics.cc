@@ -3,8 +3,6 @@
 #include <algorithm>
 #include "statistics.h"
 
-#include <iostream>
-
 namespace util {
 
 // Calculates the Mean Average Precision at K.

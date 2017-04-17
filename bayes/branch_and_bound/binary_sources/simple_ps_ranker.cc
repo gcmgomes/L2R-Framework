@@ -71,7 +71,7 @@ long double run(const bayes::branch_and_bound::Bitset& parent_set,
   vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
   cp_tables.push_back(
       bayes::branch_and_bound::inference::CPTable(0, parent_set));
-
+  cp_tables[0].Build(index);
   bayes::branch_and_bound::Variable::InitializeVariables(index, variables,
                                                          caches, cp_tables);
   bayes::branch_and_bound::Graph graph(variables);

@@ -1,5 +1,7 @@
 #include "ranker.h"
 
+#include <iostream>
+
 namespace bayes {
 namespace branch_and_bound {
 namespace inference {
