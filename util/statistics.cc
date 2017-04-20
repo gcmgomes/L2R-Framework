@@ -5,30 +5,6 @@
 
 namespace util {
 
-// Calculates the Mean Average Precision at K.
-// Receives a vector of pairs <Classification, Expectation>.
-long double Statistics::Mapk(std::vector<std::pair<double, unsigned> >
-                        v_ranker, unsigned k)
-{
-  if(v_ranker.size()==0 || k==0) return 0;
-  
-  sort(v_ranker.begin(), v_ranker.end());
-  reverse(v_ranker.begin(), v_ranker.end());
-  
-  long double average_precision=0;
-  long double mean_average_precision=0;
-  unsigned precision=0, i=0;
-
-  for(i = 0; i < std::min((unsigned)v_ranker.size(), k); i++)
-  {
-    if(v_ranker[i].first != 0 && v_ranker[i].second != 0)
-      precision++;
-    average_precision = ((double)precision)/(i+1);
-    mean_average_precision+=average_precision;
-  }
-  return mean_average_precision/i;
-}
-
 static void MeanFeatureValues(const ::base::Query& query,
                               std::unordered_map<unsigned, double>& means) {
   auto document = query.cbegin();

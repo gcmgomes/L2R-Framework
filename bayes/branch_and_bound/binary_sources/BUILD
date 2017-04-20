@@ -29,8 +29,7 @@ cc_binary(
           "//bayes/branch_and_bound/inference:ranker",
           "//bayes/branch_and_bound/inference:cp_table",
           "//util:file",
-          "//util:error_output",
-          "//util:statistics"],
+          "//util:error_output"],
   linkopts = ["-lm"],
 )
 

@@ -101,38 +101,15 @@ class Regressor:
     X = transformed_dataset[0]
     Y = transformed_dataset[1]
     self.clf_.fit(X, Y) 
+  
 
-
-  def mapk(self, k):
+  def print_score(self):
     '''
-      Returns the Mean Average Precision at min(k, test_size).
+      Prints the predictions for each document.
     '''
-    
-    if self.parsed_train_ == None:
-      raise Exception('Error: The train file was not loaded.')
-    
-    if self.parsed_test_ == None:
-      raise Exception('Error: The test file was not loaded.')
-    
     transformed_dataset = self.toXY(self.parsed_test_)
     X = transformed_dataset[0]
-    expected = transformed_dataset[1]
     predictions = self.clf_.predict(X)
-  
-    joined_y = [(predictions[i], expected[i]) for i in range(len(expected))]  
-    joined_y.sort()
-    joined_y = list(reversed(joined_y))
     
-    precision = 0
-    mean_average_precision = 0.0
-    cnt=0
-    for value in joined_y:
-      if cnt == k:
-        break
-      if int(value[1]) == 1:
-        precision+=1
-      cnt+=1
-      mean_average_precision += float(precision)/cnt
-    
-    return mean_average_precision/cnt
-    
+    for value in predictions:
+      print value

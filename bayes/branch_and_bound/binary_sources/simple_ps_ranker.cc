@@ -14,7 +14,6 @@
 #include "../../../bayes/branch_and_bound/inference/cp_table.h"
 #include "../../../util/file.h"
 #include "../../../util/error_output.h"
-#include "../../../util/statistics.h"
 #include <algorithm>
 #include <cstdio>
 #include <cmath>
@@ -26,21 +25,6 @@
 #include <string>
 #include <vector>
 using namespace std;
-
-typedef struct sOutput {
-  long double parent_set_score;
-  long double MAP;
-  bayes::branch_and_bound::Bitset bitset;
-  
-  sOutput() {}
-  sOutput(long double parent_set_score_, long double MAP_,
-          bayes::branch_and_bound::Bitset bitset_)
-  {
-    parent_set_score = parent_set_score_;
-    MAP = MAP_;
-    bitset = bitset_;
-  }
-} output;
 
 
 // Method that selects the instances of a given query.
@@ -61,11 +45,11 @@ vector<bayes::branch_and_bound::Instance> FilterInstances(
 }
 
 
-// This methods calculates the MAP@10 given a parent set.
-long double run(const bayes::branch_and_bound::Bitset& parent_set,
-           const vector<bayes::branch_and_bound::Instance>& instances,
-           const bayes::branch_and_bound::InvertedIndex& index,
-           std::vector<bayes::branch_and_bound::Cache>& caches)
+// This method returns a list of labels given to each document.
+std::vector<double> run(const bayes::branch_and_bound::Bitset& parent_set,
+                    const vector<bayes::branch_and_bound::Instance>& instances,
+                    const bayes::branch_and_bound::InvertedIndex& index,
+                    std::vector<bayes::branch_and_bound::Cache>& caches)
 {
   vector<bayes::branch_and_bound::Variable> variables;
   vector<bayes::branch_and_bound::inference::CPTable> cp_tables;
@@ -88,15 +72,14 @@ long double run(const bayes::branch_and_bound::Bitset& parent_set,
   // it doesn't matter the discretizer I pass in here.
   bayes::branch_and_bound::inference::Ranker ranker(graph, disc);
   
-  
-  // Keeps pairs <ranker, expectation>
-  std::vector<std::pair<double, unsigned> > v_ranker;
+  // Keeps the ranking value for each instance. 
+  std::vector<double> v_ranker;
   
   for(bayes::branch_and_bound::Instance inst : instances) {
-    v_ranker.push_back({ranker.Rank(inst), inst.values()[0]});
+    v_ranker.push_back(ranker.Rank(inst));
   }
-
-  return util::Statistics::Mapk(v_ranker, 10u);
+  
+  return v_ranker;
 }
 
 
@@ -152,34 +135,39 @@ int main(int argc, char* argv[])
                                              train_instances[0].values().size(),
                                              caches);
   
-  vector<output> v_output;
-  std::cerr << "Calculating MAP for every parent set...\n";
-  // Calculate MAP for every parent set of the label.
+  // Keeps the id of the current parent set.
+  int n_parent_set = 1;
+
+  std::cerr << "Ranking Documents...\n";
   for(auto entry : caches[0].cache())
   {
-    long double MAP = run(entry.first, test_instances, index, caches);
+    std::vector<double> v_ranker = run(entry.first, test_instances, index,
+                                      caches);
+    
+    // Printing the output...
+    std::fstream outstream;
+    stringstream filename;
+    filename << output_path+"results_";
+    filename << n_parent_set++;
+    outstream.open(filename.str(), std::fstream::out);
+    outstream << std::setprecision(6) << std::fixed;
+    
+    for(double value : v_ranker) {
+      outstream << value << std::endl;
+    }
     
     // For AIC w = 1.
     // For BIC, w = log2(n) / 2.
-    long double w = 1;
+    long double w = 1, score=0;
     if(criterion == 1) {
       w = log2(test_instances.size()) / 2.0;
     }
-    v_output.push_back(sOutput(entry.second.score(w), MAP, entry.first));
+    score = entry.second.score(w);
+    
+    outstream << entry.first.bit_string() << " " << score << std::endl;
+    outstream.close();
   }
   
-  std::cerr << "Printing output...\n";
-  std::fstream outstream;
-  outstream.open(output_path+"results", std::fstream::out);
-  outstream << std::setprecision(6) << std::fixed;
-  outstream << v_output.size() << std::endl;
-  for(output out : v_output)
-  {
-    outstream << std::fixed << out.bitset.bit_string() << " "
-              << out.parent_set_score << " "
-              << out.MAP << std::endl;
-  }
-  outstream.close();
   
   return 0; 
 }
