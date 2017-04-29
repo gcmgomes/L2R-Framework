@@ -1,5 +1,7 @@
 // This piece of code receives a test file and a cache with a bunch of
-// parent sets. Then, for each parent set it classifies all entries from the
+// parent sets. 
+
+// Then, for each parent set it classifies all entries from the
 // test file.
 //
 // The output of this script follows a format similar to the cache, but for
