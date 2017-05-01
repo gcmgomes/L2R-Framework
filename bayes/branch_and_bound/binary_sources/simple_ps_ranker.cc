@@ -14,7 +14,7 @@
 #include "../../../bayes/branch_and_bound/inference/cp_table.h"
 #include "../../../util/file.h"
 #include "../../../util/error_output.h"
-#include "ranker_helper.h"
+#include "../ranking/ranker_helper.h"
 #include <algorithm>
 #include <cstdio>
 #include <cmath>

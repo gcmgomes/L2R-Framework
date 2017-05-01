@@ -22,11 +22,11 @@ cc_binary(
 cc_binary(
   name = "simple_ps_ranker",
   srcs = ["simple_ps_ranker.cc"],
-  deps = [":ranker_helper",
-          "//base:dataset",
+  deps = ["//base:dataset",
           "//bayes/branch_and_bound:cache",
           "//bayes/branch_and_bound:graph",
           "//bayes/branch_and_bound:variable",
+          "//bayes/branch_and_bound/ranking:ranker_helper",
           "//bayes/branch_and_bound/inference:ranker",
           "//bayes/branch_and_bound/inference:cp_table",
           "//util:file",
@@ -37,28 +37,15 @@ cc_binary(
 cc_binary(
   name = "ensemble_ps_ranker",
   srcs = ["ensemble_ps_ranker.cc"],
-  deps = [":ranker_helper",
-          "//base:dataset",
-          "//bayes/branch_and_bound:cache",
-          "//bayes/branch_and_bound:graph",
-          "//bayes/branch_and_bound:variable",
-          "//bayes/branch_and_bound/inference:ranker",
-          "//bayes/branch_and_bound/inference:cp_table",
-          "//util:file",
-          "//util:error_output"],
-  linkopts = ["-lm"],
-)
-
-cc_library(
-  name = "ranker_helper",
-  srcs = ["ranker_helper.cc"],
-  hdrs = ["ranker_helper.h"],
   deps = ["//base:dataset",
           "//bayes/branch_and_bound:cache",
           "//bayes/branch_and_bound:graph",
           "//bayes/branch_and_bound:variable",
+          "//bayes/branch_and_bound/ranking:ranker_helper",
           "//bayes/branch_and_bound/inference:ranker",
-          "//bayes/branch_and_bound/inference:cp_table"],
+          "//bayes/branch_and_bound/inference:cp_table",
+          "//util:file",
+          "//util:error_output"],
   linkopts = ["-lm"],
 )
 

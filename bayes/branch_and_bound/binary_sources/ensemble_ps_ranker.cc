@@ -6,6 +6,10 @@
 //
 // The output of this script follows a format similar to the cache, but for
 // every parent set a MAP is printed as well.
+//
+// The ranking is done by an ensemble.
+// The ensemble is made by a set of parent sets;
+// For each query at the test file, an parent set is picked.
 
 
 #include "../../../base/dataset.h"
@@ -16,7 +20,7 @@
 #include "../../../bayes/branch_and_bound/inference/cp_table.h"
 #include "../../../util/file.h"
 #include "../../../util/error_output.h"
-#include "ranker_helper.h"
+#include "../ranking/ranker_helper.h"
 #include <algorithm>
 #include <cstdio>
 #include <cmath>
