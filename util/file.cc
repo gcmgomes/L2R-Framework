@@ -53,4 +53,25 @@ bool File::CreateDirectory(const char* path)
   return true;
 }
 
+bool File::DirectoryExists(const char* path)
+{
+  struct stat sb;
+  return (stat(path, &sb) == 0 && S_ISDIR(sb.st_mode));
+}
+
+bool File::DirectoryExists(const std::string& path) {
+  return File::DirectoryExists(path.c_str()); 
+}
+
+bool File::FileExists(const char* path)
+{
+  struct stat sb;
+  return (stat(path, &sb) == 0 && S_ISREG(sb.st_mode));
+}
+
+bool File::FileExists(const std::string& path) {
+  return File::FileExists(path.c_str()); 
+}
+
+
 } // namespace util

@@ -11,6 +11,10 @@ namespace util {
     public:
       static bool CreateDirectory(const std::string& path);
       static bool CreateDirectory(const char* path);
+      static bool DirectoryExists(const char* path);
+      static bool DirectoryExists(const std::string& path);
+      static bool FileExists(const char* path);
+      static bool FileExists(const std::string& path);
   };
 } // namespace util
 
