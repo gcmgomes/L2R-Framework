@@ -75,6 +75,10 @@ void Cache::OpenRepository(const std::string& file_path,
   }
 }
 
+void Cache::CloseRepository() {
+  repository_.close();
+}
+
 void Cache::Flush() {
   WriteToRepository();
 }
@@ -118,6 +122,7 @@ void Cache::LoadCaches(const std::string& directory_root_path,
     }
     caches[variable_id].OpenRepository(str.str(), std::fstream::in);
     caches[variable_id].LoadFromRepository();
+    caches[variable_id].CloseRepository();
     variable_id++;
   }
 }
@@ -165,7 +170,7 @@ void Cache::LoadFromRepository() {
     long double log_likelihood = 0;
     unsigned long long free_parameters = 0;
     repository_ >> bit_string >> log_likelihood >> free_parameters;
-    if (repository_.eof()) {
+    if (repository_.eof() || bit_string.size()==0) {
       break;
     }
     Bitset bitset = Bitset::FromBitString(bit_string);
@@ -174,5 +179,5 @@ void Cache::LoadFromRepository() {
   }
 }
 
-}  // namespce branch_and_bound
+}  // namespace branch_and_bound
 }  // namespace bayes

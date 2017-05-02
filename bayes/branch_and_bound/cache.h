@@ -82,6 +82,8 @@ class Cache {
   // cache. Set |open_mode| appropriately!
   void OpenRepository(const std::string& file_path,
                       std::ios_base::openmode open_mode);
+  
+  void CloseRepository();
 
   void Flush();
 

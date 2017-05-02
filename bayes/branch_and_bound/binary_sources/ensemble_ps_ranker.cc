@@ -31,6 +31,8 @@
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <cstring>
+#include <errno.h>
 #include <vector>
 using namespace std;
 using namespace bayes::branch_and_bound;
@@ -85,7 +87,6 @@ int main(int argc, char* argv[])
   bayes::branch_and_bound::Instance::ParseDataset(train_filename,
                                                   train_instances);
 
-  train_instances = FilterInstances(train_instances, query_number);
   bayes::branch_and_bound::InvertedIndex index(train_instances);
  
 
@@ -105,13 +106,13 @@ int main(int argc, char* argv[])
       continue;
     
     std::vector<Cache> *query_cache = new std::vector<Cache>;
-    bayes::branch_and_bound::Cache::LoadCaches(query_cache_directory.str(),
-                                            train_instances[0].values().size(),
-                                            *query_cache);
+    Cache::LoadCaches(query_cache_directory.str(),
+                      train_instances[0].values().size(),
+                      *query_cache);
     caches.push_back(query_cache);
   }
   
-  std::cerr << "Ranking Documents...\n";
+  std::cerr << "\nRanking Documents...\n";
   for(int i = 0; i < run_times; i++)
   {
     long double ensemble_score = 0;
@@ -124,10 +125,15 @@ int main(int argc, char* argv[])
                                       caches);
     
     // Printing the output...
-    std::fstream outstream;
+    std::ofstream outstream;
     stringstream filename;
-    filename << output_path+"ensemble_ps_results_" << i;
-    outstream.open(filename.str(), std::fstream::out);
+    filename << output_path+"ensemble_ps_results_";
+    filename << i;
+    std::cerr << "Output: " << filename.str() << std::endl;
+    outstream.open(filename.str(), std::ofstream::out);
+    if ( (outstream.rdstate() & std::fstream::failbit ) != 0 ){
+      util::Error::Print(strerror(errno)); 
+    }
     outstream << std::setprecision(6) << std::fixed;
     
     for(double value : v_ranker) {
