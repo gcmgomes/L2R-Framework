@@ -20,9 +20,10 @@ for i in {1..5}; do
     echo "For Criterion ${criterion}"
     for query_number in {1..50}; do
       cache_dir="/var/tmp/caches/${criterion}/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold${i}/train/"
+      query_cache_dir="/var/tmp/caches/${criterion}/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold${i}/train/query${query_number}"
       
       # If the cache for the current query number exists...
-      if [ -d "$cache_dir" ]; then
+      if [ -d "$query_cache_dir" ]; then
         in_path="datasets/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold$i"
         out_path="results/${criterion}/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold${i}/query${query_number}"
         
@@ -31,8 +32,14 @@ for i in {1..5}; do
           criterion_id=1
         fi
         
-        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times"
-        ./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times
+        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 2"
+        ./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 2
+        
+        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 0"
+        ./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 0
+        
+        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 1"
+        ./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 1
       fi
     done
     echo ""

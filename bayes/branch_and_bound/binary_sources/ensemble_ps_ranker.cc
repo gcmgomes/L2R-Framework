@@ -40,13 +40,14 @@ using namespace bayes::branch_and_bound;
 
 int main(int argc, char* argv[])
 {
-  if(argc != 8)
+  if(argc != 9)
   {
     cerr << "Usage:\n    ./" << argv[0]
          << " [train filename] [query number -> -1 if all queries]"
          << " [test filename] [label cache directory] [output path]"
          << " [criterion (0 -> AIC), (1 -> BIC)]"
-         << " [Number of times to be run]\n";
+         << " [Number of times to be run]"
+         << " [0 - Minimum PS; 1 - Maximum PS; 2 - Random PS's]\n";
     return 1;
   }
   
@@ -54,11 +55,12 @@ int main(int argc, char* argv[])
   int query_number = -1, criterion=-1;
   string test_filename = argv[3], label_cache_directory = argv[4];
   string output_path = argv[5];
-  int run_times;
+  int run_times, operation;
 
   sscanf(argv[2], "%d", &query_number);
   sscanf(argv[6], "%d", &criterion);
   sscanf(argv[7], "%d", &run_times);
+  sscanf(argv[8], "%d", &operation);
 
   if(*output_path.rbegin() != '/') {
     output_path += "/";
@@ -116,23 +118,41 @@ int main(int argc, char* argv[])
   for(int i = 0; i < run_times; i++)
   {
     long double ensemble_score = 0;
-    std::vector<bayes::branch_and_bound::Bitset> ensemble =
-                                selector.random(caches,
-                                                ensemble_score,
-                                                criterion,
-                                                test_instances.size());
+    std::vector<bayes::branch_and_bound::Bitset> ensemble;
+    
+    std::ofstream outstream;
+    stringstream filename;
+    filename << output_path+"ensemble_ps_results_";
+    
+    // Getting the ensemble...
+    switch(operation) {
+      case 0:
+        ensemble = selector.minimum(caches, ensemble_score,
+                                    criterion, test_instances.size());
+        filename << "minimum_";
+        break;
+      case 1:
+        ensemble = selector.maximum(caches, ensemble_score,
+                                    criterion, test_instances.size());
+        filename << "maximum_";
+        break;
+      default:
+        ensemble = selector.random(caches, ensemble_score,
+                                   criterion, test_instances.size());
+        filename << "random_";
+        break;
+    }
+    filename << i;
+    
+    
     std::vector<double> v_ranker = run(ensemble, test_instances, index,
                                       caches);
     
     // Printing the output...
-    std::ofstream outstream;
-    stringstream filename;
-    filename << output_path+"ensemble_ps_results_";
-    filename << i;
     std::cerr << "Output: " << filename.str() << std::endl;
     outstream.open(filename.str(), std::ofstream::out);
-    if ( (outstream.rdstate() & std::fstream::failbit ) != 0 ){
-      util::Error::Print(strerror(errno)); 
+    if ( (outstream.rdstate() & std::fstream::failbit ) != 0 ) {
+      util::Error::Print(strerror(errno));
     }
     outstream << std::setprecision(6) << std::fixed;
     
