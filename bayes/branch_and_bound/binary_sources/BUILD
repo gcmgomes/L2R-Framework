@@ -42,6 +42,7 @@ cc_binary(
           "//bayes/branch_and_bound:graph",
           "//bayes/branch_and_bound:variable",
           "//bayes/branch_and_bound/ranking:ranker_helper",
+          "//bayes/branch_and_bound/ranking:ensemble_selector",
           "//bayes/branch_and_bound/inference:ranker",
           "//bayes/branch_and_bound/inference:cp_table",
           "//util:file",

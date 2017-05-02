@@ -12,3 +12,12 @@ cc_library(
           "//bayes/branch_and_bound/inference:cp_table"],
   linkopts = ["-lm"],
 )
+
+cc_library(
+  name = "ensemble_selector",
+  srcs = ["ensemble_selector.cc"],
+  hdrs = ["ensemble_selector.h"],
+  deps = ["//bayes/branch_and_bound:cache",
+          ],
+  linkopts = ["-lm"],
+)

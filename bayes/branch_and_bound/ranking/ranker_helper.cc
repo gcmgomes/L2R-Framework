@@ -20,9 +20,9 @@ namespace branch_and_bound {
     }
     return filtered;
   }
-
-
-  // This met<Nop>right sidehod returns a list of labels given to each document.
+  
+  // Ranks using a unique parent set...
+  // This method returns a list of labels given to each document.
   std::vector<double> run(const bayes::branch_and_bound::Bitset& parent_set,
       const std::vector<bayes::branch_and_bound::Instance>& instances,
       const bayes::branch_and_bound::InvertedIndex& index,
@@ -56,6 +56,33 @@ namespace branch_and_bound {
       v_ranker.push_back(ranker.Rank(inst));
     }
 
+    return v_ranker;
+  }
+  
+  // Ranks using an ensemble of parent sets...
+  // This method returns a list of labels given to each document.
+  // The label given to each parent set is the mean of labels given per
+  // parent set.
+  std::vector<double> run(const std::vector<bayes::branch_and_bound::Bitset>&
+      parent_sets,
+      const std::vector<bayes::branch_and_bound::Instance>& instances,
+      const bayes::branch_and_bound::InvertedIndex& index,
+      std::vector<std::vector<bayes::branch_and_bound::Cache>*>& caches)
+  {
+    std::vector<double> v_ranker(instances.size(), 0);
+    if(instances.size() == 0) return v_ranker;
+    
+    for(unsigned i = 0; i < parent_sets.size(); i++) {
+      bayes::branch_and_bound::Bitset ps = parent_sets[i];
+      std::vector<double> ps_ranked = run(ps, instances, index, *caches[i]);
+      for(unsigned j = 0; j < v_ranker.size(); j++)
+        v_ranker[j] += ps_ranked[j];
+    }
+    
+    for(unsigned i = 0; i < v_ranker.size(); i++) {
+      v_ranker[i] /= instances.size();
+    }
+    
     return v_ranker;
   }
 

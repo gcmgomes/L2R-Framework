@@ -1,5 +1,5 @@
-#ifndef _ranker_helper
-#define _ranker_helper
+#ifndef _bayes_branch_and_bound_ranking_ranker_helper_
+#define _bayes_branch_and_bound_ranking_ranker_helper_
 
 #include "../../../base/dataset.h"
 #include "../../../bayes/branch_and_bound/cache.h"
@@ -25,6 +25,19 @@ namespace branch_and_bound {
       const std::vector<bayes::branch_and_bound::Instance>& instances,
       const bayes::branch_and_bound::InvertedIndex& index,
       std::vector<bayes::branch_and_bound::Cache>& caches);
+  
+  // Ranks using an ensemble of parent sets...
+  // This method returns a list of labels given to each document.
+  // The label given to each parent set is the mean of labels given per
+  // parent set.
+  // This method receives a cache for each query...
+  std::vector<double> run(const std::vector<bayes::branch_and_bound::Bitset>&
+      parent_sets,
+      const std::vector<bayes::branch_and_bound::Instance>& instances,
+      const bayes::branch_and_bound::InvertedIndex& index,
+      std::vector<std::vector<bayes::branch_and_bound::Cache>*>& caches);
+
+
 } // namespace branch_and_bound
 } // namespace bayes
 

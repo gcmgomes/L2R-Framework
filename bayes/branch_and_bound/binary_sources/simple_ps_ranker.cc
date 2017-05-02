@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
     // Printing the output...
     std::fstream outstream;
     stringstream filename;
-    filename << output_path+"results_";
+    filename << output_path+"simple_ps_results_";
     filename << n_parent_set++;
     outstream.open(filename.str(), std::fstream::out);
     outstream << std::setprecision(6) << std::fixed;

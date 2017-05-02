@@ -20,6 +20,7 @@
 #include "../../../bayes/branch_and_bound/inference/cp_table.h"
 #include "../../../util/file.h"
 #include "../../../util/error_output.h"
+#include "../ranking/ensemble_selector.h"
 #include "../ranking/ranker_helper.h"
 #include <algorithm>
 #include <cstdio>
@@ -32,16 +33,18 @@
 #include <string>
 #include <vector>
 using namespace std;
+using namespace bayes::branch_and_bound;
 
 
 int main(int argc, char* argv[])
 {
-  if(argc != 7)
+  if(argc != 8)
   {
     cerr << "Usage:\n    ./" << argv[0]
          << " [train filename] [query number -> -1 if all queries]"
          << " [test filename] [label cache directory] [output path]"
-         << " [criterion (0 -> AIC), (1 -> BIC)]\n";
+         << " [criterion (0 -> AIC), (1 -> BIC)]"
+         << " [Number of times to be run]\n";
     return 1;
   }
   
@@ -49,12 +52,18 @@ int main(int argc, char* argv[])
   int query_number = -1, criterion=-1;
   string test_filename = argv[3], label_cache_directory = argv[4];
   string output_path = argv[5];
-  
+  int run_times;
+
   sscanf(argv[2], "%d", &query_number);
   sscanf(argv[6], "%d", &criterion);
+  sscanf(argv[7], "%d", &run_times);
 
   if(*output_path.rbegin() != '/') {
     output_path += "/";
+  }
+  
+  if(*label_cache_directory.rbegin() != '/') {
+    label_cache_directory += "/";
   }
 
   // Making sure the output path exists...
@@ -67,7 +76,6 @@ int main(int argc, char* argv[])
 
   vector<bayes::branch_and_bound::Instance> test_instances;
   vector<bayes::branch_and_bound::Instance> train_instances;
-  std::vector<bayes::branch_and_bound::Cache> caches;
 
   std::cerr << "Parsing Test Dataset...\n";
   bayes::branch_and_bound::Instance::ParseDataset(test_filename,
@@ -79,27 +87,46 @@ int main(int argc, char* argv[])
 
   train_instances = FilterInstances(train_instances, query_number);
   bayes::branch_and_bound::InvertedIndex index(train_instances);
+ 
 
-
-  std::cerr << "Loading caches...\n";
-  bayes::branch_and_bound::Cache::LoadCaches(label_cache_directory,
-                                             train_instances[0].values().size(),
-                                             caches);
+  EnsembleSelector selector;
   
-  // Keeps the id of the current parent set.
-  int n_parent_set = 1;
+  std::cerr << "Loading caches...\n";
+  std::vector<std::vector<bayes::branch_and_bound::Cache>*> caches;
 
-  std::cerr << "Ranking Documents...\n";
-  for(auto entry : caches[0].cache())
+  for(unsigned query_id = 0; query_id < 50; query_id++)
   {
-    std::vector<double> v_ranker = run(entry.first, test_instances, index,
+    stringstream query_cache_directory;
+    query_cache_directory << label_cache_directory;
+    query_cache_directory << "query";
+    query_cache_directory << query_id;
+    
+    if(!util::File::DirectoryExists(query_cache_directory.str()))
+      continue;
+    
+    std::vector<Cache> *query_cache = new std::vector<Cache>;
+    bayes::branch_and_bound::Cache::LoadCaches(query_cache_directory.str(),
+                                            train_instances[0].values().size(),
+                                            *query_cache);
+    caches.push_back(query_cache);
+  }
+  
+  std::cerr << "Ranking Documents...\n";
+  for(int i = 0; i < run_times; i++)
+  {
+    long double ensemble_score = 0;
+    std::vector<bayes::branch_and_bound::Bitset> ensemble =
+                                selector.random(caches,
+                                                ensemble_score,
+                                                criterion,
+                                                test_instances.size());
+    std::vector<double> v_ranker = run(ensemble, test_instances, index,
                                       caches);
     
     // Printing the output...
     std::fstream outstream;
     stringstream filename;
-    filename << output_path+"results_";
-    filename << n_parent_set++;
+    filename << output_path+"ensemble_ps_results_" << i;
     outstream.open(filename.str(), std::fstream::out);
     outstream << std::setprecision(6) << std::fixed;
     
@@ -107,18 +134,9 @@ int main(int argc, char* argv[])
       outstream << value << std::endl;
     }
     
-    // For AIC w = 1.
-    // For BIC, w = log2(n) / 2.
-    long double w = 1, score=0;
-    if(criterion == 1) {
-      w = log2(test_instances.size()) / 2.0;
-    }
-    score = entry.second.score(w);
-    
-    outstream << entry.first.bit_string() << " " << score << std::endl;
+    outstream << ensemble_score << std::endl;
     outstream.close();
-  }
-  
+  } 
   
   return 0; 
 }
