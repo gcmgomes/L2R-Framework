@@ -1,10 +1,21 @@
 Compiling...
+.........
+____Loading package: bayes/branch_and_bound/binary_sources
+____Loading package: @bazel_tools//tools/cpp
+____Loading package: @bazel_tools//tools/jdk
+____Loading package: @local_config_xcode//
+____Loading package: @local_jdk//
 ____Loading complete.  Analyzing...
+____Loading package: util
+____Loading package: bayes/branch_and_bound/ranking
 ____Found 1 target...
-____[0 / 1] BazelWorkspaceStatusAction stable-status.txt
+____Building...
+____[0 / 14] BazelWorkspaceStatusAction stable-status.txt
+____[3 / 26] Creating runfiles tree bazel-out/local-opt/bin/bayes/branch_and_bound/binary_sources/simple_ps_ranker.runfiles
+____[15 / 26] Compiling bayes/branch_and_bound/binary_sources/simple_ps_ranker.cc
 Target //bayes/branch_and_bound/binary_sources:simple_ps_ranker up-to-date:
   bazel-bin/bayes/branch_and_bound/binary_sources/simple_ps_ranker
-____Elapsed time: 0.295s, Critical Path: 0.00s
+____Elapsed time: 3.259s, Critical Path: 1.12s
 Running...
 Running Fold 1...
 For Criterion AIC

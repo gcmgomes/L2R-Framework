@@ -35,10 +35,10 @@ for i in {1..5}; do
         echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 2"
         ./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 2
         
-        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 0"
+        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id 1 0"
         ./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 0
         
-        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 1"
+        echo "./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id 1 1"
         ./$script_path $in_path/train.txt ${query_number} $in_path/test.txt $cache_dir $out_path $criterion_id $run_times 1
       fi
     done
