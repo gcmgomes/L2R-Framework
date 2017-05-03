@@ -12899,3 +12899,4 @@ results/AIC/2003_td_dataset_discretized_20_bins_uniform/Fold3/query22/results_39
 results/AIC/2003_td_dataset_discretized_20_bins_uniform/Fold5/query2/results_133 filter=lfs diff=lfs merge=lfs -text
 results/AIC/2003_td_dataset_discretized_20_bins_uniform/Fold1/query18/results_35 filter=lfs diff=lfs merge=lfs -text
 results/AIC/2003_td_dataset_discretized_20_bins_uniform/Fold1/query6/mapzinho_9 filter=lfs diff=lfs merge=lfs -text
+results/ filter=lfs diff=lfs merge=lfs -text

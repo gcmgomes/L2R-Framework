@@ -14,7 +14,7 @@ bin_count=20
 for i in range(5):
   for criterion in ["AIC", "BIC"]:
     for query_number in range(50):
-      filename="results/" + criterion + "/2003_td_dataset_discretized_" + str(bin_count) + "_bins_uniform/Fold" + str(i) + "/query" + str(query_number) + "/map_score.txt"
+      filename="results/" + criterion + "/2003_td_dataset_discretized_" + str(bin_count) + "_bins_uniform/Fold" + str(i) + "/query" + str(query_number) + "/map_score_ensemble_ps.txt"
       
       
       if os.path.isfile(filename):
