@@ -37,11 +37,6 @@ class EnsembleSelector {
         std::vector<std::vector<Cache>*> caches,
         long double &ensemble_score, int criterion, int test_instances_size);
 
-    // Selecting a parent set per query.
-    // This method returns the k-th best ensemble.
-    std::vector<Bitset> topk(
-        std::vector<std::vector<Cache>*> caches);
-    
   private:
     
     static std::pair<Bitset, CacheEntry>

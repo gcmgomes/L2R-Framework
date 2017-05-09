@@ -12,7 +12,7 @@ echo "Running..."
 # [train filename] [query number -> -1 if all queries] [test filename] [label cache directory] [output path] [criterion (0 -> AIC), (1 -> BIC)] [Number of times to be run]
 
 bin_count=20
-run_times=5
+run_times=100
 
 for i in {1..5}; do
   echo "Running Fold $i..."
