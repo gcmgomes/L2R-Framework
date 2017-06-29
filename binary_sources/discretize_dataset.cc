@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   string output_file_path = argv[2];
 
   std::cerr << "Initializing Discretizer...\n";
-  util::Discretizer disc(util::Discretizer::Mode::UNIFORM_BIN_LENGTH, 20);
+  util::Discretizer disc(util::Discretizer::Mode::UNIFORM_BIN_LENGTH, 200);
   vector<bayes::branch_and_bound::Instance> instances;
 
   std::cerr << "Parsing Dataset...\n";

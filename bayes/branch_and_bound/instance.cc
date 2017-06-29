@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "../../util/normalizer.h"
 
 namespace bayes {
 namespace branch_and_bound {
@@ -100,6 +101,8 @@ void Instance::ParseDataset(const std::string& file_path,
   dataset->Parse(file_path);
   base::Query query(1, dataset->cbegin()->dimension_count());
   dataset->Collapse(query, false);
+  util::Normalizer norm;
+  norm.Normalize(util::Normalizer::Mode::FEATURE_SCALING, query);
   delete dataset;
   disc.Initialize(query);
   auto document = query.cbegin();
