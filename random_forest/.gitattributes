@@ -1,0 +1,17 @@
+predictions/discretized_20_bins_uniform/rf_mapzinho_AIC_2 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_BIC_3 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/fold3 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/fold4 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_AIC_1 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_BIC_2 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_BIC_4 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/fold1 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_AIC_4 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/fold2 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/fold5 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_AIC_3 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_AIC_5 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_BIC_1 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/rf_mapzinho_BIC_5 filter=lfs diff=lfs merge=lfs -text
+predictions/discretized_20_bins_uniform/*/* filter=lfs diff=lfs merge=lfs -text
