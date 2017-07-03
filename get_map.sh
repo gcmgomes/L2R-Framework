@@ -7,8 +7,8 @@ for i in {1..5}; do
   for criterion in AIC BIC; do
     in_path="datasets/2003_td_dataset/Fold$i"
     rf_path="random_forest/predictions/discretized_20_bins_uniform"
-    perl Eval-Score-3.0.pl $in_path/test.txt ${rf_path}/fold${i} ${rf_path}/rf_mapzinho 0
-    echo "Fold$i $(grep MAP ${rf_path}/rf_mapzinho)"
+    perl Eval-Score-3.0.pl $in_path/test.txt ${rf_path}/fold${i} ${rf_path}/rf_mapzinho_${criterion}_${i} 0
+    echo "Fold$i $(grep MAP ${rf_path}/rf_mapzinho_${criterion}_${i})"
     
     for query_number in {1..50}; do
       cache_dir="/var/tmp/caches/${criterion}/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold${i}/train/query${query_number}/"

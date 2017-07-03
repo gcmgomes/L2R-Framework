@@ -46,7 +46,8 @@ cc_library(
   hdrs = ["instance.h"],
   srcs = ["instance.cc"],
   deps = ["//base:dataset",
-          "//util:discretizer"],
+          "//util:discretizer",
+          "//util:normalizer"],
 )
 
 cc_library(
