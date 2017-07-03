@@ -160,6 +160,9 @@ int main(int argc, char* argv[])
       outstream << value << std::endl;
     }
     
+    
+    // TODO: On this line, print the position of the position
+    // of the parent set as well.
     outstream << ensemble_score << std::endl;
     outstream.close();
   } 

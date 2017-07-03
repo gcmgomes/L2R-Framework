@@ -22,15 +22,7 @@ namespace branch_and_bound {
     return this->selector(caches, ensemble_score, criterion,
                           test_instances_size, EnsembleSelector::getRandomParentSet);
   }
-
-  // Selecting a parent set per query.
-  // This method returns the k-th best ensemble.
-  std::vector<bayes::branch_and_bound::Bitset> EnsembleSelector::topk(
-      std::vector<std::vector<bayes::branch_and_bound::Cache>*> caches) {
-    // TODO: Throw an YetToBeImplemented Exception.
-    return std::vector<bayes::branch_and_bound::Bitset>();
-  }
-
+  
   // Returns the worst ensemble of parent sets.
   // Returns the ensemble with the lowest sum of scores.
   std::vector<bayes::branch_and_bound::Bitset> EnsembleSelector::minimum(

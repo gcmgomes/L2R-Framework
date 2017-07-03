@@ -53,20 +53,17 @@ for i in {1..5}; do
             perl Eval-Score-3.0.pl $in_path/test.txt tmp_result ${out_path}/mapzinho_ensemble_${ps} 0
             echo $(grep MAP ${out_path}/mapzinho_ensemble_${ps} | grep -o -E "[0-9]\.[0-9]+") $(tail -n 1 $map_output) >> ${out_path}/map_score_ensemble_ps.txt
           else
+            map_output="${out_path}/ensemble_ps_results_minimum_0"
+            perl Eval-Score-3.0.pl $in_path/test.txt tmp_result ${out_path}/mapzinho_minimum_0 0
+            echo $(grep MAP ${out_path}/mapzinho_minimum_0 | grep -o -E "[0-9]\.[0-9]+") $(tail -n 1 $map_output) >> ${out_path}/map_score_ensemble_ps.txt
+
+
+            map_output="${out_path}/ensemble_ps_results_maximum_0"
+            perl Eval-Score-3.0.pl $in_path/test.txt tmp_result ${out_path}/mapzinho_maximum_0 0
+            echo $(grep MAP ${out_path}/mapzinho_maximum_0 | grep -o -E "[0-9]\.[0-9]+") $(tail -n 1 $map_output) >> ${out_path}/map_score_ensemble_ps.txt
             break
           fi
-          
-          
-          map_output="${out_path}/ensemble_ps_results_minimum_0"
-          perl Eval-Score-3.0.pl $in_path/test.txt tmp_result ${out_path}/mapzinho_minimum_0 0
-          echo $(grep MAP ${out_path}/mapzinho_minimum_0 | grep -o -E "[0-9]\.[0-9]+") $(tail -n 1 $map_output) >> ${out_path}/map_score_ensemble_ps.txt
-
-
-          map_output="${out_path}/ensemble_ps_results_maximum_0"
-          perl Eval-Score-3.0.pl $in_path/test.txt tmp_result ${out_path}/mapzinho_maximum_0 0
-          echo $(grep MAP ${out_path}/mapzinho_maximum_0 | grep -o -E "[0-9]\.[0-9]+") $(tail -n 1 $map_output) >> ${out_path}/map_score_ensemble_ps.txt
         done
-        
       fi
     done
   done
