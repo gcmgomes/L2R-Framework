@@ -105,11 +105,14 @@ int main(int argc, char** argv) {
     
     // Building the cache just for the label
     unsigned id = 0;
-    bayes::branch_and_bound::CacheBuilder builder(&variables[id],
-        &external_queues[id]);
-    builder.Build(index, variables);
-    bayes::branch_and_bound::ExternalQueue::
-      ClearExternalQueue(queue_directory, id);
+    while(id < variables.size()) {
+      bayes::branch_and_bound::CacheBuilder builder(&variables[id],
+          &external_queues[id]);
+      builder.Build(index, variables);
+      bayes::branch_and_bound::ExternalQueue::
+        ClearExternalQueue(queue_directory, id);
+      id++;
+    }
   }
 
   return 0;

@@ -37,15 +37,22 @@ def main():
 
   for line in all_lines:
     splitted = line.split()
+    printed = False
     for cell in splitted:
       if cell.find(':') != -1:
         if cell.find('qid') == -1:
-          out.write(cell[cell.find(':')+1:] + ' ')
+          if printed:
+            out.write(' ')
+          out.write(cell[cell.find(':')+1:])
+          printed=True
       elif cell.find('#') != -1:
         # Ignore the document id.
         break
       else:
-        out.write(cell + ' ')
+        if printed:
+          out.write(' ')
+        out.write(cell)
+        printed=True
     out.write('\n')
   
   f.close()
