@@ -43,7 +43,7 @@ void CacheBuilder::Build(const InvertedIndex& index,
   if (variable_->categories().size() < 2) {
     return;
   }
-  std::cout << "Variable: " << variable_->variable_id() << std::endl;
+  //std::cout << "Variable: " << variable_->variable_id() << std::endl;
   unsigned long long evaluated = 0, discarded = 0;
   long double w = cache_->w();
   Bitset& parent_set = variable_->mutable_parent_set() =
@@ -55,12 +55,12 @@ void CacheBuilder::Build(const InvertedIndex& index,
   while (!external_queue_->empty()) {
     parent_set = external_queue_->front();
     external_queue_->pop();
-    std::cout << "\rQueue size: " << external_queue_->size()
-              << " Evaluated: " << evaluated++ << " Discarded: " << discarded
-              << " Cache size: " << cache_->cache().size()
-              << " Hash_size: " << best_subset_entries.size()
-              << " Set_size: " << parent_set.high_bits().size()
-              << "                ";
+    //std::cout << "\rQueue size: " << external_queue_->size()
+    //          << " Evaluated: " << evaluated++ << " Discarded: " << discarded
+    //          << " Cache size: " << cache_->cache().size()
+    //          << " Hash_size: " << best_subset_entries.size()
+    //          << " Set_size: " << parent_set.high_bits().size()
+    //          << "                ";
     bool is_empty_set = parent_set.high_bits().empty();
     unsigned long long free_parameters = variable_->FreeParameters(variables);
     auto& subset_entry = best_subset_entries[parent_set].second;
@@ -91,7 +91,7 @@ void CacheBuilder::Build(const InvertedIndex& index,
     }
     best_subset_entries.erase(parent_set);
   }
-  std::cout << std::endl;
+  //std::cout << std::endl;
   std::cout.flush();
   cache_->Flush();
 }

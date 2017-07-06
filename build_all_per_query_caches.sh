@@ -8,9 +8,9 @@ bazel build bayes/branch_and_bound/binary_sources:per_query_cache_builder -c opt
 echo "Running..."
 for bin_count in {30,20,10}; do
   for i in {1..5}; do
-    in_path="datasets/2003_td_dataset_discretized_${bin_count}_bins_tube/Fold$i"
-    out_aic_path="/var/tmp/caches/AIC/2003_td_dataset_discretized_${bin_count}_bins_tube/Fold$i"
-    out_bic_path="/var/tmp/caches/BIC/2003_td_dataset_discretized_${bin_count}_bins_tube/Fold$i"
+    in_path="datasets/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold$i"
+    out_aic_path="/var/tmp/caches/AIC/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold$i"
+    out_bic_path="/var/tmp/caches/BIC/2003_td_dataset_discretized_${bin_count}_bins_uniform/Fold$i"
     queue_tmp_aic_path="/var/tmp/queue_tmp/AIC/Fold$i"
     queue_tmp_bic_path="/var/tmp/queue_tmp/BIC/Fold$i"
     
