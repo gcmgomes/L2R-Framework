@@ -1,5 +1,7 @@
 #!/bin/bash
 
+bazel build binary_sources:discretize_dataset -c opt
+
 script_path="bazel-bin/binary_sources/discretize_dataset"
 
 echo "Running..."
